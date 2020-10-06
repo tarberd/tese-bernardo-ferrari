@@ -223,3 +223,11 @@ epsilon, foo: () -> A, statement(fn goo(): i32 => 5; epsilon) |- goo(): i32     
 ------------------------------------------------------------------------------------------------------------------------------------------------------------ (push next statement to context)
 epsilon |- (fn foo(): i32 => goo(); let x: i32 = 5; fn goo(): i32 => 5; epsilon): valid
 ```
+
+# Dificuldades:
+
+* Fazer o contexto não precisar de forward declarations em uma statement list;
+* Diferenciar uma statement list de uma expression block de uma statement list de um Module;
+* Um simbolo let x de um modulo o faz accessível em todo o modulo enquanto dentro
+  de um expression block ele não deveria poder ser capturado, somente em clojures;
+
