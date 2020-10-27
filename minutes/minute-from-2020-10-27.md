@@ -2,7 +2,7 @@
 
 ## What have I done: 
 
-1:15 hrs: Reading TaPL book ch. 3:
+3:00 hrs: Reading TaPL book ch. 3:
 
 1. The name of the game is operational semantics;
 2. Meta-variables are the names on the left side of productions and generate sets;
