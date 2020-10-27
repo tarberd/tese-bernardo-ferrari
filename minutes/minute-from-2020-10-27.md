@@ -1,13 +1,13 @@
-# Minute from 2020-10-22
+# Minute from 2020-10-27
 
 ## What have I done: 
 
 1:15 hrs: Reading TaPL book ch. 3:
 
 1. The name of the game is operational semantics;
-2. metavariables are the names on the left side of productions and generate sets;
-3. rules are meta rules;
-4. gramar relates to the AST and not to the sintax.
+2. Meta-variables are the names on the left side of productions and generate sets;
+3. Rules are meta rules;
+4. Grammar relates to the AST and not to the syntax.
 
 3:00 hrs: Expanded the operational semantics to include:
 
@@ -151,7 +151,7 @@ f: fn(A1, A2, ... An) -> B in Γ
 
 ```
 Γ |- s validF_block e T
--------------------------------------------------- (expression block)
+-------------------------------------------------- (start block double pass)
 Γ |- { s e } : T
 
 Γ |- e: T
@@ -228,7 +228,7 @@ expected_return T in Γ
 
 ```
 Γ |- s forward s
----------------------- (kickstarts double pass)
+---------------------- (kick-starts double pass)
 Γ |- s validF 
 
 Γ |- s valid
@@ -275,10 +275,8 @@ expected_return T in Γ
 ----------------------------------------------------- (extern-def)
 Γ |- (extern fn x(a1: T1, ... an: Tn): T; next) valid
 
-Γ |- next valid
-Γ |- e : T
-T in Type
------------------------- (expression statement)
+Γ |- next valid  Γ |- e : T
+---------------------------- (expression statement)
 Γ |- (e; next) valid
 
 Γ |- next valid
