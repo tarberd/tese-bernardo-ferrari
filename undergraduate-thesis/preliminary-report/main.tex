@@ -1,0 +1,280 @@
+%dica: use a opção oneside se houver um limite (e.g., 20) de páginas
+\documentclass[
+  english,
+  lmodern,
+  oneside
+]{ufsc-thesis-rn46-2019/ufsc-thesis-rn46-2019}
+
+\usepackage[T1]{fontenc} % fontes
+\usepackage[utf8]{inputenc} % UTF-8
+\usepackage{lipsum} % Gerador de texto
+\usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Configurações da classe (dados do trabalho)                  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Preâmbulo
+\titulo{Template \LaTeX{} seguindo a RN 46/2019/CPG da UFSC}
+\autor{Bernardo Ferrari Mendonça}
+\data{3 de Dezembro de 2020}
+\instituicao{Universidade Federal de Santa Catarina}
+\centro{Centro Tecnológico}
+\local{Florianópolis}
+\programa{Programa de Pós-Graduação em Ciência da Computação}
+\tcc{}
+\curso{Ciência da Computação}
+\departamento{Departamento de Informática e Estatística}
+\titulode{Bacharel em Ciência da Computação}
+
+\orientador{Prof.\ Alcides Fonseca, Dr.}
+\coorientador{Prof.\ Rafael de Santiago, Dr.}
+\afiliacaoorientador{Universidade de Lisboa}
+\afiliacaocoorientador{Universidade Federal de Santa Catarina}
+
+\membrabanca{Prof\textsuperscript{a}.\ Jerusa Marchi, Dr.}{Universidade Federal de Santa Catarina}
+
+\coordenador{Prof.\ José Francisco Fletes, Dr}
+
+\begin{document}
+
+\pretextual{}
+\imprimircapa{}
+\imprimirfolhaderosto*
+\protect%\incluirfichacatalografica{ficha.pdf}
+\imprimirfolhadecertificacao{}
+
+
+
+\begin{dedicatoria}
+  TODO:\@ dedicatoria
+\end{dedicatoria}
+
+\begin{agradecimentos}
+  TODO:\@ agradecimentos
+\end{agradecimentos}
+
+\begin{epigrafe}
+  TODO:\@ epigrafe
+\end{epigrafe}
+
+
+% 150 a 500 palavras.
+% Mantatorio ser em Português, usando a voz ativa na terceira pessoa.
+% Contexto; Problema; Estado da Arte; Solução proposta; Resultados.
+\begin{resumo}[Resumo]
+Compiladores são os programas de computadores que fazem o papel de tradutor entre as linguagens de programação e as linguagens de maquina.
+Eles recebem como entrada um texto escrito em uma linguagem fonte, chamado de programa fonte, e produzem como saída um texto escrito em uma linguagem de maquina alvo, chamado de programa alvo.
+O processo de tradução executado por um compilador pode ser separado em duas grandes etapas: a etapa de analise e a etapa de síntese.
+Durante a etapa de analise, um sistema de tipos pode ser utilizado.
+O sistema de tipos classificara as diferentes sentenças de um programa quanto aos tipos dos valores que as sentenças computam com o objetivo de provar a ausencia de determinados comportamentos de programas do programa fonte.
+Um dos possiveis sistemas de tipos é chamado de sistema de tipos refinados, onde é anexado os tipos dos valores de um programa predicados lógicos que garantem propriedades extras.
+Entre as etapas de analise e síntese pode se fazer o uso de uma linguagem intermediária.
+O uso de uma linguagem intermediária é especialmente vantajoso pois, um compilador para a linguagem $i$ e maquina $j$ pode ser construído combinando um \textit{front end} para $i$ e um \textit{back end} para $j$.
+O projeto LLVM é uma biblioteca de funcionalidades para otimização de código intermediário e geração de código alvo.
+Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
+O objetivo do trabalho consiste em propor o projeto de uma linguagem de programação que utilize um sistema de refinamento de tipos e a confecção de seu compilador utilizando o ecossistema de ferramentas LLVM\@.
+É esperada que a ferramenta consiga fazer a analise do código fonte utilizando o sistema de tipos refinados proposto e sua tradução para código de maquina alvo.
+
+\vspace{\onelineskip}
+\noindent
+\textbf{Palavras-chave}: linguagem de programação\@. representação intermediária de código\@. compilador\@. LLVM\@. LLVM IR\@.
+\end{resumo}
+
+% \begin{resumo}[Resumo Estendido]
+%   \section*{Introdução}
+%   A hifenização é alterada para \texttt{brazil}, mesmo para documentos em inglês. Descrever brevemente esses itens exigidos pela BU. Como a RN 95/CUn/2017 é mais recente e impõe outras regras a revelia de regimentos e regulamentos, é mais sábio obedecê-la. Lembre que esse resumo estendido deve term entre 2 e 5 páginas.
+%
+%   \lipsum[1]
+%   \section*{Objetivos}
+%   \lipsum[2]
+%   \section*{Metodologia}
+%   \lipsum[3]
+%   \section*{Resultados e Discussão}
+%   \lipsum[4]
+%   \section*{Considerações Finais}
+%   \lipsum[5]
+%
+%   \vspace{\baselineskip}  % Atenção! manter igual ao resumo
+%   \textbf{Palavras-chave:} Palavra-chave. Outra Palavra-chave composta. Bla.
+% \end{resumo}
+
+
+\begin{abstract}
+  TODO:\@ abstract
+  Enlish version of the plain ``resumo'' above. Done with environment
+  \texttt{abstract}. Hyphenization is automatically changed to english.
+
+  \vspace{\baselineskip}
+  \textbf{Keywords:} Keyword. Another Compound Keyword. Bla.
+\end{abstract}
+
+\listoffigures*
+
+\listofalgorithms*
+
+\begin{listadesimbolos}
+  % $\gets$   & Atribuição \\
+  % $\exists$   & Quantificação existencial \\
+  % $\rightarrow$   & Implicação \\
+  % $\wedge$   & E lógico \\
+  % $\vee$   & Ou lógico \\
+  % $\neg$   & Negação lógica \\
+  % $\mapsto$   & Mapeia para \\
+  % $\sqsubseteq$   & Subclasse (em ontologias) \\
+  % $\subseteq$   & Subconjunto: $\forall x\;.\; x \in A \rightarrow x \in B$ \\
+  % $\langle\ldots\rangle$ & Tupla \\
+  % $\forall$   & Quantificação universal \\
+  % mmmmm & Nenhum sentido, apenas estou aqui para demonstrar a largura máxima dessas colunas. Ao abrir o ambiente \texttt{listadesimbolos}, pode-se fornecer um argumento opcional indicando a largura da coluna da esquerda (o default é de 5em): \texttt{\textbackslash{}begin\{listadesimbolos\}[2cm] .... \textbackslash{}end\{listadesimbolos\}} \\
+\end{listadesimbolos}
+
+\tableofcontents*%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Corpo do texto                                               %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textual{}
+
+\chapter{Introdução}~\label{ch:intro}
+
+\section{Autores, suporte e atualizações}
+
+Essa classe foi escrita inicialmente por dois alunos do
+\href{http://ppgcc.posgrad.ufsc.br/}{PPGCC da UFSC}:
+\href{mailto:alexishuf@gmail.com}{Alexis Huf} e
+\href{mailto:gustavo.zambonin@posgrad.ufsc.br}{Gustavo Zambonin}.
+Há o risco de esse arquivo não ser atualizado a cada \textit{pull request},
+então confira a lista de mártires no GitHub. Essa classe é mantida no
+repositório
+\href{https://github.com/alexishuf/ufsc-thesis-rn46-2019/}{alexishuf/ufsc-thesis-rn46-2019}.
+Atualizações podem ser encontradas nesse repositório. \textit{Issues} e PRs são
+bem vindos.
+
+\section{Exemplos de formatação}
+\label{sec:ex}
+
+Essa frase é verdadeira pois tem um \texttt{cite} no final \cite{turing1937}. Essa
+é mais verdadeira ainda pois tem um  \texttt{cite} duplo no
+final \cite{turing1937,dijkstra1968}. Já esta frase inofensiva usa
+ \texttt{citeonline} para citar \citeonline{dijkstra1968}
+nominalmente. O trabalho de \citeonline{diffie1976} foi altamente influente
+\cite{diffie1976}. Essa outra frase cita o trabalho que \citeonline{Saleem2018}
+escreveu com outros 4 autores. Para algo completamente novo, veja um footnote
+com url\footnote{\url{http://example.org/}}
+
+Mais algumas citações de tipos específicos de documentos:
+\begin{itemize}
+\item @inproceedings: \citeonline{Ullman1989magic}, jabuti
+  \cite{Ullman1989magic};
+\item @article: \citeonline{Distefano2019}, framboesa \cite{Distefano2019};
+\item @book: \citeonline{Abiteboul1995}, goiaba \cite{Abiteboul1995};
+\item @incollection: \citeonline{Forgy1989}, melancia \cite{Forgy1989};
+\item @techreport: \citeonline{rdf11}, figo \cite{rdf11}.
+\end{itemize}
+
+A lista abaixo mostra o efeito de  \texttt{autoref} com capítulos e (sub)seções.
+
+\begin{itemize}
+\item Há coisas no \autoref{ch:intro};
+\item Há coisas na \autoref{sec:stuff};
+\item Há coisas na \autoref{sec:other};
+\item Há coisas na \autoref{sec:yet-another} (\abnTeX{} come um ``sub'' intencionalmente).
+\end{itemize}
+
+Citações são feitas com o ambiente \texttt{citacao}. A BU faz
+as mesmas exigências que já são o \textit{default} na classe
+\abnTeX\footnote{O alinhamento e o filete de notas de rodapé também
+não necessitou de modificações, além do tamaho da fonte. Essa frase
+não serve a nenhum propósito além de causar uma quebra de linha para
+que o alinhamento seja avaliado.}.
+
+\begin{citacao}
+  A elaboração do trabalho de conclusão de curso em nível de mestrado
+  e de doutorado na UFSC deverá atender aos critérios e procedimentos
+  estabelecidos nesta resolução normativa e em diretrizes
+  estabelecidas pela Pró-Reitoria de Pós-Graduação e pelos Programas
+  de Pós-Graduação.
+\end{citacao}
+
+Atenção! O template da BU deixa figuras e tabelas alinhadas à esquerda. No
+entanto, o tutorial de Word disponibilizado pela BU diz que legendas e
+\emph{captions} devem respeitar o ``alinhamento da ilustração'' (e apresenta
+uma ilustração alinhada à esquerda). O tutorial explicando a ABNT mostra uma
+figura centralizada com legendas alinhadas a esquerda e com recuo até o começo
+da figura. O autor do \texttt{.cls} se exime de qualquer culpa.
+Veja na \autoref{fig:logo} o efeito de se usar \texttt{centering}.
+
+\begin{figure}[t]
+  \centering
+  \caption{Logotipo da Universidade Federal de Santa Catarina.}
+  \label{fig:logo}
+
+  \includegraphics[width=.2\linewidth]{\jobname-logo.pdf}
+  \fonte{O autor.}
+\end{figure}
+
+Algoritmos podem ser incluidos no ambiente \texttt{algorithm}. Atenção! Esse
+ambiente é apenas uma classe de \emph{float}. Logo esse ambiente apenas oferece
+a funcionalidade de colocar legendas e numerar algoritmos que serão exibidos em
+uma lista dedicada com \texttt{\textbackslash{}listofalgorithms*}. Para
+efetivamente escrever os lagoritmos considere pacotes como
+\texttt{algorithmicx}, \texttt{algorithm2e} ou \texttt{minted}.
+
+\begin{algorithm}
+  \centering
+  \caption{Exemplo sem sentido algum.}
+
+  \fbox{
+    \parbox{.6\textwidth}{
+      \begin{itemize}
+      \item Não use itemize como algoritmo!
+      \item Escolha um pacote como \texttt{algorithmicx}, \texttt{algorithm2e} ou \texttt{minted}.
+      \end{itemize}
+    }
+  }
+
+  \fonte{O autor.}
+\end{algorithm}
+
+\subsection{Coisas}
+\label{sec:stuff}
+Imagine alguma afirmação de alto valor científico aqui.
+
+\subsubsection{Outras coisas mais}
+\label{sec:other}
+Estudos demonstram que essa afirmação é falsa.
+
+\subsubsubsection{Ainda outras coisas mais}
+\label{sec:yet-another}
+Fazer a grama verde, como? Novamente o jogo foi perdido. Opcionalmente, tudo
+pode ser opcional. Recursos foram gastos com isso. Descubra a verdade nas
+capitalizadas.
+% Fiquei 15 minutos mais próximo da morte ao escrever isso. Você pode chegar
+% ainda mais perto se tentar entender.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Elementos pós-textuais                                       %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\postextual
+\bibliography{example}
+
+\apendices
+
+\chapter{Exemplo de Apêndice}~\label{ch:apendice}
+
+% Uso de \cite em apêndice/anexo como se fossem antes do \bibliography{}.  NBR
+% 14724 e NBR 6023, assim como os documentos da BU não especificam nada sobre
+% citações dentro de apêndices/anexos. No entanto, em email trocado com a BU, a
+% orientação foi de usar \cite{} normalmente e deixar que as referências sejam
+% listadas na única bibliografia do documento, mesmo que esta esteja antes dos
+% apêndices. A argumentação é que apêndices e anexos são numerados e fazem parte
+% do documento, logo suas referências devem ser listadas como referências do
+% documento. Além disso as normas não prevem segmentar as referências por
+% capítulos.
+~\cite{turing1937} \lipsum[1]
+
+
+\end{document}
+

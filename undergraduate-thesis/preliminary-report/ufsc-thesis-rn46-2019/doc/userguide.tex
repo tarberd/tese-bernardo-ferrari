@@ -1,0 +1,877 @@
+\documentclass[embeddedlogo]{../ufsc-thesis-rn46-2019}
+
+\usepackage[T1]{fontenc} % fontes
+\usepackage[utf8]{inputenc} % UTF-8
+\usepackage{lipsum} % Gerador de texto
+\usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
+
+% Usado para mostrar código
+\usepackage{minted}
+\newmintinline[mt]{latex}{fontsize=\normalsize}
+\newmintinline[mft]{latex}{fontsize=\footnotesize}
+\setminted{fontsize=\tiny,linenos,xleftmargin=2em}
+\setmintedinline{breaklines,breakbytokenanywhere}
+
+% Usado para mostrar comandos latex nesse guia:
+\newcommand{\lacmd}[1]{\texttt{\textbackslash{}#1}}
+\newcommand{\laenv}[1]{\texttt{\textbackslash{}begin\{#1\}...\textbackslash{}end\{#1\}}}
+\newcommand{\laenvi}[2]{\texttt{\textbackslash{}begin\{#1\}[#2]...\textbackslash{}end\{#1\}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Configurações da classe (dados do trabalho)                  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Informações para capa e folha de rosto/certificacao
+
+% Caso o título contenha alguma porção LaTeX ilegível, defina um título
+% alternativo opcional com []'s para ser usado no campo Title do PDF
+% IMPORTANTE: Os títulos deveriam ser iguais. Apenas use um título
+% alternativo se o título não puder ser expresso com letras e números
+\titulo[Template \LaTeX{} com metadados]%
+       {Template \LaTeX{} seguindo a RN 46/2019/CPG da UFSC}
+
+\autor{Omar Ravenhurst}
+\data{1 de agosto de 2019} % ou \today
+\instituicao{Universidade Federal de Santa Catarina}
+\centro{Centro Tecnológico}
+\local{Florianópolis} % Apenas cidade! Sem estado
+\programa{Programa de Pós-Graduação em Ciência da Computação}
+% Os dois próximos itens são usados para gerar o \preambulo
+\tese % ou \dissertacao ou \tcc
+\titulode{doutor em Ciência da Computação}
+
+%%% Atenção! No caso de TCC, além de usar \tcc, outros comandos devem ser fornecidos:
+%%%
+% \tcc
+% \departamento{Departamento de Informática e Estatística}
+% \curso{Ciência da Computação}
+% \titulode{Bacharel em Ciência da Computação}
+% %% Para TCCs, orientadores e coorientadores podem ser externos, logo a
+% %% BU exige que sua afiliação seja explicitada. Por padrão, assume-se
+% %% UFSC. Você pode alterar a afiliação com os comandos abaixo:
+% \afiliacaoorientador{Universidade Federal de Santa Catarina}
+% \afiliacaocoorientador{Universidade Federal da Terra de Ninguém}
+
+% Orientador, coorientador, membros da banca e coordenador
+% As regras da BU agora exigem que Dr. apareça **depois** do nome
+% Dica: para gerar Profᵃ. use Prof\textsuperscript{a}.
+% Dica 2: para feminino use \orientadora e \coorientadora
+\orientador{Prof. Ben Trovato, Dr.}
+\coorientador{Prof. Lars Thørväld, Dr.}
+\membrabanca{Prof\textsuperscript{a}. Valerie Béranger, Dr.}{Universidade Federal de Santa Catarina}
+\membrobanca{Prof. Mordecai Malignatus, Dr.}{Universidade Federal de Santa Catarina}
+\membrobanca{Prof. Huifen Chan, Dr.}{Universidade Federal da Terra de Ninguém}
+% Dica: se feminino, \coordenadora
+\coordenador{Prof. Charles Palmer, Dr}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Principais elementos pré-textuais                            %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Inicia parte pré-textual do documento capa, folha de rosto, folha de
+% aprovação, aprovação, resumo, lista de tabelas, lista de figuras, etc.
+\pretextual%
+\imprimircapa%
+\imprimirfolhaderosto*
+% Atenção! \cleardoublepages são inseridos automaticamente
+% Atenção! esse \protect é importante
+\protect\incluirfichacatalografica{ficha.pdf}
+\imprimirfolhadecertificacao
+
+% Listas de "coisas". O * no final faz com que as listas não sejam 
+% incluídas como entratas do sumário (\tableofcontents)
+
+% \listoftables*
+% \listofalgorithms*
+% \listoffigures*
+% \tableofcontents*
+
+\begin{dedicatoria}
+  Este trabalho é dedicado à wikipedia e ao stackoverflow. 
+\end{dedicatoria}
+
+\begin{agradecimentos}
+  O presente trabalho foi realizado com apoio da Coordenação de Aperfeiçoamento de Pessoal de Nível Superior -- Brasil (CAPES) -- Código de Financiamento 001.
+\end{agradecimentos}
+
+\begin{epigrafe}
+  For a number of years I have been familiar with the observation that the quality of programmers is a decreasing function of the density of go to statements in the programs they produce \\
+  \cite{dijkstra1968}
+\end{epigrafe}
+
+
+\begin{resumo}[Resumo]
+  Aqui deve ser inserido um resumo de 150 a 500 palavras (limitação de tamanho dada pela BU). A linguagem deve ser português e a hifenização já foi alterada. O resumo em português deve preceder o resumo em inglês, mesmo que o trabalho seja escrito em inglês. A BU também diz que deve ser usada a voz ativa e o discurso deve ser na 3ª pessoa. A estrutura do resumo pode ser similar a estrutura usada em artigos: Contexto -- Problema -- Estado da arte -- Solução proposta  -- Resultados.
+
+  % Atenção! a BU exige separação através de ponto (.). Ela recomanda de 3 a 5 keywords
+  \vspace{\baselineskip} 
+  \textbf{Palavras-chave:} Palavra-chave. Ponto como separador. Bla.
+\end{resumo}
+
+
+\begin{resumo}[Resumo Estendido]
+  \section*{Introdução} 
+  A hifenização é alterada para \texttt{brazil}, mesmo para documentos em inglês. Descrever brevemente esses itens exigidos pela BU. Como a RN 95/CUn/2017 é mais recente e impõe outras regras a revelia de regimentos e regulamentos, é mais sábio obedecê-la. Lembre que esse resumo estendido deve term entre 2 e 5 páginas.
+  
+  \lipsum[1]
+  \section*{Objetivos} 
+  \lipsum[2]
+  \section*{Metodologia} 
+  \lipsum[3]
+  \section*{Resultados e Discussão} 
+  \lipsum[4]
+  \section*{Considerações Finais} 
+  \lipsum[5]
+
+  \vspace{\baselineskip}  % Atenção! manter igual ao resumo
+  \textbf{Palavras-chave:} Palavra-chave. Outra Palavra-chave composta. Bla.
+\end{resumo}
+
+
+\begin{abstract}
+  Enlish version of the plain ``resumo'' above. Done with environment
+  \texttt{abstract}. Hyphenization is automatically changed to english.
+
+  \vspace{\baselineskip} 
+  \textbf{Keywords:} Keyword. Another Compound Keyword. Bla.
+\end{abstract}
+
+\listoffigures*  % O * evita que apareça no sumário
+
+\begin{listadesimbolos}
+  $\gets$   & Atribuição \\
+  $\exists$   & Quantificação existencial \\
+  $\rightarrow$   & Implicação \\
+  $\wedge$   & E lógico \\
+  $\vee$   & Ou lógico \\
+  $\neg$   & Negação lógica \\
+  $\mapsto$   & Mapeia para \\
+  $\sqsubseteq$   & Subclasse (em ontologias) \\
+  $\subseteq$   & Subconjunto: $\forall x\;.\; x \in A \rightarrow x \in B$ \\
+  $\langle\ldots\rangle$ & Tupla \\
+  $\forall$   & Quantificação universal \\
+  mmmmm & Nenhum sentido, apenas estou aqui para demonstrar a largura máxima dessas colunas. Ao abrir o ambiente \texttt{listadesimbolos}, pode-se fornecer um argumento opcional indicando a largura da coluna da esquerda (o default é de 5em): \texttt{\textbackslash{}begin\{listadesimbolos\}[2cm] .... \textbackslash{}end\{listadesimbolos\}} \\
+  $\alpha$   & Alpha \\
+  $\beta$   & Beta \\
+  $\gamma$   & Gamma \\
+  $\delta$   & Delta \\
+  $\epsilon$   & Epsilon \\
+  $\zeta$   & Zeta \\
+  $\eta$   & Eta \\
+  $\theta$   & Theta \\
+  $\iota$   & Iota \\
+  $\kappa$   & Kappa \\
+  $\lambda$   & Lambda \\
+  $\mu$   & Mu \\
+  $\nu$   & Nu \\
+  $\xi$   & Xi \\
+  $\pi$   & Pi \\
+  $\rho$   & Rho \\
+  $\sigma$   & Sigma \\
+  $\tau$   & Tau \\
+  $\upsilon$   & Upsilon \\
+  $\phi$   & Phi \\
+  $\bowtie$  & Apertem os cintos, uma quebra de página se aproxima! \\
+  $\oslash$   & Não use exclamações em lista de símbolos! \\
+  $\varphi$   & Varphi \\
+  $\chi$   & Chi \\
+  $\psi$   & Psi \\
+  $\omega$   & Omega \\
+
+\end{listadesimbolos}
+
+\tableofcontents*%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Corpo do texto                                               %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textual%
+
+\chapter{Introdução}
+
+Bem-vindo ao guia de usuário da classe \texttt{ufsc-thesis-rn46-2019}. Essa
+classe é um conjunto de customizações aplicadas à classe
+\href{https://ctan.org/pkg/abntex2}{\abnTeX} e ao pacote \texttt{abntex2cite}.
+O objetivo da classe \texttt{ufsc-thesis-rn46-2019} é simplório: adequar o
+\abnTeX{} às \href{http://portal.bu.ufsc.br/normalizacao/}{normas emitidas pela
+Biblioteca Universitária da UFSC} em sequência à
+\href{https://repositorio.ufsc.br/handle/123456789/197121}{Resolução Normativa
+nº 46/2019/CPG}.
+
+
+\section{Autores, suporte e atualizações}
+
+Essa classe foi escrita inicialmente por dois alunos do
+\href{http://ppgcc.posgrad.ufsc.br/}{PPGCC da UFSC}:
+\href{mailto:alexishuf@gmail.com}{Alexis Huf} e
+\href{mailto:gustavo.zambonin@posgrad.ufsc.br}{Gustavo Zambonin}.  Há o risco de
+esse arquivo não ser atualizado a cada \textit{pull request}, então confira a
+lista de mártires no GitHub. Essa classe é mantida no repositório
+\href{https://github.com/alexishuf/ufsc-thesis-rn46-2019/}{alexishuf/ufsc-thesis-rn46-2019}.
+Atualizações podem ser encontradas nesse repositório. \textit{Issues} e PRs são
+bem vindos.
+
+\subsection{Registro de mudanças}
+
+Lista de versões (pelo menos das versões que receberam um número):
+\begin{description}
+\item[v0.2] (2019-10-30) Engloba alterações feitas pela BU na segunda metade de
+  setembro, bugfixes, \lacmd{listadesimbolos} e \lacmd{tcc}.
+\item[v0.1] (2019-08-02) Primeira versão completa e documentada.
+\item[v0.1-alpha] (2019-08-01) Primeira versão para ajudar alunos com pouco
+    prazo de entrega.
+\end{description}
+
+\section{Guia rápido}
+\label{sec:quick}
+
+A classe \texttt{ufsc-thesis-rn46-2019} deveria ser encarada como um
+\emph{drop-in} para o \abnTeX. Você pode começar a escrever uma tese do zero
+usando apenas esta classe, mas talvez você queira usar algum template indicado
+por algum colega. Na maioria dos casos, bastará usar
+\lacmd{documentclass\{ufsc-thesis-rn46-2019\}}, ajustando o caminho se necessário.
+Há duas principais formas de incluir essa classe no seu projeto.
+
+\begin{enumerate}
+  \item Copie o arquivo \texttt{ufsc-thesis-rn46-2019.cls}. Sim, isso funciona
+      pois o logo da UFSC está embutido em base64 dentro da classe. Para que
+        isso funcione, você deve compilar com \texttt{-shell-escape} em um
+        ambiente \textit{UNIX-like}, como no arquivo \texttt{Makefile} de
+        exemplo.
+  \item Copie a pasta do repositório do GitHub para dentro do seu projeto.
+      Nesse caso você deverá adicionar o caminho dessa pasta ao fazer o
+        \lacmd{documentclass}. Há 3 formas de incluir essa pasta:
+  \begin{enumerate}
+    \item Use a opção ``\emph{Download ZIP}'' do GitHub se você não sabe o que
+        é Git.
+    \item Via \texttt{git submodule}, se você já está usando Git.
+    \item Via \texttt{git clone} se não estiver usando Git no seu projeto
+        (\emph{shame on you}) ou se estiver usando no Overleaf, onde submódulos
+          não funcionam.
+    \end{enumerate}
+\end{enumerate}
+
+\begin{figure}[tb]
+  \centering
+  \caption{Preâmbulo de uma tese (ou dissertação) típica usando esta classe.}
+  \label{fig:preambulo}
+
+  \begin{minted}{latex}
+\documentclass[english]{ufsc-thesis-rn46-2019/ufsc-thesis-rn46-2019}
+
+% \usepackage's a gosto
+
+\titulo{Template \LaTeX~ seguindo a RN 46/2019/CPG da UFSC}
+\autor{Fulano da Silva}
+\data{1 de Agosto de 2019}
+\instituicao{Universidade Federal de Santa Catarina}
+\centro{Centro Tecnológico}
+\programa{Programa de Pós-Graduação em Ciências da Computação}
+\local{Florianópolis} % Apenas cidade! Sem estado
+\tese % ou \dissertacao
+\titulode{Doutor em Ciência da Computação}
+\orientador{Prof. Dr. Ben Trovato}
+\coorientador{Prof. Dr. Lars Thørväld}
+
+\membrobanca{Prof. Valerie Béranger, Dr.}{Universidade Federal de Santa Catarina}
+\membrobanca{Prof. Mordecai Malignatus, Dr.}{Universidade Federal de Santa Catarina}
+\membrobanca{Prof. Huifen Chan, Dr.}{Universidade Federal de Santa Catarina}
+\coordenador{Prof. Dr. Charles Palmer}
+  \end{minted}
+  \fonte{o autor.}
+\end{figure}
+
+Esse guia rápido assume que você está começando do zero, sem um template
+anterior, com intuito de ser didático. Se o seu trabalho for escrito em língua
+inglesa, você deverá passar uma opção \texttt{english} para a classe. Caso
+contrário não precisa passar nenhuma opção. Logo após chamar a classe, você
+deverá fornecer dados para a classe (e para o \abnTeX). Veja um preâmbulo
+completo de exemplo na \autoref{fig:preambulo}. Os próximos parágrafos mostram um
+rápido \emph{overview} sobre o significado de cada um dos comandos usados (a
+maior parte deles continua funcionando como no \abnTeX).
+
+\begin{itemize}
+  \item \lacmd{titulode}, \lacmd{autor}, \lacmd{instituicao}, \lacmd{orientador}
+e \lacmd{coorientador}: esses comandos continuam com o mesmo significado e uso
+que possuem no \abnTeX. Para facilitar o uso, também foram adicionados
+\lacmd{orientadora} e \lacmd{coorientadora}.
+  \item \lacmd{data}: as regras da UFSC exigem que apenas o ano esteja presente
+na capa e folha de rosto. No entanto, a nova folha de certificação, que é gerada
+por essa classe precisa da data completa. Forneça a data completa \textbf{em
+português} (mesmo para documentos em inglês). A classe irá extrair o ano.
+  \item \lacmd{programa} e \lacmd{centro}: nome do Programa de Pós-Graduação,
+por extenso, e nome do centro, \emph{e.g.}  Centro Tecnológico.
+  \item \lacmd{tese} e \lacmd{dissertacao}: o texto a ser colocado abaixo do
+título na folha de rosto tem regras bem definidas. Você deve usar um desses dois
+comandos para indicar o tipo de trabalho (e consequentemente o nível).
+Evidentemente, são mutuamente exclusivos.
+  \item \lacmd{preambulo}: Esse comando fornecido pelo \abnTeX{} é desnecessário
+nessa classe. Entretanto, você pode usar ele para sobrescrever o texto gerado
+automaticamente a partir do uso de \lacmd{tese} e \lacmd{titulode}.
+\end{itemize}
+
+A ``folha de certificação'', que substituiu a antiga folha de aprovação, agora
+é gerada em \LaTeX. O nome do orientador já foi fornecido anteriormente, resta
+apenas indicar os membros avaliadores da banca e o coordenador do programa:
+\begin{itemize}
+  \item \lacmd{membrobanca{<nome>}{<instituição>}}: adiciona um membro da banca.
+\textbf{Atenção}: para membros avaliadores, o ``Dr.'' deve ser inserido após o
+nome e o ``Prof(a).'' deve preceder o nome.
+  \item \lacmd{coordenador} e \lacmd{coordenadora}: Configura o nome do(a)
+coordenador(a) do Programa de Pós-Graduação.
+\end{itemize}
+
+Os elementos pré-textuais permanecem em grande parte tendo seu comportamento
+determinado pelo \abnTeX. Alguns elementos incluídos nesse guia foram alterados
+para satisfazer normas da UFSC. Esses elementos também presentes nesse guia são
+obtidos com o código mostrado na \autoref{fig:pre}. Capa (\lacmd{imprimircapa}),
+folha de rosto (\lacmd{imprimirfolhaderosto*}) listas (\emph{e.g.}
+\lacmd{listoffigures*}) e o sumário \lacmd{tableofcontents*} são obtidos através
+dos mesmos comandos do \abnTeX, mas agora respeitam novas regras definidas pela
+BU.
+
+\begin{figure}[tb]
+  \centering
+  \caption{Elementos pré-textuais.}
+  \label{fig:pre}
+  \begin{minted}{latex}
+\pretextual%
+\imprimircapa%
+\imprimirfolhaderosto*
+\protect\incluirfichacatalografica{ficha.pdf}
+\imprimirfolhadecertificacao
+
+\begin{dedicatoria}...\end{dedicatoria}  % opcional
+\begin{agradecimentos}...\end{agradecimentos} % opcional
+\begin{epigrafe}...\end{epigrafe} % opcional
+\begin{resumo}...\end{resumo} 
+
+\begin{resumo}[Resumo Estendido] % opcional se trabalho for em português
+  \section*{Introdução}
+  \section*{Objetivos} 
+  \section*{Metodologia} 
+  \section*{Resultados e Discussão} 
+  \section*{Considerações Finais} 
+
+  % Keywords devem devem ser iguais (mas traduzidas) nos 3 resumos  
+  \vspace{\baselineskip}
+  \textbf{Palavras-chave:} Palavra 1. Palavra 2. Palavra 3. 
+\end{resumo}
+
+\begin{abstract}...\end{abstract}
+\listoffigures* % primeiro \listof na ABNT
+\listoftables*  
+\listofalgorithms*
+% sugestão: adicionar outros \listof* aqui
+\begin{siglas}...\end{siglas} % há pacotes alternativos que podem agilizar
+\tableofcontents*  %deve ser o último
+  \end{minted}
+  \fonte{o autor.}
+\end{figure}
+
+A ficha catalográfica deve ser gerada em sistema próprio da BU, que produz um
+PDF. Esse PDF deve ser salvo no seu projeto e incluído no documento.
+
+A macro \lacmd{incluirfichacatalografica{<pdf>}} faz essa inclusão usando o
+pacote \href{https://www.ctan.org/pkg/pdfpages}{\texttt{pdfpages}}. O
+\lacmd{protect} é necessário para evitar um \emph{bug} (uma linha em branco
+substitui o \lacmd{protect}).  A folha de certificação é gerada pelo comando
+\lacmd{imprimirfolhadecertificacao} de acordo (e na ordem) com os comandos de
+dados emitidos anteriormente.
+
+Antes de iniciar o primeiro capítulo é necessário chamar a macro
+\lacmd{textual}, como em todo documento \abnTeX. Após os elementos textuais, os
+pós-textuais devem ser precedidos por um \lacmd{postextual}. Para fazer uso da
+bibliografia, basta fazer como mostra a \autoref{fig:pos}. A classe já inclui o
+\texttt{abntex2cite} e o configura. A UFSC impôs poucas alterações no tratamento
+de bibliografia.
+
+\begin{figure}[tb]
+  \centering
+  \caption{Elementos pós-textuais.}
+  \label{fig:pos}
+  \begin{minted}{latex}
+\postextual
+\bibliography{example}
+
+% Atenção! todos os elementos a seguir são opcionais
+
+\apendices
+\chapter{Exemplo de Apêndice}
+...
+
+\cleardoublepage \printnoidxglossary % Exemplo do pacote glossaries)
+\cleardoublepage \printindex % Índice remissívo, e.g., makeidx)
+  \end{minted}
+  \fonte{o autor.}
+\end{figure}
+
+\subsection{TCCs}
+\label{sec:tcc}
+
+A BU também definiu regras para Trabalhos de Conclusão de Curso (TCCs). As
+diferenças para a pós-graduação estão na capa, folha de rosto e folha de
+aprovação (não é feita assinatura digital dos TCCs). Para criar um TCC usando
+esse template, você deverá utilizar o comando \lacmd{tcc} no lugar de
+\lacmd{tese} ou \lacmd{dissertacao}. No modo TCC, será necessário fornecer
+alguns comandos de dados adicionais, como apresentado na
+\autoref{fig:tccs-conf}.
+
+No modo TCC, a capa não inclui o brasão da UFSC, mas inclui o nome do
+departamento e do curso. Na folha de rosto, a única alteração ocorre no
+preâmbulo (abaixo do título). No caso da folha de aprovação as mudanças são
+múltiplas. Tanto o Orientador quanto o Coorientador devem ser inseridos na
+condição de membros da banca examinadora. Além disso, todos os membros da banca
+e o coordenador do curso devem ser apresentados como se assinassem a folha de
+aprovação (com linhas horizontais). Orientador e Coorientador precisam ter sua
+afiliação explicitada e os demais membros da banca devem ser listados com o
+papel de Avaliador (o que não ocorre na folha de certificação).
+
+\begin{figure}[tb]
+  \centering
+  \caption{Configuração para TCCs.}
+  \label{fig:tccs-conf}
+\begin{minted}{latex}
+\tcc
+\departamento{Departamento de Informática e Estatística}
+\curso{Ciência da Computação}
+\titulode{Bacharel em Ciência da Computação}
+\afiliacaoorientador{Universidade Federal de Santa Catarina} %default
+\afiliacaocoorientador{Universidade Federal da Terra de Ninguém}
+\end{minted}
+  \fonte{o autor.}
+\end{figure}
+
+
+
+
+
+\chapter{Problemas conhecidos}
+\label{ch:problems}
+
+\textbf{Atenção!} Há regras de formatação que não podem ser garantidas por essa
+classe (ainda) devido a detalhes técnicos ou devido à forma como o \LaTeX e
+BibTeX funcionam.
+
+\section{Ordem de Elementos pré- e pós-textuais}
+As regras da BU não alteram (nem alteravam antes) o significado e a ordem de
+elementos pré-textuais definidos pela ABNT. Essa classe não tem como ajudá-lo.
+
+\section{Alinhamento de Figuras}
+O alinhamento de Figuras (ainda) não está totalmente claro nas regras da BU. Os
+documentos da BU apresentam duas formas distintas. O autor do documento é
+encorajado a continuar usando o alinhamento que usava até então. Essa dúvida
+deverá ser esclarecida pela BU em breve, ocasião na qual essa classe será
+atualizada.
+
+\section{URLs de referências em inglês}
+
+Alguns alunos costumam trocar os dizeres ``Disponível em'' gerados pelo
+\texttt{abntex2cite} por ``Available at'' quando redigem o texto em inglês. No
+entanto \textbf{isso é errado}! De acordo com o suporte da BU, apenas o corpo do
+texto está em inglês, e assim como vários elementos pré-textuais permanecem em
+português, os dizeres Disponível em deveriam permanecer em português.
+
+Caso você deseje \textbf{contrariar a orientação acima}, a forma mais segura (no
+sentido do LaTeX, não no sentido da entrega na BU) de \textbf{violá-la} é usar o
+campo \texttt{note} do BibTeX. Você deverá fazer o equivalente a
+\texttt{Available at: \lacmd{url}\{https://doi.org/10.1145/3338112\}} em cada
+entrada no seu arquivo \texttt{.bib}, além de desativar o campo \texttt{url}
+removendo-o ou renomeando-o para. \texttt{x-url}.
+
+\chapter{Referência de opções e macros}
+\label{ch:ref}
+
+\section{Opções da classe}
+
+A classe possui apenas uma opção que fornece recursos: a primeira na lista
+abaixo. Todas as demais servem para desativar comportamentos padrão.
+
+\paragraph*{\texttt{english}} Prepara o \abnTeX{} e a classe para que o corpo
+do documento esteja em inglês. Alguns elementos em português, especialmente os
+relacionados a BU e a UFSC permanecem em português.
+
+\paragraph*{\texttt{brazil}} Não tem efeito pois o idioma por padrão é o
+português do Brasil. Entretanto, note que para utilizar outros idiomas além de
+inglês e português, é necessário repassar todos os idiomas explicitamente à
+classe \abnTeX.
+
+\paragraph*{\texttt{oneside}} Essa opção é destinada à classe \texttt{memoir} (a
+classe \abnTeX) é uma extensão do \texttt{memoir}. Ela fará com que todas as
+páginas sejam tratadas como anverso, eliminando a alternância na largura das
+margens esquerda e direita. Essa opção também \textbf{elimina a inserção de
+  páginas em branco}. Embora isso viole as instruções da BU, é uma \emph{feature} útil
+para alunos apresentando relatórios parciais, como EQM, SAD e EQD. Alguns
+programas, como o PPGCC impõem limites nominais à quantidade de páginas.
+
+\paragraph*{\texttt{embeddedlogo}} Se ativada, essa opção desempacota o logo da
+UFSC diretamente de um base64 dentro do arquivo \texttt{.cls}. Isso permite que
+o \texttt{.cls} seja um arquivo auto-contido. Pessoas avessas a \texttt{git
+  submodule} e a diretórios podem simplesmente levar o \texttt{.cls} de um
+projeto para outro. Entretanto, há uma desvantagem, e por isso essa opção não é
+padrão. É necessário compilar com a opção \texttt{-shell-escape} em uma ambiente
+\emph{UNIX-like}. O logo foi obtido da \href{http://identidade.ufsc.br/}{página
+  de identidade visual da UFSC}.
+
+\paragraph*{\texttt{times}, \texttt{lmodern}, \texttt{arial}} Escolhe a fonte
+do documento. O padrão é \texttt{times}. No caso das escolhas \texttt{times} e
+\texttt{arial} são usados clones \emph{open-source} (sem limitações legais à
+redistribuição) que podem ser encontradas em qualquer instalação \LaTeX. A
+opção \texttt{lmodern} corresponde à fonte Latin Modern, a fonte padrão do
+\LaTeX. Essa é uma fonte serifada similar à Times, mas não possui respaldo
+oficial da BU.
+
+\paragraph*{\texttt{nocapautoref}} Essa classe configura o comando
+\lacmd{autoref} para que nomes de capítulos e seções sejam capitalizados. Ao
+fornecer essa opção essa alteração deixará de ser feita.
+
+\paragraph*{\texttt{noabntexcite}} Essa classe inclui o pacote
+\texttt{abntex2cite} e o configura automaticamente. Caso seja necessário fazer
+essa inclusão manualmente para fazer sua própria configuração, use essa opção
+para que a classe não carregue o pacote.
+
+\paragraph*{\texttt{nohidelinks}} O
+\href{https://ctan.org/pkg/hyperref}{\texttt{hyperref}} por padrão desenha
+bordas coloridas ao redor de \emph{hyperlinks}. Por padrão a classe desativa
+esse comportamento, passando a opção \texttt{hidelinks} ao \texttt{hyperref}.
+Ao ativar essa opção o \texttt{hyperref} voltará ao seu próprio comportamento
+padrão.
+
+\paragraph*{\texttt{noplainurl}} A norma ABNT NBR6023:2018 não utiliza mais URLs
+na forma <http://example.org>, e apresenta a URL diretamente, sem os <>.  Esse
+comportamento sempre é aplicado (a menos que seja usada a opção
+\texttt{noabntexcite}). Para uniformizar o estilo, essa classe aplica a mesma
+configuração no corpo do documento (nas instâncias onde se usaria
+\lacmd{url\{http://example.org\}}. Ao fornecer a opção \texttt{noplainurl} as
+configurações do comando \lacmd{url} não são alteradas.
+
+
+\paragraph*{\texttt{nocleanheader}} O \abnTeX{} gera cabeçalhos na página que
+incluem o título da seção. Essa classe suprime esse estilo de página,
+proveniente da classe base \texttt{memoir}, pois eles não existem no template
+da BU. Ao passar essa opção o cabeçalho padrão do \abnTeX{} será restaurado.
+
+\paragraph*{\texttt{nopretextualbookmark}} O \abnTeX{} gera \emph{bookmarks} no
+PDF para cada elemento pré-textual, exceto sumário, \lacmd{listoffigures} e
+similares. Esses \emph{bookmarks} são o que alimenta o ``table of contents'' que
+os leitores PDF apresentam, usualmente em uma barra lateral.  Ao fornecer essa
+opção, o \abnTeX{} deixará de criar esses \emph{bookmarks} para os elementos
+pré-textuais (e continuará criando para os elementos textuais e pós-textuais.
+
+\paragraph*{\texttt{nocleardoublepage}} Por padrão, os comandos
+\lacmd{tableofcontents} \lacmd{listoftables}, \lacmd{listoffigures},
+\lacmd{listoflistings} (se estiver definido) são modificados logo após o
+\lacmd{begin\{document\}} para que realizem um \lacmd{cleardoublepage}. Logo,
+esseselementos serão impressos garantidamente em uma nóva página que ficará no
+anverso. Essa opção, se presente, desativa a injeção dessa alteração
+
+\paragraph*{\texttt{nolatexextra}}
+Se fornecida, essa opção impede o \lacmd{RequirePackage} de pacotes em \texttt{latexextra}.
+Tais pacotes estão disponíveis no overleaf e em práticamente qualquer sistema
+\LaTeX. Caso instalar tais pacotes naõ seja possível, essa opção pode ser usada.
+No entanto, outros pacotes, que o seu documento usa diretamente provavelmente
+continuarão dependendo desses pacotes.
+
+\paragraph*{\texttt{nopdfinfo}} Por padrão, os metadados definidos pelos
+comandos \lacmd{titulo} \lacmd{autor} serão atribuídos aos campos de metadados
+\texttt{Title} e \texttt{Author} do PDF através das opções \texttt{pdftitle} e
+\texttt{pdfauthor} do \texttt{hyperref}. Essa opção se presente impede isso.
+\textbf{Cuidado}: Esses metadados não tem relação com o PDF/A, exigido pela BU.
+
+\paragraph*{\texttt{*}} Quaisquer outras opções não listadas anteriormente são
+repassadas à classe \abnTeX{} sem manipulação.
+
+\section{Novas Macros}
+
+Essa seção apresenta macros novas, não presentes no \abnTeX{} ou
+\texttt{abntex2cite}.
+
+\subsection{Comandos de dados}
+\label{sec:dados}
+
+Esses comandos visam fornecer dados que são posteriormente usados pelos
+comandos de saída discutidos na próxima seção. \textbf{Importante:} não esqueça
+de preencher os comandos de dados do próprio \abnTeX, como mostrado na
+\autoref{sec:quick}.
+
+\paragraph*{\lacmd{programa\{<nome>\}}} Configura o nome do Programa de
+Pós-Graduação.
+
+\paragraph*{\lacmd{titulode\{<texto>\}}} Define o título alvo.  O título
+\textit{deve ser escrito incluindo a especialidade}. Por exemplo, \emph{Mestre
+  em Ciência da Computação}.
+
+\paragraph*{\lacmd{tese}} Comando sem argumentos. Marca o documento como uma
+tese de doutorado. Isso irá alterar o preâmbulo e a folha de certificação.
+
+\paragraph*{\lacmd{dissertacao}} Comando sem argumentos. Marca o documento como
+uma dissertação de mestrado. Esse é o padrão quando nem \lacmd{dissertacao} nem
+\lacmd{tese} são usados.
+
+\paragraph*{\lacmd{tcc}} Comando sem argumentos. Marca o documento como um
+TCC. As diferenças nesse modo são discutidas na \autoref{sec:tcc}.
+
+\paragraph*{\lacmd{departamento\{<departamento>\}}} Informa o departamento ao
+qual o curso de graduação ou especialização está vinculado. O Departamento é
+incluído na capa.
+
+\paragraph*{\lacmd{curso\{<curso>\}}} Informa o curso de graduação
+ou especialização do trabalho. Essa informação é incluída na parte superior da
+capa, na folha de rosto e na folha de aprovação.
+
+\paragraph*{\lacmd{nivel\{<nivel>\}}} Deve ser o nível do título almejado, em
+minúsculas. O valor padrão é inferido a partir do uso (ou não uso) de
+\lacmd{tese} e \lacmd{dissertacao}.
+
+\paragraph*{\lacmd{centro\{<texto>\}}} Centro da UFSC onde está sediado o
+Programa de Pós-Graduação.
+
+\paragraph*{\lacmd{data\{<data por extenso>\}}} Define a data a ser usada na
+folha de certificação. O ano dessa data será usado na capa e na folha de
+rosto. Se esse comando for omitido, a data atual do sistema será utilizada. Não
+utilize \lacmd{today} como argumento em documentos em inglês. Isso fará com que
+a data da folha de aprovação (que é em português) apareça em inglês! Exemplo:
+\lacmd{data\{1 de Agosto de 2019\}}.
+
+\paragraph*{\lacmd{ano\{<ano>\}} \\
+            \lacmd{mes\{<nome do mes>\}} \\
+            \lacmd{dia\{<dia>\}}}
+Define cada componente da data individualmente.
+
+\paragraph*{\lacmd{membrobanca[<papel>]\{<nome>\}\{<universidade>\}} \\
+            \lacmd{membrabanca\{<nome>\}\{<universidade>\}}}
+Nome do professor avaliador da banca, incluíndo Prof. (ou
+Prof\textsuperscript{a}.) antes do nome e o título \textbf{após} o
+nome. Exemplo: \emph{Prof. Mordecai Malignatus, Dr.}. O orientador não deve ser
+incluído nessa seção, nem mesmo para TCCs. Não está claro nas instruções da UFSC
+se o coorientador deveria ser incluído no caso de trabalhos de pós-graduação. O
+argumento opcional \texttt{<papel>}, cujo valor padrão é \texttt{Avaliador} só é
+utilizado em TCCs (cf. \autoref{sec:tcc}). No caso de TCCs com mulheres na banca
+o papel deve ser alterado para \texttt{Avaliadora}, ou deve ser utilizado o
+comando \lacmd{membrabanca}
+
+\paragraph*{\lacmd{coordenadora\{<nome>\}}} Nome do coordenador do programa ou
+do curso, no caso de TCCs. No caso de coordenadora, o comando
+\lacmd{coordenadora} pode ser usado. Exemplo: \lacmd{coordenador\{
+  Prof. Mordecai Malignatus, Dr.\}}.
+
+\subsection{Comandos de saída}
+
+Esses comandos produzem resultados visíveis. Devem ser usados dentro do
+ambiente \texttt{document}.
+
+\paragraph*{\lacmd{incluirfichacatalografica\{<arquivo>\}}}
+Inclui a ficha catalográfica proveniente de \texttt{arquivo} que foi gerado em
+\href{http://ficha.bu.ufsc.br/}{ficha.bu.ufsc.br}.
+
+\paragraph*{\laenv{listadesimbolos}}
+Define uma lista de símbolos. O ambiente pode receber um argumento opcional que
+especifica a largura da coluna esquerda (onde devem ser inseridos os símbolos. O
+valor padrão dessa largura é de \texttt{5em}, o suficiente para conter mmmmm. A
+largura da coluna da direita é computada automaticamente de modo que toda a
+tabela respeite as margens. Exemplo:
+
+\begin{minted}{latex}
+\begin{listadesimbolos}[2cm]
+  $\langle\ldots\rangle$ & Tupla \\
+  $\forall$   & Quantificação universal \\
+  % ....
+\end{listadesimbolos}
+\end{minted}
+
+\subsection{Comandos \abnTeX{} modificados}
+
+\paragraph*{\lacmd{titulo[Nos metadados]\{No documento\}}} Além de definir o título é
+possível definir uma redação alternativa do título para ser usada nos metadados
+do PDF (caso \texttt{nopdfinfo} não tenha sido fornecido como opção da classe).
+
+\paragraph*{\lacmd{imprimircapa}} O modo de uso desse comando permanece o
+mesmo. No entanto, como as novas capas devem incluir o brasão da UFSC, há alguns
+detalhes a serem observados. Ao utilizar a opção \texttt{embeddedlogo}, o logo
+da UFSC é extraíde de um base64 embutido dentro do próprio \texttt{.cls}. Sem
+usar essa opção é necessário que o arquivo \texttt{logo-ufsc.pdf} seja
+encontrado pelo comando \lacmd{includegraphics}. Para que isso funcione, o
+\texttt{.cls} inicializa o \lacmd{graphicspath} da seguinte forma:
+
+\begin{minted}{latex}
+  \graphicspath{%
+    {.}%
+    {ufsc-thesis-rn46-2019/}%
+    {../ufsc-thesis-rn46-2019/}%
+    {ufsc-thesis/}%
+    {../ufsc-thesis/}%
+\end{minted}
+
+Essa inicialização é suficiente para os casos de uso típicos. Note que os
+caminhos são relativos ao \emph{working directory} do \texttt{pdflatex}, não são
+relativos ao \texttt{.cls} ou ao seu \texttt{.tex}.
+
+\paragraph*{\lacmd{imprimirfolhaderosto}} A folha de rosto foi modifica de
+acordo com as intruções da BU. O elementa com maior diferênça é o texto do
+preambulo (que é inserido abaixo do título). Nessa classe, o texto é gerado
+automáticamente a partir da informação provida pelo uso de \lacmd{tese} (ou
+\lacmd{dissertacao}), \lacmd{programa} e \lacmd{titulode}, apresentados
+anteriormente. Ainda é possível usar \lacmd{preambulo} diretamente para
+sobreescrever o texto gerado. No entanto, leia as regras da BU com atenção.
+
+\paragraph*{\laenv{dedicatoria}}
+O ambiente \texttt{dedicatoria} do \abnTeX não aplica nenhuma formatação. O
+ambiente foi alterado para que o texto fique alinhado a direita, com recuo de
+5cm, ancorado na parte inferior da página. Essa formatação se originou do
+documento da BU que explica as normas ABNT. A medida de 5cm foi tomada do
+template \texttt{.doc} disponibilizado pela BU.
+
+\paragraph*{\laenv{epigrafe}}
+O ambiente \texttt{epigrafe} do \abnTeX não aplica nenhuma formatação. O
+ambiente foi alterado para que o texto fique alinhado a direita, com recuo de
+4cm, espaçamento entre linhas simples e fonte 10. Essas são as mesmas
+configurações do ambiente citação. o template \texttt{.doc} aplica todas, exceto
+pela fonte 11, apesar de citar a ABNT NBR 10520. Visando maior consistência,
+optou-se por usar a fonte 10pt.
+
+\paragraph*{\laenvi{abstract}{<nome>}}
+Em abnTeX2, não se deve chamar o ambiente abstract diretamente. Caso o alune o
+chame, será interpretado como se o aluno tivesse chamado
+\lacmd{begin\{resumo\}[Abstract]} e a linguagem (controlando hifenização) será
+alterada para inglês.
+
+\paragraph*{\laenvi{resumo}{<nome>}}
+Ambiente usado para gerar os resumos (para documentos em inglês é necessário um
+resumo estendido) e \emph{abstracts}. A BU fornece além do template geral .doc,
+fornece um template para o resumo estendido, que também deve ser gerado usando
+esse ambiente. Nos três tipos de resumo exigidos, o aluno é responsável por
+incluir um parágrafo ao final contendo as Palavras-chave\footnote{Sugestão:
+  \lacmd{vspace\{\lacmd{baselineskip}\}Palavras-chave: Kw1. Kw2. Kw3.}}: Regras
+implementadas nesse ambiente:
+\begin{itemize}
+\item Espaçamento simples, fonte 12, sem indentação de parágrafos;
+\item A formatação de \lacmd{section} torna-se igual à formatação de
+  \lacmd{subsection}, para garantir cumprimento da formatação usada no template de
+  resumo estendido;
+\item Espaçamentos após títulos não são aplicados (resumo estendido);
+\item A hifenização é alterada para \textit{brazil}, a menos que o autor tenha
+  usado o ambiente abstract ou tenha usado Abstract, abstract ou ABSTRACT como
+  argumento \texttt{<nome>} do ambiente.
+\end{itemize}
+
+\subsection{Comandos de outros pacotes modificados}
+
+\paragraph*{\lacmd{listofalgorithms}} O nome é alterado para
+\lacmd{ufscthesisalgorithmname} (Algoritmo em portugês e Algorithm em inglês) e
+a formatação é ajustada para a BU. O uso do pacote algorithm2e é
+auto-detectado. O pacote não será importado automáticamente e o suporte ao
+pacote não é uma recomendação do seu uso. \textbf{Caso o comando não seja
+  definido por nenhum outro pacote}, a presente classe o definirá utilizando o
+pacote \texttt{newfloat}, em conjunto com um ambiente
+\lacmd{begin\{algorithm\}...\lacmd{end\{algorithm\}}}.
+
+
+\chapter{Mais exemplos de formatação}
+\label{ch:ex}
+
+Essa frase é verdadeira pois tem um \lacmd{cite} no final \cite{turing1937}. Essa
+é mais verdadeira ainda pois tem um (\lacmd{cite\{turing1937,dijkstra1968\}}) no
+final \cite{turing1937,dijkstra1968}. Já esta frase inofensiva usa
+\lacmd{citeonline\{dijkstra1968\}} para citar \citeonline{dijkstra1968}
+nominalmente. O trabalho de \citeonline{diffie1976} foi altamente influente
+\cite{diffie1976}. Essa outra frase cita o trabalho que \citeonline{Saleem2018}
+escreveu com outros 4 autores. Para algo completamente novo, veja um footnote
+com url\footnote{\url{http://example.org/}}
+
+Mais algumas citações de tipos específicos de documentos:
+\begin{itemize}
+\item \texttt{@inproceedings}: \citeonline{Ullman1989magic}. Jabuti
+  \cite{Ullman1989magic}.
+\item \texttt{@article}: \citeonline{Distefano2019}, framboesa \cite{Distefano2019};
+\item \texttt{@book}: \citeonline{Abiteboul1995}, goiaba \cite{Abiteboul1995};
+\item \texttt{@incollection}: \citeonline{Forgy1989}, melancia \cite{Forgy1989};
+\item \texttt{@techreport}: \citeonline{rdf11}, figo \cite{rdf11}.
+\end{itemize}
+
+A lista abaixo mostra o efeito de \lacmd{autoref{}} com capítulos e (sub)seções.
+
+\begin{itemize}
+\item Há coisas na \autoref{ch:ex};
+\item Há coisas na \autoref{sec:stuff};
+\item Há coisas na \autoref{sec:more};
+\item Há coisas na \autoref{sec:yet-more};
+\item Há coisas na \autoref{sec:yet-another} (\abnTeX{} come um ``sub''
+  intencionalmente no português e o mantem em inglês).
+\end{itemize}
+
+Citações são feitas com \laenv{citacao}. A BU faz as mesmas exigências que já
+são o \textit{default} na classe \abnTeX\footnote{O alinhamento e o filete de
+  notas de rodapé também não necessitou de modificações, além do tamanho da
+  fonte. Essa frase não serve a nenhum propósito além de causar uma quebra de
+  linha para que o alinhamento seja avaliado.}.
+
+\begin{citacao}
+  A elaboração do trabalho de conclusão de curso em nível de mestrado
+  e de doutorado na UFSC deverá atender aos critérios e procedimentos
+  estabelecidos nesta resolução normativa e em diretrizes
+  estabelecidas pela Pró-Reitoria de Pós-Graduação e pelos Programas
+  de Pós-Graduação.
+\end{citacao}
+
+Atenção! O template da BU deixa figuras e tabelas alinhadas à esquerda. No
+entanto, o tutorial de Word disponibilizado pela BU diz que o \lacmd{caption\{\}}
+(legenda acima) e o \lacmd{fonte\{\}} (o ``Fonte: o autor.'', abaixo) devem
+respeitar o ``alinhamento da ilustração''. Esse tutorial apresenta apenas uma
+ilustração alinhada à esquerda). O tutorial explicando a ABNT mostra uma figura
+centralizada com legendas alinhadas a esquerda e com recuo até o começo da
+figura. O autor do \texttt{.cls} se exime de qualquer culpa. Alinhe aqui (com
+\lacmd{centering}, \lacmd{flushright} ou \lacmd{flushleft}) como mandar o seu
+coração. Veja na \autoref{fig:logo} o efeito de se usar \lacmd{centering}.
+
+\begin{figure}[t]
+  \centering
+  \caption{Logotipo da Universidade Federal de Santa Catarina.}
+  \label{fig:logo}
+
+  \includegraphics[width=.2\linewidth]{../logo-ufsc.pdf}
+  \fonte{o autor.}
+\end{figure}
+
+\section{Coisas}
+\label{sec:stuff}
+Imagine alguma afirmação de alto valor científico aqui.
+
+\subsection{Outras coisas}
+\label{sec:more}
+Olá! Eu vim do passado para te avisar que o texto de uma dissertação deve ser
+impessoal e você não deveria tentar conversar com o leitor.
+
+\subsubsection{Outras coisas mais}
+\label{sec:yet-more}
+Estudos demonstram que essa afirmação é falsa.
+
+\subsubsubsection{Ainda outras coisas mais}
+\label{sec:yet-another}
+Fazer a grama verde, como? Novamente o jogo foi perdido. Opcionalmente, tudo
+pode ser opcional. Recursos foram gastos com isso. Descubra a verdade nas
+capitalizadas.
+% Fiquei 15 minutos mais próximo da morte ao escrever isso. Você pode chegar
+% ainda mais perto se tentar entender.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Elementos pós-textuais                                       %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\postextual
+\bibliography{userguide}
+
+\end{document}
+
+% LocalWords:  pdf ufsc-thesis-rn abntex PPGCC Zambonin pull request GitHub PRs
+% LocalWords:  alexishuf Issues alpha drop-in template cls shell-escape ZIP Git
+% LocalWords:  UNIX-like Makefile git submodule shame on you Overleaf english
+% LocalWords:  overview Pós-Graduação Prof BU pdfpages bug BibTeX URLs at bst
+% LocalWords:  Available cite-alf url x-url brazil embeddedlogo auto-contido pt
+% LocalWords:  lmodern arial open-source Latin Modern nocapautoref ufsc-thesis
+% LocalWords:  working directory pdflatex tex dijkstra diffie Saleem Ullman rdf
+% LocalWords:  magic Distefano Abiteboul Forgy default Word captions userguide
+% LocalWords:  noplainurl noabntexcite begin dedicatoria end doc abstracts EQM
+% LocalWords:  corretude indentação oneside memoir feature SAD EQD bookmarks of
+% LocalWords:  nopretextualbookmark listoffigures table contents
