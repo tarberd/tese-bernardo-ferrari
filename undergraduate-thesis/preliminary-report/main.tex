@@ -7,8 +7,11 @@
 
 \usepackage[T1]{fontenc} % fontes
 \usepackage[utf8]{inputenc} % UTF-8
-\usepackage{lipsum} % Gerador de texto
 \usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
+
+\usepackage{amsmath}
+\usepackage{varwidth}
+\usepackage[outputdir=target/pdf]{minted}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -129,152 +132,112 @@ O objetivo do trabalho consiste em propor o projeto de uma linguagem de programa
   % mmmmm & Nenhum sentido, apenas estou aqui para demonstrar a largura máxima dessas colunas. Ao abrir o ambiente \texttt{listadesimbolos}, pode-se fornecer um argumento opcional indicando a largura da coluna da esquerda (o default é de 5em): \texttt{\textbackslash{}begin\{listadesimbolos\}[2cm] .... \textbackslash{}end\{listadesimbolos\}} \\
 \end{listadesimbolos}
 
-\tableofcontents*%
+\tableofcontents*
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Corpo do texto                                               %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \textual{}
 
-\chapter{Introdução}~\label{ch:intro}
+\chapter{Introduction}\label{cap:introduction}
 
-\section{Autores, suporte e atualizações}
+This work deals with the problem of translating a programming language with refinement types to the intermediate representation language LLVM-IR.\@
+Throughout the work, we will be presenting: the design of a small programming language; an operational semantics with refinement types for the designed language's type system; and a compiler implementation for the designed language to LLVM-IR.\@
+In this introductory chapter we will explore the motivations behind this work and its goals.
 
-Essa classe foi escrita inicialmente por dois alunos do
-\href{http://ppgcc.posgrad.ufsc.br/}{PPGCC da UFSC}:
-\href{mailto:alexishuf@gmail.com}{Alexis Huf} e
-\href{mailto:gustavo.zambonin@posgrad.ufsc.br}{Gustavo Zambonin}.
-Há o risco de esse arquivo não ser atualizado a cada \textit{pull request},
-então confira a lista de mártires no GitHub. Essa classe é mantida no
-repositório
-\href{https://github.com/alexishuf/ufsc-thesis-rn46-2019/}{alexishuf/ufsc-thesis-rn46-2019}.
-Atualizações podem ser encontradas nesse repositório. \textit{Issues} e PRs são
-bem vindos.
+\section{Motivation}\label{cap:introduction:sec:motivation}
 
-\section{Exemplos de formatação}
-\label{sec:ex}
+Programming languages are notations to describe computations to people and machines.
+This notations can take numerous forms, from binary code, ready to be executed by a specific machine, to a higher-level language, capable of expressing more abstract notations such as functions and types.
+The use of higher-level programming languages eases how people can describe computations to one another.
+Their abstractions are capable of describing computations without needing to expose details from the machine that will execute them.
+Although, in order to translate a higher-lever programming language to binary code capable of running on a machine's processor, we need to design and build programs called compilers.
 
-Essa frase é verdadeira pois tem um \texttt{cite} no final \cite{turing1937}. Essa
-é mais verdadeira ainda pois tem um  \texttt{cite} duplo no
-final \cite{turing1937,dijkstra1968}. Já esta frase inofensiva usa
- \texttt{citeonline} para citar \citeonline{dijkstra1968}
-nominalmente. O trabalho de \citeonline{diffie1976} foi altamente influente
-\cite{diffie1976}. Essa outra frase cita o trabalho que \citeonline{Saleem2018}
-escreveu com outros 4 autores. Para algo completamente novo, veja um footnote
-com url\footnote{\url{http://example.org/}}
+A compiler is a program that receive as input a program written in a \textit{source} language and outputs a program written in a \textit{target} language.
+In our study the \textit{target} language is the binary code capable of running on a specific machine's processor, also called \textit{target machine language}.
+During the translation between the \textit{source} and \textit{target} languages, the compiler goes through two major execution steps: the analysis step; and the synthesis step.
 
-Mais algumas citações de tipos específicos de documentos:
-\begin{itemize}
-\item @inproceedings: \citeonline{Ullman1989magic}, jabuti
-  \cite{Ullman1989magic};
-\item @article: \citeonline{Distefano2019}, framboesa \cite{Distefano2019};
-\item @book: \citeonline{Abiteboul1995}, goiaba \cite{Abiteboul1995};
-\item @incollection: \citeonline{Forgy1989}, melancia \cite{Forgy1989};
-\item @techreport: \citeonline{rdf11}, figo \cite{rdf11}.
-\end{itemize}
+The analysis step, also called the compiler's \textit{front end}, may be further subdivided into: lexical analysis; syntax analysis; semantic analysis; and intermediate code generation.
+The synthesis step, also called the compiler's \textit{back end}, may be further subdivided into: machine-independent code optimization; code generation; and machine-dependent code optimization.
+By the end of the analysis step, we generate an intermediate code which may have no information about the higher-level notations of the source language.
+Having only the information needed by the synthesis step to run optimization algorithms and output the target language.
 
-A lista abaixo mostra o efeito de  \texttt{autoref} com capítulos e (sub)seções.
+The separation of the compiler in analysis, \textit{front end}, synthesis, \textit{back end}, and the use of an intermediate representation between them, is very useful because, if we wish to implement a compiler for the source language $i$ to the target machine language $j$, we can implement just the compiler's \textit{front end} for $i$ and use a proven working \textit{back end} for $j$.
+Therefore, if we wish to implement compilers for $n$ different programming languages to $m$ different machine languages, we can avoid building $n \times m$ compilers building $n$ \textit{front ends} and $m$ \textit{back ends}.
 
-\begin{itemize}
-\item Há coisas no \autoref{ch:intro};
-\item Há coisas na \autoref{sec:stuff};
-\item Há coisas na \autoref{sec:other};
-\item Há coisas na \autoref{sec:yet-another} (\abnTeX{} come um ``sub'' intencionalmente).
-\end{itemize}
+The intermediate code representation used by this work is the \textit{LLVM intermediate representation}, LLVM-IR proposed by the LLVM project~\cite{lattner2004llvm} together with its \textit{back end} libraries.
 
-Citações são feitas com o ambiente \texttt{citacao}. A BU faz
-as mesmas exigências que já são o \textit{default} na classe
-\abnTeX\footnote{O alinhamento e o filete de notas de rodapé também
-não necessitou de modificações, além do tamaho da fonte. Essa frase
-não serve a nenhum propósito além de causar uma quebra de linha para
-que o alinhamento seja avaliado.}.
 
-\begin{citacao}
-  A elaboração do trabalho de conclusão de curso em nível de mestrado
-  e de doutorado na UFSC deverá atender aos critérios e procedimentos
-  estabelecidos nesta resolução normativa e em diretrizes
-  estabelecidas pela Pró-Reitoria de Pós-Graduação e pelos Programas
-  de Pós-Graduação.
-\end{citacao}
+\subsection{Lexical Analysis}
 
-Atenção! O template da BU deixa figuras e tabelas alinhadas à esquerda. No
-entanto, o tutorial de Word disponibilizado pela BU diz que legendas e
-\emph{captions} devem respeitar o ``alinhamento da ilustração'' (e apresenta
-uma ilustração alinhada à esquerda). O tutorial explicando a ABNT mostra uma
-figura centralizada com legendas alinhadas a esquerda e com recuo até o começo
-da figura. O autor do \texttt{.cls} se exime de qualquer culpa.
-Veja na \autoref{fig:logo} o efeito de se usar \texttt{centering}.
+The first phase of a compiler is called lexical analysis, or scanning.
+The lexical analyzer will read a stream of characters from the source program and group the characters into sequences called \textit{lexemes}.
+For each lexeme, the lexical analyzer generate a \textit{token} with different meta-data dependent on the token type.
+For example, analysing the following if expression:
+\begin{center}
+\begin{varwidth}{\linewidth}
+\begin{verbatim}
+if false { let x = 5; x } else { 0 }
+\end{verbatim}
+\end{varwidth}
+\end{center}
+A lexical analyzer may output the following token stream:
+\begin{center}
+\begin{varwidth}{\linewidth}
+\begin{verbatim}
+<if> <boolean, false> <{>
+<let> <identifier, x> <=> <integer, 5> <;> <identifier, x>
+<}> <else> <{> <integer, 0> <}>
+\end{verbatim}
+\end{varwidth}
+\end{center}
 
-\begin{figure}[t]
-  \centering
-  \caption{Logotipo da Universidade Federal de Santa Catarina.}
-  \label{fig:logo}
 
-  \includegraphics[width=.2\linewidth]{\jobname-logo.pdf}
-  \fonte{O autor.}
-\end{figure}
 
-Algoritmos podem ser incluidos no ambiente \texttt{algorithm}. Atenção! Esse
-ambiente é apenas uma classe de \emph{float}. Logo esse ambiente apenas oferece
-a funcionalidade de colocar legendas e numerar algoritmos que serão exibidos em
-uma lista dedicada com \texttt{\textbackslash{}listofalgorithms*}. Para
-efetivamente escrever os lagoritmos considere pacotes como
-\texttt{algorithmicx}, \texttt{algorithm2e} ou \texttt{minted}.
 
-\begin{algorithm}
-  \centering
-  \caption{Exemplo sem sentido algum.}
+The lexical analysis breaks up the source program into a contiguous stream of lexical pieces called \textit{tokens}.
+The syntax analysis takes this token stream and then imposes a grammatical structure on them, checking if the source program is syntacticly ill formed.
+Then the semantic analysis uses the grammatical structure to check if the source program is semantically correct.
+And finally, using the output structure of the semantic analysis we output a intermediate programming language.
 
-  \fbox{
-    \parbox{.6\textwidth}{
-      \begin{itemize}
-      \item Não use itemize como algoritmo!
-      \item Escolha um pacote como \texttt{algorithmicx}, \texttt{algorithm2e} ou \texttt{minted}.
-      \end{itemize}
-    }
-  }
 
-  \fonte{O autor.}
-\end{algorithm}
 
-\subsection{Coisas}
-\label{sec:stuff}
-Imagine alguma afirmação de alto valor científico aqui.
+\section{Goals}\label{cap:introduction:sec:goals}
 
-\subsubsection{Outras coisas mais}
-\label{sec:other}
-Estudos demonstram que essa afirmação é falsa.
+Desenvolver uma linguagem de programação com refinement types.
+Construir um compilador para tradução desta linguagem para LLVM-IR.\@
+Explorar possiveis optimizações no LLVM-IR utilizando a semantica adicionada pelo sistema de tipos refinados.
 
-\subsubsubsection{Ainda outras coisas mais}
-\label{sec:yet-another}
-Fazer a grama verde, como? Novamente o jogo foi perdido. Opcionalmente, tudo
-pode ser opcional. Recursos foram gastos com isso. Descubra a verdade nas
-capitalizadas.
-% Fiquei 15 minutos mais próximo da morte ao escrever isso. Você pode chegar
-% ainda mais perto se tentar entender.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Elementos pós-textuais                                       %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\postextual
+A analise léxica consiste em identificar os lexemas presentes no código fonte e produzir \textit{tokens} para cada um dos lexemas encontrados.
+Estruturas formais como expressões regulares e autómatos finitos, juntamente com um algorítimo de conversão~\cite{lesk1975lex}, podem ser utilizadas para geração automática de analisadores léxicos.
+
+A analise sintática consiste em analisar os \textit{tokens} produzidos pelo analisador léxico de produzir uma arvore sintática.
+Estruturas formais como linguagens livre de contexto e maquinas de pilha, juntamente com um algorítimo de \textit{parsing}~\cite{knuth1965translation}, podem ser utilizadas para geração automática de analisadores sintáticos.
+
+A analise semântica consiste em analisar a arvore sintática produzida pelo analisador sintático e produzir código intermediário.
+Estruturas formais como \textit{Syntax Directed Definitions} (SDD), juntamente a uma \textit{Syntax Directed Translation} (SDT), podem ser utilizadas para geração de código intermediário~\cite{Aho:2006:CPT:1177220}.
+
+O \textit{back end} de um compilador realiza a etapa de síntese e é uma area muito importante de compiladores.
+É o \textit{back end} que realiza as otimizações necessárias para que os programas de computador sejam eficientes.
+
+O projeto LLVM~\cite{lattner2004llvm} é uma biblioteca de funcionalidades para otimização de código intermediário e geração de código alvo.
+Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
+
+Este trabalho tem como objetivo projetar uma linguagem de programação similar a C e desenvolver um \textit{front end} para a linguagem intermediária LLVM\@.
+O mesmo vem a contribuir com a dissertação de mestrado do Evandro Chagas no PPGCC (Programa de Pós-Graduação em Ciência da Computação) UFSC, no qual há a especificação de uma linguagem de programação quântica.
+Vale ressaltar que o escopo da presente proposta constitui da parte clássica~\footnote{O termo clássico é usado em contraponto ao termo quântico, ou seja, clássico é tudo que não é quântico.} da especificação dessa linguagem de programação quântica.
+
+\chapter{Background}\label{cap:background}
+
+In this chapter we will present prior work related to refinement types and llvm.
+
+\chapter{Related Work}\label{cap:related_work}
+
+\chapter{TODO:\@ proposal}
+
+\postextual{}
 \bibliography{example}
 
-\apendices
-
-\chapter{Exemplo de Apêndice}~\label{ch:apendice}
-
-% Uso de \cite em apêndice/anexo como se fossem antes do \bibliography{}.  NBR
-% 14724 e NBR 6023, assim como os documentos da BU não especificam nada sobre
-% citações dentro de apêndices/anexos. No entanto, em email trocado com a BU, a
-% orientação foi de usar \cite{} normalmente e deixar que as referências sejam
-% listadas na única bibliografia do documento, mesmo que esta esteja antes dos
-% apêndices. A argumentação é que apêndices e anexos são numerados e fazem parte
-% do documento, logo suas referências devem ser listadas como referências do
-% documento. Além disso as normas não prevem segmentar as referências por
-% capítulos.
-~\cite{turing1937} \lipsum[1]
-
+\apendices{}
 
 \end{document}
 
