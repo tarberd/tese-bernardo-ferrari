@@ -64,18 +64,19 @@
 % Mantatorio ser em Português, usando a voz ativa na terceira pessoa.
 % Contexto; Problema; Estado da Arte; Solução proposta; Resultados.
 \begin{resumo}[Resumo]
-Compiladores são os programas de computadores que fazem o papel de tradutor entre as linguagens de programação e as linguagens de maquina.
-Eles recebem como entrada um texto escrito em uma linguagem fonte, chamado de programa fonte, e produzem como saída um texto escrito em uma linguagem de maquina alvo, chamado de programa alvo.
-O processo de tradução executado por um compilador pode ser separado em duas grandes etapas: a etapa de analise e a etapa de síntese.
-Durante a etapa de analise, um sistema de tipos pode ser utilizado.
-O sistema de tipos classificara as diferentes sentenças de um programa quanto aos tipos dos valores que as sentenças computam com o objetivo de provar a ausencia de determinados comportamentos de programas do programa fonte.
-Um dos possiveis sistemas de tipos é chamado de sistema de tipos refinados, onde é anexado os tipos dos valores de um programa predicados lógicos que garamtem propriedades extras.
-Entre as etapas de analise e síntese pode se fazer o uso de uma linguagem intermediária.
-O uso de uma linguagem intermediária é especialmente vantajoso pois, um compilador para a linguagem $i$ e maquina $j$ pode ser construído combinando um \textit{front end} para $i$ e um \textit{back end} para $j$.
-O projeto LLVM é uma biblioteca de funcionalidades para otimização de código intermediário e geração de código alvo.
-Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
-O objetivo do trabalho consiste em propor o projeto de uma linguagem de programação que utilize um sistema de refinamento de tipos e a confecção de seu compilador utilizando o ecossistema de ferramentas LLVM\@.
-É esperada que a ferramenta consiga fazer a analise do código fonte utilizando o sistema de tipos refinados proposto e sua tradução para código de maquina alvo.
+% Compiladores são os programas de computadores que fazem o papel de tradutor entre as linguagens de programação e as linguagens de maquina.
+% Eles recebem como entrada um texto escrito em uma linguagem fonte, chamado de programa fonte, e produzem como saída um texto escrito em uma linguagem de maquina alvo, chamado de programa alvo.
+% O processo de tradução executado por um compilador pode ser separado em duas grandes etapas: a etapa de analise e a etapa de síntese.
+% Durante a etapa de analise, um sistema de tipos pode ser utilizado.
+% O sistema de tipos classificara as diferentes sentenças de um programa quanto aos tipos dos valores que as sentenças computam com o objetivo de provar a ausencia de determinados comportamentos de programas do programa fonte.
+% Um dos possiveis sistemas de tipos é chamado de sistema de tipos refinados, onde é anexado os tipos dos valores de um programa predicados lógicos que garamtem propriedades extras.
+% Entre as etapas de analise e síntese pode se fazer o uso de uma linguagem intermediária.
+% O uso de uma linguagem intermediária é especialmente vantajoso pois, um compilador para a linguagem $i$ e maquina $j$ pode ser construído combinando um \textit{front end} para $i$ e um \textit{back end} para $j$.
+% O projeto LLVM é uma biblioteca de funcionalidades para otimização de código intermediário e geração de código alvo.
+% Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
+% O objetivo do trabalho consiste em propor o projeto de uma linguagem de programação que utilize um sistema de refinamento de tipos e a confecção de seu compilador utilizando o ecossistema de ferramentas LLVM\@.
+% É esperada que a ferramenta consiga fazer a analise do código fonte utilizando o sistema de tipos refinados proposto e sua tradução para código de maquina alvo.
+TODO: Resumo
 
 \vspace{\onelineskip}
 \noindent
@@ -110,11 +111,11 @@ O objetivo do trabalho consiste em propor o projeto de uma linguagem de programa
   \textbf{Keywords:} Keyword. Another Compound Keyword. Bla.
 \end{abstract}
 
-\listoffigures*
+% \listoffigures*
 
-\listofalgorithms*
+% \listofalgorithms*
 
-\begin{listadesimbolos}
+% \begin{listadesimbolos}
   % $\gets$   & Atribuição \\
   % $\exists$   & Quantificação existencial \\
   % $\rightarrow$   & Implicação \\
@@ -127,11 +128,11 @@ O objetivo do trabalho consiste em propor o projeto de uma linguagem de programa
   % $\langle\ldots\rangle$ & Tupla \\
   % $\forall$   & Quantificação universal \\
   % mmmmm & Nenhum sentido, apenas estou aqui para demonstrar a largura máxima dessas colunas. Ao abrir o ambiente \texttt{listadesimbolos}, pode-se fornecer um argumento opcional indicando a largura da coluna da esquerda (o default é de 5em): \texttt{\textbackslash{}begin\{listadesimbolos\}[2cm] .... \textbackslash{}end\{listadesimbolos\}} \\
-\end{listadesimbolos}
+% \end{listadesimbolos}
 
 \tableofcontents*
 
-\textual{}
+\textual%
 
 \chapter{Introduction}\label{chapter:introduction}
 
@@ -268,25 +269,46 @@ Alone, this refinements may seam a just a gimmick, but combined with function th
 For example, the author of a array library may write the functions
 \begin{quote}
 \begin{verbatim}
-val size =
-val get
+val size: x: array(a) -> nat[v | v = length(x)]
+val get: x: array(a) -> nat[v | v < length(x)] -> a
 \end{verbatim}
 \end{quote}
+which guarantees that a call to \verb+size(arr)+ returns a value with the exact length of \verb+arr+, and that a call to \verb+get(arr, i)+ requires the index \verb+i+ to be within the bounds of \verb+arr+.
+Given this definitions the refinement type checker can then prove, during the analysis phase (i.e.\ at compile-time), that the contracts of both \verb+size+ and \verb+get+ will not be violated, ensuring all array access to be sate when executing the target program (i.e.\ at run-time).
 
+Refinement types offer the option to add information to the type system about the invariants and correctness properties a programmer may care about.
+It is done in such a way that, if the programmer desires, no refinement needs to be added and can be thought like a typical type system.
+On the other hand, programmers can incrementally add refinements to ensure important properties about the source program.
+They could begin with basic safety requirements, e.g.\ eliminating division by zero and buffer overflow, or guarantee that a function does not receive a empty collection, and then incrementally add to the specification invariants of custom data types.
+Ultimately going all the way to specifying and verifying the correctness of different procedures at compile-time.
+By enabling verification on the same language as the programming language, refinement types bridge implementation and prof together.
+This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof.
 
 \section{Goals}\label{chapter:introduction:sec:goals}
 
-Desenvolver uma linguagem de programação com refinement types.
-Construir um compilador para tradução desta linguagem para LLVM-IR.\@
-Explorar possiveis optimizações no LLVM-IR utilizando a semantica adicionada pelo sistema de tipos refinados.
+After exploring the motivations behind the use of an intermediate language like LLVM-IR and the use of type checkers with refinement types in the compiler's analysis phase.
+We are ready to discuss the objectives of this work.
+They are:
+\begin{itemize}
+    \item Design a programming language;
+    \item Design the programming language's type system with refinement types using operational semantics;
+    \item Implement a compiler's front end including a lexical analyzer, parser and a semantic analyzer with a type checker for the designed language;
+    \item Use the LLVM libraries to generate LLVM-IR\@ and explore possible optimizations brought by refinement types during intermediate code generation.
+\end{itemize}
+
+Designing a new language is particularly advantageous because we have full control of all the language features being implemented and allow us to build the language, the refinement type system, and the intermediate code generation, one feature at a time.
 
 \chapter{Background}\label{chapter:background}
 
-In this chapter we will present prior work related to refinement types and llvm.
+In this chapter we will present the background needed to build a compiler and create an operational semantic for the refinement type system.
 
 \chapter{Related Work}\label{chapter:related_work}
 
+In this chapter we will present prior work related to refinement types and llvm.
+
 \chapter{TODO:\@ proposal}
+
+In this chapter we will present the built language and type system.
 
 \postextual{}
 \bibliography{example}
