@@ -1,12 +1,8 @@
-%dica: use a opção oneside se houver um limite (e.g., 20) de páginas
-\documentclass[
-  english,
-  lmodern,
-  oneside
-]{ufsc-thesis-rn46-2019/ufsc-thesis-rn46-2019}
+\documentclass[english, lmodern, oneside, nopageanchorhack]{ufsc-thesis-rn46-2019}
 
 \usepackage[T1]{fontenc} % fontes
 \usepackage[utf8]{inputenc} % UTF-8
+\usepackage{lipsum} % Gerador de texto
 \usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
 
 \usepackage{tikz}
@@ -15,54 +11,82 @@
 %%% Configurações da classe (dados do trabalho)                  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Preâmbulo
-\titulo{Template \LaTeX{} seguindo a RN 46/2019/CPG da UFSC}
-\autor{Bernardo Ferrari Mendonça}
-\data{3 de Dezembro de 2020}
+% Informações para capa e folha de rosto/certificacao
+
+% Caso o título contenha alguma porção LaTeX ilegível, defina um título
+% alternativo opcional com []'s para ser usado no campo Title do PDF
+% IMPORTANTE: Os títulos deveriam ser iguais. Apenas use um título
+% alternativo se o título não puder ser expresso com letras e números
+\titulo{Um projeto de linguagem de programação com tipos refinados e implementação de seu front end para LLVM-IR}
+
+\autor{Bernardo Ferrari}
+\data{7 de Maio de 2021} % ou \today
 \instituicao{Universidade Federal de Santa Catarina}
 \centro{Centro Tecnológico}
-\local{Florianópolis}
-\programa{Programa de Pós-Graduação em Ciência da Computação}
-\tcc{}
-\curso{Ciência da Computação}
-\departamento{Departamento de Informática e Estatística}
-\titulode{Bacharel em Ciência da Computação}
+\local{Florianópolis} % Apenas cidade! Sem estado
+\programa{Programa de Graduação em Ciência da Computação}
+% Os dois próximos itens são usados para gerar o \preambulo
+%\tese % ou \dissertacao ou \tcc
+%\titulode{doutor em Ciência da Computação}
 
-\orientador{Prof.\ Alcides Fonseca, Dr.}
-\coorientador{Prof.\ Rafael de Santiago, Dr.}
+%%% Atenção! No caso de TCC, além de usar \tcc, outros comandos devem ser fornecidos:
+%%%
+\tcc
+\departamento{Departamento de Informática e Estatística}
+\curso{Ciência da Computação}
+\titulode{Bacharel em Ciência da Computação}
+% %% Para TCCs, orientadores e coorientadores podem ser externos, logo a
+% %% BU exige que sua afiliação seja explicitada. Por padrão, assume-se
+% %% UFSC. Você pode alterar a afiliação com os comandos abaixo:
 \afiliacaoorientador{Universidade de Lisboa}
 \afiliacaocoorientador{Universidade Federal de Santa Catarina}
 
-\membrabanca{Prof\textsuperscript{a}.\ Jerusa Marchi, Dr.}{Universidade Federal de Santa Catarina}
-
-\coordenador{Prof.\ José Francisco Fletes, Dr}
+% Orientador, coorientador, membros da banca e coordenador
+% As regras da BU agora exigem que Dr. apareça **depois** do nome
+% Dica: para gerar Profᵃ. use Prof\textsuperscript{a}.
+% Dica 2: para feminino use \orientadora e \coorientadora
+\orientador{Prof.\ Alcides Fonseca, Dr.}
+\coorientador{Prof.\ Rafael de Santiago, Dr.}
+\membrabanca{Prof\textsuperscript{a}. Jerusa Marchi, Dr.}{Universidade Federal de Santa Catarina}
+% Dica: se feminino, \coordenadora
+\coordenador{Prof. Charles Palmer, Dr}
 
 \begin{document}
 
-\pretextual{}
-\imprimircapa{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Principais elementos pré-textuais                            %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Inicia parte pré-textual do documento capa, folha de rosto, folha de
+% aprovação, aprovação, resumo, lista de tabelas, lista de figuras, etc.
+\pretextual%
+\imprimircapa%
 \imprimirfolhaderosto*
+% Atenção! \cleardoublepages são inseridos automaticamente
+% Atenção! esse \protect é importante
 \protect%\incluirfichacatalografica{ficha.pdf}
-\imprimirfolhadecertificacao{}
+\imprimirfolhadecertificacao
 
+% Listas de "coisas". O * no final faz com que as listas não sejam
+% incluídas como entratas do sumário (\tableofcontents)
 
+% \listoftables*
+% \listofalgorithms*
+% \listoffigures*
+% \tableofcontents*
 
 \begin{dedicatoria}
-  TODO:\@ dedicatoria
+  Este trabalho é dedicado a minha mãe, Marcela Ferrari, e a minha irmã, Camila Ferrari.
 \end{dedicatoria}
 
 \begin{agradecimentos}
-  TODO:\@ agradecimentos
+    TODO ack
 \end{agradecimentos}
 
 \begin{epigrafe}
-  TODO:\@ epigrafe
+    TODO epigrafe
 \end{epigrafe}
 
-
-% 150 a 500 palavras.
-% Mantatorio ser em Português, usando a voz ativa na terceira pessoa.
-% Contexto; Problema; Estado da Arte; Solução proposta; Resultados.
 \begin{resumo}[Resumo]
 % Compiladores são os programas de computadores que fazem o papel de tradutor entre as linguagens de programação e as linguagens de maquina.
 % Eles recebem como entrada um texto escrito em uma linguagem fonte, chamado de programa fonte, e produzem como saída um texto escrito em uma linguagem de maquina alvo, chamado de programa alvo.
@@ -76,62 +100,42 @@
 % Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
 % O objetivo do trabalho consiste em propor o projeto de uma linguagem de programação que utilize um sistema de refinamento de tipos e a confecção de seu compilador utilizando o ecossistema de ferramentas LLVM\@.
 % É esperada que a ferramenta consiga fazer a analise do código fonte utilizando o sistema de tipos refinados proposto e sua tradução para código de maquina alvo.
-TODO: Resumo
+TODO Resumo
 
-\vspace{\onelineskip}
-\noindent
-\textbf{Palavras-chave}: linguagem de programação\@. representação intermediária de código\@. compilador\@. LLVM\@. LLVM IR\@.
+% Atenção! a BU exige separação através de ponto (.). Ela recomanda de 3 a 5 keywords
+\vspace{\baselineskip}
+\textbf{Palavras-chave:} linguagem de programação\@. tipos refinados. representação intermediária de código\@. compilador\@. LLVM\@. LLVM-IR\@.
 \end{resumo}
 
-% \begin{resumo}[Resumo Estendido]
-%   \section*{Introdução}
-%   A hifenização é alterada para \texttt{brazil}, mesmo para documentos em inglês. Descrever brevemente esses itens exigidos pela BU. Como a RN 95/CUn/2017 é mais recente e impõe outras regras a revelia de regimentos e regulamentos, é mais sábio obedecê-la. Lembre que esse resumo estendido deve term entre 2 e 5 páginas.
-%
-%   \lipsum[1]
-%   \section*{Objetivos}
-%   \lipsum[2]
-%   \section*{Metodologia}
-%   \lipsum[3]
-%   \section*{Resultados e Discussão}
-%   \lipsum[4]
-%   \section*{Considerações Finais}
-%   \lipsum[5]
-%
-%   \vspace{\baselineskip}  % Atenção! manter igual ao resumo
-%   \textbf{Palavras-chave:} Palavra-chave. Outra Palavra-chave composta. Bla.
-% \end{resumo}
-
-
 \begin{abstract}
-  TODO:\@ abstract
-  Enlish version of the plain ``resumo'' above. Done with environment
-  \texttt{abstract}. Hyphenization is automatically changed to english.
+    TODO abstract
 
   \vspace{\baselineskip}
   \textbf{Keywords:} Keyword. Another Compound Keyword. Bla.
 \end{abstract}
 
-% \listoffigures*
-
-% \listofalgorithms*
+\listoffigures*  % O * evita que apareça no sumário
 
 % \begin{listadesimbolos}
-  % $\gets$   & Atribuição \\
-  % $\exists$   & Quantificação existencial \\
-  % $\rightarrow$   & Implicação \\
-  % $\wedge$   & E lógico \\
-  % $\vee$   & Ou lógico \\
-  % $\neg$   & Negação lógica \\
-  % $\mapsto$   & Mapeia para \\
-  % $\sqsubseteq$   & Subclasse (em ontologias) \\
-  % $\subseteq$   & Subconjunto: $\forall x\;.\; x \in A \rightarrow x \in B$ \\
-  % $\langle\ldots\rangle$ & Tupla \\
-  % $\forall$   & Quantificação universal \\
-  % mmmmm & Nenhum sentido, apenas estou aqui para demonstrar a largura máxima dessas colunas. Ao abrir o ambiente \texttt{listadesimbolos}, pode-se fornecer um argumento opcional indicando a largura da coluna da esquerda (o default é de 5em): \texttt{\textbackslash{}begin\{listadesimbolos\}[2cm] .... \textbackslash{}end\{listadesimbolos\}} \\
+%   $\gets$   & Atribuição \\
+%   $\exists$   & Quantificação existencial \\
+%   $\rightarrow$   & Implicação \\
+%   $\wedge$   & E lógico \\
+%   $\vee$   & Ou lógico \\
+%   $\neg$   & Negação lógica \\
+%   $\mapsto$   & Mapeia para \\
+%   $\sqsubseteq$   & Subclasse (em ontologias) \\
+%   $\subseteq$   & Subconjunto: $\forall x\;.\; x \in A \rightarrow x \in B$ \\
+%   $\langle\ldots\rangle$ & Tupla \\
+%   $\forall$   & Quantificação universal \\
+%   mmmmm & Nenhum sentido, apenas estou aqui para demonstrar a largura máxima dessas colunas. Ao abrir o ambiente \texttt{listadesimbolos}, pode-se fornecer um argumento opcional indicando a largura da coluna da esquerda (o default é de 5em): \texttt{\textbackslash{}begin\{listadesimbolos\}[2cm] .... \textbackslash{}end\{listadesimbolos\}} \\
 % \end{listadesimbolos}
 
-\tableofcontents*
+\tableofcontents*%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Corpo do texto                                               %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \textual%
 
 \chapter{Introduction}\label{chapter:introduction}
@@ -310,10 +314,11 @@ In this chapter we will present prior work related to refinement types and llvm.
 
 In this chapter we will present the built language and type system.
 
-\postextual{}
-\bibliography{example}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Elementos pós-textuais                                       %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\apendices{}
+\postextual
+\bibliography{thesis}
 
 \end{document}
-
