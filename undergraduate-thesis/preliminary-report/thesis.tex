@@ -144,13 +144,11 @@ This work deals with the problem of translating a programming language with refi
 Throughout the work, we will be presenting: the design of a small programming language; an operational semantics with refinement types for the designed language's type system; and a compiler implementation for the designed language to LLVM-IR.\@
 In this introductory chapter we will explore the motivations behind this work and its goals.
 
-\section{Motivation}\label{chapter:introduction:sec:motivation}
-
 Programming languages are notations to describe computations to people and machines.
 This notations can take numerous forms, from binary code, ready to be executed by a specific machine, to a higher-level language, capable of expressing more abstract notations such as functions and types.
 The use of higher-level programming languages eases how people can describe computations to one another.
 Their abstractions are capable of describing computations without needing to expose details from the machine that will execute them.
-Although, in order to translate a higher-lever programming language to binary code capable of running on a machine's processor, we need to design and build programs called compilers.
+Although, in order to translate a higher-lever programming language to binary code capable of running on a machine's processor, we need to design and build programs called compilers~\cite{Aho:2006:CPT:1177220}.
 
 A compiler is a program that receive as input a program written in a \textit{source} language and outputs a program written in a \textit{target} language.
 In our study the \textit{target} language of interest is the binary code capable of running on a specific machine's processor, also called \textit{target machine language}.
@@ -167,6 +165,24 @@ Therefore, if we wish to implement compilers for $n$ different programming langu
 The intermediate code representation used by this work is the \textit{LLVM intermediate representation} (LLVM-IR), proposed by the LLVM project~\cite{lattner2004llvm} together with its \textit{back end} libraries.
 
 Although this work will not go further on the implementation of a compilers \textit{back end}, the analysis step done in the \textit{front end} is very much of our interest and we will explore it further on the following sections.
+
+\section{Goals}\label{chapter:introduction:sec:goals}
+
+After exploring the motivations behind the use of an intermediate language like LLVM-IR and the use of type checkers with refinement types in the compiler's analysis phase.
+We are ready to discuss the objectives of this work.
+They are:
+\begin{itemize}
+    \item Design a programming language;
+    \item Design the programming language's type system with refinement types using operational semantics;
+    \item Implement a compiler's front end including a lexical analyzer, parser and a semantic analyzer with a type checker for the designed language;
+    \item Use the LLVM libraries to generate LLVM-IR\@ and explore possible optimizations brought by refinement types during intermediate code generation.
+\end{itemize}
+
+Designing a new language is particularly advantageous because we have full control of all the language features being implemented and allow us to build the language, the refinement type system, and the intermediate code generation, one feature at a time.
+
+\chapter{Background}\label{chapter:background}
+
+In this chapter we will present the background needed to build a compiler and create an operational semantic for the refinement type system.
 
 \subsection{Lexical Analysis}
 
@@ -288,23 +304,6 @@ Ultimately going all the way to specifying and verifying the correctness of diff
 By enabling verification on the same language as the programming language, refinement types bridge implementation and prof together.
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof.
 
-\section{Goals}\label{chapter:introduction:sec:goals}
-
-After exploring the motivations behind the use of an intermediate language like LLVM-IR and the use of type checkers with refinement types in the compiler's analysis phase.
-We are ready to discuss the objectives of this work.
-They are:
-\begin{itemize}
-    \item Design a programming language;
-    \item Design the programming language's type system with refinement types using operational semantics;
-    \item Implement a compiler's front end including a lexical analyzer, parser and a semantic analyzer with a type checker for the designed language;
-    \item Use the LLVM libraries to generate LLVM-IR\@ and explore possible optimizations brought by refinement types during intermediate code generation.
-\end{itemize}
-
-Designing a new language is particularly advantageous because we have full control of all the language features being implemented and allow us to build the language, the refinement type system, and the intermediate code generation, one feature at a time.
-
-\chapter{Background}\label{chapter:background}
-
-In this chapter we will present the background needed to build a compiler and create an operational semantic for the refinement type system.
 
 \chapter{Related Work}\label{chapter:related_work}
 
