@@ -1,4 +1,4 @@
-\documentclass[english, lmodern, oneside, nopageanchorhack]{ufsc-thesis-rn46-2019}
+\documentclass[english, lmodern, oneside, embeddedlogo]{ufsc-thesis-rn46-2019}
 
 \usepackage[T1]{fontenc} % fontes
 \usepackage[utf8]{inputenc} % UTF-8
@@ -19,7 +19,7 @@
 % alternativo se o título não puder ser expresso com letras e números
 \titulo{Um projeto de linguagem de programação com tipos refinados e implementação de seu front end para LLVM-IR}
 
-\autor{Bernardo Ferrari}
+\autor{Bernardo Ferrari Mendonça}
 \data{7 de Maio de 2021} % ou \today
 \instituicao{Universidade Federal de Santa Catarina}
 \centro{Centro Tecnológico}
@@ -31,7 +31,7 @@
 
 %%% Atenção! No caso de TCC, além de usar \tcc, outros comandos devem ser fornecidos:
 %%%
-\tcc
+\tcc{}
 \departamento{Departamento de Informática e Estatística}
 \curso{Ciência da Computação}
 \titulode{Bacharel em Ciência da Computação}
@@ -45,11 +45,11 @@
 % As regras da BU agora exigem que Dr. apareça **depois** do nome
 % Dica: para gerar Profᵃ. use Prof\textsuperscript{a}.
 % Dica 2: para feminino use \orientadora e \coorientadora
-\orientador{Prof.\ Alcides Fonseca, Dr.}
+\orientador{Prof.\ Alcides Miguel Cachulo Aguiar Fonseca, Dr.}
 \coorientador{Prof.\ Rafael de Santiago, Dr.}
 \membrabanca{Prof\textsuperscript{a}. Jerusa Marchi, Dr.}{Universidade Federal de Santa Catarina}
 % Dica: se feminino, \coordenadora
-\coordenador{Prof. Charles Palmer, Dr}
+\coordenador{Prof.\ Jean Everson Martina, Dr}
 
 \begin{document}
 
@@ -59,13 +59,13 @@
 
 % Inicia parte pré-textual do documento capa, folha de rosto, folha de
 % aprovação, aprovação, resumo, lista de tabelas, lista de figuras, etc.
-\pretextual%
-\imprimircapa%
+\pretextual{}
+\imprimircapa{}
 \imprimirfolhaderosto*
 % Atenção! \cleardoublepages são inseridos automaticamente
 % Atenção! esse \protect é importante
-\protect%\incluirfichacatalografica{ficha.pdf}
-\imprimirfolhadecertificacao
+\protect{}%\incluirfichacatalografica{ficha.pdf}
+\imprimirfolhadecertificacao{}
 
 % Listas de "coisas". O * no final faz com que as listas não sejam
 % incluídas como entratas do sumário (\tableofcontents)
@@ -76,7 +76,7 @@
 % \tableofcontents*
 
 \begin{dedicatoria}
-  Este trabalho é dedicado a minha mãe, Marcela Ferrari, e a minha irmã, Camila Ferrari.
+    Este trabalho é dedicado a minha mãe, Marcela Ferrari, e a minha irmã, Camila Ferrari.
 \end{dedicatoria}
 
 \begin{agradecimentos}
@@ -88,30 +88,30 @@
 \end{epigrafe}
 
 \begin{resumo}[Resumo]
-% Compiladores são os programas de computadores que fazem o papel de tradutor entre as linguagens de programação e as linguagens de maquina.
-% Eles recebem como entrada um texto escrito em uma linguagem fonte, chamado de programa fonte, e produzem como saída um texto escrito em uma linguagem de maquina alvo, chamado de programa alvo.
-% O processo de tradução executado por um compilador pode ser separado em duas grandes etapas: a etapa de analise e a etapa de síntese.
-% Durante a etapa de analise, um sistema de tipos pode ser utilizado.
-% O sistema de tipos classificara as diferentes sentenças de um programa quanto aos tipos dos valores que as sentenças computam com o objetivo de provar a ausencia de determinados comportamentos de programas do programa fonte.
-% Um dos possiveis sistemas de tipos é chamado de sistema de tipos refinados, onde é anexado os tipos dos valores de um programa predicados lógicos que garamtem propriedades extras.
-% Entre as etapas de analise e síntese pode se fazer o uso de uma linguagem intermediária.
-% O uso de uma linguagem intermediária é especialmente vantajoso pois, um compilador para a linguagem $i$ e maquina $j$ pode ser construído combinando um \textit{front end} para $i$ e um \textit{back end} para $j$.
-% O projeto LLVM é uma biblioteca de funcionalidades para otimização de código intermediário e geração de código alvo.
-% Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
-% O objetivo do trabalho consiste em propor o projeto de uma linguagem de programação que utilize um sistema de refinamento de tipos e a confecção de seu compilador utilizando o ecossistema de ferramentas LLVM\@.
-% É esperada que a ferramenta consiga fazer a analise do código fonte utilizando o sistema de tipos refinados proposto e sua tradução para código de maquina alvo.
-TODO Resumo
+    % Compiladores são os programas de computadores que fazem o papel de tradutor entre as linguagens de programação e as linguagens de maquina.
+    % Eles recebem como entrada um texto escrito em uma linguagem fonte, chamado de programa fonte, e produzem como saída um texto escrito em uma linguagem de maquina alvo, chamado de programa alvo.
+    % O processo de tradução executado por um compilador pode ser separado em duas grandes etapas: a etapa de analise e a etapa de síntese.
+    % Durante a etapa de analise, um sistema de tipos pode ser utilizado.
+    % O sistema de tipos classificara as diferentes sentenças de um programa quanto aos tipos dos valores que as sentenças computam com o objetivo de provar a ausencia de determinados comportamentos de programas do programa fonte.
+    % Um dos possiveis sistemas de tipos é chamado de sistema de tipos refinados, onde é anexado os tipos dos valores de um programa predicados lógicos que garamtem propriedades extras.
+    % Entre as etapas de analise e síntese pode se fazer o uso de uma linguagem intermediária.
+    % O uso de uma linguagem intermediária é especialmente vantajoso pois, um compilador para a linguagem $i$ e maquina $j$ pode ser construído combinando um \textit{front end} para $i$ e um \textit{back end} para $j$.
+    % O projeto LLVM é uma biblioteca de funcionalidades para otimização de código intermediário e geração de código alvo.
+    % Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
+    % O objetivo do trabalho consiste em propor o projeto de uma linguagem de programação que utilize um sistema de refinamento de tipos e a confecção de seu compilador utilizando o ecossistema de ferramentas LLVM\@.
+    % É esperada que a ferramenta consiga fazer a analise do código fonte utilizando o sistema de tipos refinados proposto e sua tradução para código de maquina alvo.
+    TODO Resumo
 
-% Atenção! a BU exige separação através de ponto (.). Ela recomanda de 3 a 5 keywords
-\vspace{\baselineskip}
-\textbf{Palavras-chave:} linguagem de programação\@. tipos refinados. representação intermediária de código\@. compilador\@. LLVM\@. LLVM-IR\@.
+    % Atenção! a BU exige separação através de ponto (.). Ela recomanda de 3 a 5 keywords
+    \vspace{\baselineskip}
+    \textbf{Palavras-chave:} linguagem de programação\@. tipos refinados\@. representação intermediária de código\@. compilador\@. LLVM\@. LLVM-IR\@.
 \end{resumo}
 
 \begin{abstract}
     TODO abstract
 
-  \vspace{\baselineskip}
-  \textbf{Keywords:} Keyword. Another Compound Keyword. Bla.
+    \vspace{\baselineskip}
+    \textbf{Keywords:} Keyword. Another Compound Keyword. Bla.
 \end{abstract}
 
 \listoffigures*  % O * evita que apareça no sumário
@@ -152,7 +152,7 @@ Although, in order to translate a higher-lever programming language to binary co
 
 A compiler is a program that receive as input a program written in a \textit{source} language and outputs a program written in a \textit{target} language.
 In our study the \textit{target} language of interest is the binary code capable of running on a specific machine's processor, also called \textit{target machine language}.
-During the translation between the \textit{source} and \textit{target} languages, the compiler goes through two major execution steps: the analysis step; and the synthesis step.
+During the translation between the \textit{source} and \textit{target} languages, the compiler goes through two major execution steps: the analysis step; and the synthesis step~\cite{Aho:2006:CPT:1177220}.
 
 The analysis step, also called the compiler's \textit{front end}, may be further subdivided into: lexical analysis; syntax analysis; semantic analysis; and intermediate code generation.
 Furthermore, the synthesis step, also called the compiler's \textit{back end}, may be further subdivided into: machine-independent code optimization; code generation; and machine-dependent code optimization.
@@ -191,13 +191,13 @@ The lexical analyzer will read a stream of characters from the source program an
 For each lexeme, the lexical analyzer generate a \textit{token} with different meta-data depending on the token type.
 For example, analysing the following program:
 \begin{quote}
-\begin{verbatim}
+    \begin{verbatim}
 let a = b + 60 / c
 \end{verbatim}
 \end{quote}
 A lexical analyzer may output the following token stream:
 \begin{quote}\label{figure:introduction_token_stream}
-\begin{verbatim}
+    \begin{verbatim}
 <let> <id, a> <=> <id, b> <+> <number, 60> </> <id, c>
 \end{verbatim}
 \end{quote}
@@ -225,24 +225,24 @@ This structure already has more information than the linear token stream it rece
 For example, it is prepared in such a way to preserve the order of operations from classic arithmetic, the tree has an interior node labled $/$ with \verb+<number, 60>+ as its left child and \verb+<id, c>+ as its right child making it explicit that we must first divide $60$ by $c$ before evaluating the interior node labled $+$ which depends on the result of $/$ as its right child.
 
 \begin{figure}
-\caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}\label{figure:introduction_ast}
-\centering
-\begin{tikzpicture}
-	\node (is-root) {=}
-		[sibling distance=2cm]
-		child { node {<id, a>} }
-		child {
-			node {+}
-				[sibling distance=2cm]
-        child { node {<id, b>} }
-				child {
-          node {/}
-            [sibling distance=2.2cm]
-            child { node {<number, 60>} }
-            child { node {<id, c>} }
-        }
-		};
-\end{tikzpicture}
+    \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}\label{figure:introduction_ast}
+    \centering
+    \begin{tikzpicture}
+        \node (is-root) {=}
+        [sibling distance=2cm]
+        child { node {<id, a>} }
+        child {
+                node {+}
+                    [sibling distance=2cm]
+                child { node {<id, b>} }
+                child {
+                        node {/}
+                            [sibling distance=2.2cm]
+                        child { node {<number, 60>} }
+                        child { node {<id, c>} }
+                    }
+            };
+    \end{tikzpicture}
 \end{figure}
 
 \subsection{Semantic Analysis}
@@ -267,12 +267,12 @@ They are mainly used to describe valid sets of values that can be used for diffe
 Although effective, well-typed programs do go wrong~\cite{jhala2020refinement}.
 
 \begin{itemize}
-  \item \textbf{Division by zero:} Constraining the types of the division operation to `int' does not protect the program to execute a division by zero at run-time.
-Also, it does not guarantee that the arithmetic operations will not under- or over-flow.
-  \item \textbf{Buffer overflow:} Constraining the index of the access of a `array' or `string' to `int' does not protect the program to try to access data from beyond the data structure's end.
-  \item \textbf{Logic bugs:} The type system of modern languages allow for the creation of custom types like \verb+structure date { day: int, month: int, year: int}+, where its values are compound of three `int' values for day, month and year.
-But the type `date' can not guarantee that the value for day will be valid for a certain value of month and year.
-  \item \textbf{Correctness errors:} The type system can guarantee that a sorting procedure will produce a value of type list  but can not guarantee that the list was, in fact, sorted.
+    \item \textbf{Division by zero:} Constraining the types of the division operation to `int' does not protect the program to execute a division by zero at run-time.
+          Also, it does not guarantee that the arithmetic operations will not under- or over-flow.
+    \item \textbf{Buffer overflow:} Constraining the index of the access of a `array' or `string' to `int' does not protect the program to try to access data from beyond the data structure's end.
+    \item \textbf{Logic bugs:} The type system of modern languages allow for the creation of custom types like \verb+structure date { day: int, month: int, year: int}+, where its values are compound of three `int' values for day, month and year.
+          But the type `date' can not guarantee that the value for day will be valid for a certain value of month and year.
+    \item \textbf{Correctness errors:} The type system can guarantee that a sorting procedure will produce a value of type list  but can not guarantee that the list was, in fact, sorted.
 \end{itemize}
 
 A type system can be extended to further \textit{refine} its types with logic predicates.
@@ -280,7 +280,7 @@ This method is called \textit{Refinement types with predicates}.
 It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe.
 For example, while `int' types can assume any integer values, we can write the refined type
 \begin{quote}
-\begin{verbatim}
+    \begin{verbatim}
 type nat = int[v | 0 <= v]
 \end{verbatim}
 \end{quote}
@@ -288,7 +288,7 @@ where `nat' will only be able to assume positive integer values.
 Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs.
 For example, the author of a array library may write the functions
 \begin{quote}
-\begin{verbatim}
+    \begin{verbatim}
 val size: x: array(a) -> nat[v | v = length(x)]
 val get: x: array(a) -> nat[v | v < length(x)] -> a
 \end{verbatim}
@@ -309,7 +309,7 @@ This approach creates a development cycle were the implementation hits programme
 
 In this chapter we will present prior work related to refinement types and llvm.
 
-\chapter{TODO:\@ proposal}
+\chapter{TODO:proposal}
 
 In this chapter we will present the built language and type system.
 
@@ -317,7 +317,7 @@ In this chapter we will present the built language and type system.
 %%% Elementos pós-textuais                                       %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\postextual
+\postextual{}
 \bibliography{thesis}
 
 \end{document}
