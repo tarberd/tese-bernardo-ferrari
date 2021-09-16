@@ -1,11 +1,27 @@
-\documentclass[english, lmodern, oneside, embeddedlogo]{ufsc-thesis-rn46-2019}
+\documentclass[
+    oneside,
+    english,
+    embeddedlogo,
+    noabntexcite
+]{ufsc-thesis-rn46-2019}
 
 \usepackage[T1]{fontenc} % fontes
 \usepackage[utf8]{inputenc} % UTF-8
-\usepackage{lipsum} % Gerador de texto
+\usepackage{lmodern}
 \usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
+\usepackage{csquotes}
+\usepackage{amsmath}
+\usepackage[style=abnt]{biblatex}
+
+\usepackage{paper_alcides}
 
 \usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+
+\newcommand\myflowchartlowermargin{1.2cm}
+
+\addbibresource[glob]{bibliography/*.bib}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Configurações da classe (dados do trabalho)                  %%%
@@ -140,45 +156,158 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-This work deals with the problem of translating a programming language with refinement types to the intermediate representation language LLVM-IR.\@
-Throughout the work, we will be presenting: the design of a small programming language; an operational semantics with refinement types for the designed language's type system; and a compiler implementation for the designed language to LLVM-IR.\@
-In this introductory chapter we will explore the motivations behind this work and its goals.
+% This work proposes a solution for translating a programming language with refinement types to the intermediate representation language LLVM-IR.\@
+% Throughout the work, we will be presenting: the design of a small programming language called \textit{Ekitai}; its operational semantics with refinement types as a formalization of the type system; and a compiler implementation for the designed language to LLVM-IR.\@
+% In this introductory chapter we will explore the motivations behind this work and its goals.
+% In our study, the \textit{target} language of interest is the binary code capable of being executed by a given machine's processor, also called \textit{machine language}.
 
-Programming languages are notations to describe computations to people and machines.
-This notations can take numerous forms, from binary code, ready to be executed by a specific machine, to a higher-level language, capable of expressing more abstract notations such as functions and types.
-The use of higher-level programming languages eases how people can describe computations to one another.
-Their abstractions are capable of describing computations without needing to expose details from the machine that will execute them.
-Although, in order to translate a higher-lever programming language to binary code capable of running on a machine's processor, we need to design and build programs called compilers~\cite{Aho:2006:CPT:1177220}.
+As stated by~\textcite{Aho:2006:CPT:1177220}, \textquote{Programming languages are notations to describe computations to people and to machines}.
+These notations can take numerous forms.
+They range from lower-level languages, such as binary code ready to be executed by a specific machine, to a higher-level language, such as C, Java, Rust, Haskell and Ml.
+A lower-level language like binary code is very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two value, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
+Whereas, in a higher-level language, we can describe computations in a more abstract set of notations, such as functions and types, without needing to expose details from the specific machine that will execute them~\cite{Aho:2006:CPT:1177220}.
+Hence, using a higher-level programming languages eases how people can describe computations to machines and to one another~\cite{Aho:2006:CPT:1177220}.
+However, in order to translate a higher-lever programming language to binary code capable of running on a machine's processor, we need to design and build programs called compilers~\cite{Aho:2006:CPT:1177220}.
 
-A compiler is a program that receive as input a program written in a \textit{source} language and outputs a program written in a \textit{target} language.
-In our study the \textit{target} language of interest is the binary code capable of running on a specific machine's processor, also called \textit{target machine language}.
-During the translation between the \textit{source} and \textit{target} languages, the compiler goes through two major execution steps: the analysis step; and the synthesis step~\cite{Aho:2006:CPT:1177220}.
+A compiler is a program that receives as input a program written in a \textit{source} language and translates it to a semantically equivalent program written in a \textit{target} language
+~\cite{Aho:2006:CPT:1177220}.
+This is what enables us to write programs in higher-level languages that are able to execute at a machine's processor.
+A program written with a higher-level language such as C is fed into a compiler like Clang, then Clang translates the provided source program to a program in a target language, like Intel's x86 processor's binary code, ready to be executed.
+During the translation process between the \textit{source} and \textit{target} languages, the compiler goes through two major execution steps: the analysis step, and the synthesis step~\cite{Aho:2006:CPT:1177220}.
+The analysis step, called the compiler's \textit{front end}, organizes the information included in the source program into a grammatical structure, and then uses this grammatical structure, together with some metadata collected during its construction, to build what is called an intermediate representation~\cite{Aho:2006:CPT:1177220}.
+Furthermore, the synthesis step, called the compiler's \textit{back end}, uses this intermediate representation to compute the desired target program~\cite{Aho:2006:CPT:1177220}.
 
-The analysis step, also called the compiler's \textit{front end}, may be further subdivided into: lexical analysis; syntax analysis; semantic analysis; and intermediate code generation.
-Furthermore, the synthesis step, also called the compiler's \textit{back end}, may be further subdivided into: machine-independent code optimization; code generation; and machine-dependent code optimization.
-By the end of the analysis step, we generate an intermediate code which may have no information about the higher-level notations of the source language.
-Having only the information needed by the synthesis step to run optimization algorithms and output the target language.
+If we give the analysis-synthesis model of a compiler a more fine-grained look, we can identify that the compiler's front and back end operate as a series of phases, each one transforming one intermediate representation to another in order to further advance the computation of the target program~\cite{Aho:2006:CPT:1177220}.
+The analysis step, or front end, may be subdivided into: a lexical analyzer, a syntax analyzer, a semantic analyzer and an intermediate code generator; also, the synthesis step may be subdivided into: machine-independent code optimization, code generation, and machine-dependent code optimization~\cite{Aho:2006:CPT:1177220}.
+The different phases and the intermediate representations between them can be seen at Figure~\ref{figure:compilation-phases}.
 
-The separation of the compiler in analysis, \textit{front end}, synthesis, \textit{back end}, and the use of an intermediate representation between them, is very useful because, if we wish to implement a compiler for the source language $i$ to the target machine language $j$, we can implement just the compiler's \textit{front end} for $i$ and use a proven working \textit{back end} for $j$.
-Therefore, if we wish to implement compilers for $n$ different programming languages to $m$ different machine languages, we can avoid building $n \times m$ compilers building $n$ \textit{front ends} and $m$ \textit{back ends}.
+\begin{figure}[!ht]\label{figure:compilation-phases}
+    \centering
+    \begin{tikzpicture}[
+        >={Latex[width=2mm, length=2mm]},
+        ir/.style = {
+                fill=white
+            },
+        phase/.style = {
+                rectangle,
+                rounded corners,
+                minimum width=7.2cm,
+                minimum height=1cm,
+                text centered,
+                draw=black,
+            },
+        ]
+        \node (start) [ir] {source program};
+        \node (lexical) [phase, below=\myflowchartlowermargin/2 of start] {Lexical Analyzer};
+        \node (syntax) [phase, below=\myflowchartlowermargin of lexical] {Syntax Analyzer};
+        \node (semantic) [phase, below=\myflowchartlowermargin of syntax] {Semantic Analyzer};
+        \node (intermediate) [phase, below=\myflowchartlowermargin of semantic] {Intermediate Code Generation};
+        \node (opt ind) [phase, below=\myflowchartlowermargin of intermediate] {Machine-Independent Code Optimizer};
+        \node (codegen) [phase, below=\myflowchartlowermargin of opt ind] {Code Generator};
+        \node (opt dep) [phase, below=\myflowchartlowermargin of codegen] {Machine-Dependent Code Optimizer};
+        \node (end) [below=\myflowchartlowermargin of opt dep] {};
 
-The intermediate code representation used by this work is the \textit{LLVM intermediate representation} (LLVM-IR), proposed by the LLVM project~\cite{lattner2004llvm} together with its \textit{back end} libraries.
+        \node (frontend) [right=2cm of syntax] {front end};
+        \node (backend) [right=2cm of codegen] {back end};
 
-Although this work will not go further on the implementation of a compilers \textit{back end}, the analysis step done in the \textit{front end} is very much of our interest and we will explore it further on the following sections.
+        \draw [->] (start) -- (lexical);
+        \draw [->] (lexical) -- node [ir] {token stream} (syntax);
+        \draw [->] (syntax) -- node [ir] {syntax tree} (semantic);
+        \draw [->] (semantic) -- node [ir] (syntax tree) {syntax tree} (intermediate);
+        \draw [->] (intermediate) -- node [ir] {intermediate representation} (opt ind);
+        \draw [->] (opt ind) -- node [ir] {intermediate representation} (codegen);
+        \draw [->] (codegen) -- node [ir] {target-machine code} (opt dep);
+        \draw [->] (opt dep) -- node [ir] {target-machine code} (end);
+        \draw (lexical.east) -| (frontend.north);
+        \draw (intermediate) -| (frontend);
+        \draw (opt ind.east) -| (backend.north);
+        \draw (opt dep.east) -| (backend);
+    \end{tikzpicture}
+    \caption{Phases of a compiler and the intermediate representations between them. Adapted from~\textcite{Aho:2006:CPT:1177220}.}
+\end{figure}
+
+According to \textcite{appel2003modern}, \textquote{An intermediate representation (IR) is a kind of abstract machine language that can express the target-machine operations without committing to too much machine-specific detail}.
+The authors continue by adding that the IR \textquote{is also independent of the details of the source language}~\cite{appel2003modern}.
+This means that the abstract notations exclusive to a higher-level language are handled by the front end of a compiler so that, by the time the source program is transformed into the IR, the computations described by the IR are semantic equivalent to the computations described by the source program but are now in the notations of an abstract machine language.
+Although the semantics of the computations are the same, there may be semantics in the higher-level language that are not present in the IR.\@
+The front end of a compiler is then responsible to check if all semantic aspects of the source program are sound to the source language specifications before the generation of the IR~\cite{Aho:2006:CPT:1177220}.
+The authors explain that the checks made during compilation are called \textit{Static Checks}, and they are not only capable of assuring that the source program can be successfully compiled, but have the potential to catch programming errors early, before the program can be executed~\cite{Aho:2006:CPT:1177220}. One of the static checks executed during compilation is \textit{type checking} and is part of the semantic analysis phase of the compiler's front end~\cite{appel2003modern}.
+
+The type checking executed during the semantic analysis phase is designed in accordance with the source language's type system.
+\textcite{pierce2002types} defines a type system as: \textquote{A tractable syntactic method for proving the absence of certain program behaviors by classifying phrases according to the kinds of values they compute}.
+Hence, a phrase written with higher-level notations such as
+\begin{equation}\label{eq:type_example1}
+    \verb+x * 30+
+\end{equation}
+may be classified to compute a value of type \verb+Integer+, written
+\begin{equation*}
+    \verb+x * 30: Integer+
+\end{equation*}
+meaning that~\ref{eq:type_example1} is a phrase that computes a mathematical integer value.
+As a counter example, if defined by the type system that the multiplication between a value of type \verb/Character/ and a value of type \verb/Integer/ was not allowed, and we had both classifications
+\begin{equation*}
+    \verb/x: Character/ \quad \textrm{and} \quad \verb/30: Integer/
+\end{equation*}
+the phrase in~\ref{eq:type_example1} would be semantically unsound and should be indicated as a type error by the type checker.
+
+According to \textcite{jhala2020refinement} type systems are mainly used to describe valid sets of values that can be used for different computations, so that the compiler can eliminate, during its execution, a variety of possible run-time errors during the target program execution.
+Type systems like the ones used by popular modern programming languages such as C\#, Haskell, Java, OCaml, Rust and Scala have similar kinds of rules and are the most widespread tool used to guarantee the correct behavior of a program~\cite{jhala2020refinement}.
+In \textcite{jhala2020refinement}, the authors affirm that, although type systems are widespread and effective, well-typed programs do go wrong; and goes on to describe a few wrong behaviors that are common to the most popular type systems. Within them, we have:
+\begin{itemize}
+    \item \textbf{Division by zero:} Constraining the types of the division operation to \verb/int/ does not protect the program to execute a division by zero at run-time; also, it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020refinement}.
+    \item \textbf{Buffer overflow:} Constraining the index of the access of a \verb/array/ or \verb/string/ to \verb/int/ does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020refinement}.
+\end{itemize}
+
+An effort can be made while designing a type system so that they can further restrict the values of certain types.
+We can be extended a type system to further \textit{refine} its types with logic predicates and this method is called \textit{Refinement types with predicates}~\cite{jhala2020refinement}.
+It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020refinement}.
+For example, while \verb/int/ types can assume any integer values, we can write the refined type
+\begin{equation*}
+    \verb/type nat = int[v | 0 <= v]/
+\end{equation*}
+where the newly defined type \verb!nat! will only be able to assume positive integer values.
+Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020refinement}.
+For example, the author of an \verb!array! library may specify the functions signatures types
+\begin{equation*}
+    \begin{aligned}
+         & \verb/fn size: x:array(a) -> nat[v | v = length(x)]/ \\
+         & \verb/fn  get: x:array(a) -> nat[v | v < length(x)] -> a/
+    \end{aligned}
+\end{equation*}
+where \verb!size! and \verb!get! are functions and \verb!x! is the name of the first variable.
+In this type system, a call to \verb+size(arr)+ returns a value $s$ of type \verb!nat! constrained to a single value equal to the length of \verb!arr!; hence, the type of $s$ constrains $s$ to the exact length of \verb+arr+.
+Furthermore, a call to \verb+get(arr, i)+ requires the index \verb+i+ to be within the bounds of \verb+arr+.
+Given these definitions, the refinement type checker can then prove, during the analysis phase (i.e.\ at compile-time), that the contracts of both \verb+size+ and \verb+get+ will not be violated, ensuring all array access to be sated when executing the target program (i.e.\ at run-time).
 
 \section{Goals}\label{chapter:introduction:sec:goals}
 
-After exploring the motivations behind the use of an intermediate language like LLVM-IR and the use of type checkers with refinement types in the compiler's analysis phase.
-We are ready to discuss the objectives of this work.
-They are:
+The primary goal of this work is to answer the following question: Which opportunities for code optimization arrive from compiling a higher-level language with refinement types during intermediate code generation that are not possible without refinements types?
+
+For that we will be designing a language called \textit{Ekitai}.
+Designing a new language is particularly advantageous because we have full control of all the language features being implemented and allow us to build the language, the refinement type system, and the intermediate code generation, one feature at a time.
+
+\subsection{Specific Goals}
+The specific goals of this work are to:
 \begin{itemize}
     \item Design a programming language;
     \item Design the programming language's type system with refinement types using operational semantics;
-    \item Implement a compiler's front end including a lexical analyzer, parser and a semantic analyzer with a type checker for the designed language;
-    \item Use the LLVM libraries to generate LLVM-IR\@ and explore possible optimizations brought by refinement types during intermediate code generation.
+    \item Implement a compiler's front for the designed language including:
+    \begin{itemize}
+        \item A lexical analyzer;
+        \item A syntactic analyzer for the language's syntax;
+        \item A semantic analyzer with a type checker for the language's type system;
+        \item An intermediate code generator;
+    \end{itemize}
+    \item Find optimization opportunities during intermediate code generation.
 \end{itemize}
 
-Designing a new language is particularly advantageous because we have full control of all the language features being implemented and allow us to build the language, the refinement type system, and the intermediate code generation, one feature at a time.
+\section{Methodology}
+
+The aim of this work is to find optimizations opportunities during intermediate code generation of a higher-level language with refinement types. In order to achieve our goals we conducted applied exploratory research were we employed an engineering-oriented research methodology together with literature research to build the compilers front end.
+
+\section{Structure of the work}
+
+We will present here the structure of this work.
 
 \chapter{Background}\label{chapter:background}
 
@@ -222,7 +351,7 @@ The \textit{parser} then receives as input a token stream produced by the lexica
 
 If we give the token stream from Section~\ref{figure:introduction_token_stream} as input to a parser it may output the tree structure found on Figure~\ref{figure:introduction_ast}.
 This structure already has more information than the linear token stream it received as input.
-For example, it is prepared in such a way to preserve the order of operations from classic arithmetic, the tree has an interior node labled $/$ with \verb+<number, 60>+ as its left child and \verb+<id, c>+ as its right child making it explicit that we must first divide $60$ by $c$ before evaluating the interior node labled $+$ which depends on the result of $/$ as its right child.
+For example, it is prepared in such a way to preserve the order of operations from classic arithmetic, the tree has an interior node labeled $/$ with \verb+<number, 60>+ as its left child and \verb+<id, c>+ as its right child making it explicit that we must first divide $60$ by $c$ before evaluating the interior node labeled $+$ which depends on the result of $/$ as its right child.
 
 \begin{figure}
     \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}\label{figure:introduction_ast}
@@ -247,7 +376,7 @@ For example, it is prepared in such a way to preserve the order of operations fr
 
 \subsection{Semantic Analysis}
 
-The third phase of a compilers is called semantic analysis.
+The third phase of a compiler is called semantic analysis.
 It is responsible to use the tree structure generated by the parser to check if the source program is semantically consistent with the language specification.
 An important part of semantic analysis is \textit{type checking} where it will try to validate the program to the language specification's type system.
 
@@ -256,15 +385,14 @@ It may make use of a symbol table containing the type information of the identif
 Suppose a symbol table that maps the identifier `c' to the type `boolean', written `\verb+c: boolean+', which would compose of the values `true' and `false'.
 With this information, the type checker would be able to decide if the operation `\verb+60 / c+' is semantically sound to the language's type system.
 Does the language type system specifies as valid to divide a number by a boolean?
+
+\alcides{A partir daqui é o que faz sentido estar na introdução: identificar que tipos de erros são apanhados pelos typesystems, e indicar que existem sistemas de tipos mais avançados, onde podemos especificar predicados. Dar dois ou três exemplos. O resto pode ir também para background.}
+
 If it does, what does it mean to divide the value 60 by `false'?
 Maybe, whoever designed the language decided that if the dividend is a value of type number and the divisor is a value of type boolean, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
 Maybe, the language's type system forbids this behaviour and will halt the compilation process with some error message.
 This are decisions made when building a language's type system.
 
-A type system can be described as: A tractable syntactic method for proving the absence of certain program behaviours by classifying phrases according to the kinds of values they compute~\cite{pierce2002types}.
-Type systems used by popular modern programming languages such as C\#, Haskell, Java, OCaml, Rust and Scala are the most widespread tool used to guarantee the correct behaviour of a program.
-They are mainly used to describe valid sets of values that can be used for different computations, so that the compiler can eliminate, during its execution, a variety of possible run-time errors during the target program execution.
-Although effective, well-typed programs do go wrong~\cite{jhala2020refinement}.
 
 \begin{itemize}
     \item \textbf{Division by zero:} Constraining the types of the division operation to `int' does not protect the program to execute a division by zero at run-time.
@@ -318,6 +446,6 @@ In this chapter we will present the built language and type system.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \postextual{}
-\bibliography{thesis}
+\printbibliography{}
 
 \end{document}

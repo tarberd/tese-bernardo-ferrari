@@ -1,0 +1,253 @@
+\usepackage{courier}
+\usepackage{listings}
+\usepackage{wrapfig}
+\usepackage{verbatim}
+
+%\newcommand{\comment}[1]{}
+
+\lstset { %
+language=Java,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=single,
+tabsize=2,
+captionpos=b,
+breaklines=true,
+columns=fullflexible,
+basicstyle=\tt\normalsize,
+keywordstyle=[1]\bf,
+keywordstyle=[2]\it,
+xleftmargin=3pt,
+xrightmargin=3pt,
+framesep=3pt
+}
+
+\lstdefinestyle{lam}{%
+    literate={>=}{$\geq$}2
+}
+
+\lstset{aboveskip=10pt,belowskip=10pt,language=Java}
+
+
+\newcommand{\botafig}[3][1.0]{%
+	\begin{figure}[htb]
+	\centering
+	\vspace{-5mm}
+	\scalebox{#1}{\includegraphics{figures/#2}}
+	\caption{#3}
+	\label{fig:#2}
+	\end{figure}
+}
+
+
+\newcommand{\botafigshort}[3][1.0]{%
+	\begin{figure}[htb]
+	\centering
+	\vspace{-5mm}
+	\scalebox{#1}{\includegraphics{figures/#2}}
+	\caption{#3}
+	\label{fig:#2}
+	\vspace{-5mm}
+	\end{figure}
+}
+
+
+\newcommand{\botafignomargins}[3][1.0]{%
+	\begin{figure}[htb]
+	\centering
+	\vspace{-15mm}
+	\scalebox{#1}{\includegraphics{figures/#2}}
+	\vspace{-5mm}
+	\caption{#3}
+	\vspace{-6mm}
+	\label{fig:#2}
+	\end{figure}
+}
+
+
+\newcommand{\botafigtudo}[3][1.0]{%
+	\begin{figure*}[!htbp]
+	\centering
+	\vspace{0mm}
+	\scalebox{#1}{\includegraphics{figures/#2}}
+	\caption{#3}
+	\label{fig:#2}
+	\end{figure*}
+}
+
+\newcommand{\botafigwrapped}[4][1.0]{%
+	\begin{wrapfigure}{r}{#2\textwidth}
+	\begin{center}
+	\vspace{-15mm}
+	\scalebox{#1}{\includegraphics{figures/#3}}
+	\end{center}
+	\vspace{-5mm}
+	\caption{#4}
+	\vspace{-6mm}
+	\label{fig:#3}
+	\end{wrapfigure}
+}
+
+\newcommand{\botagraphwrapped}[4][1.0]{%
+	\begin{wrapfigure}{rI}{#2\textwidth}
+	\begin{center}
+	\vspace{-12mm}
+	\scalebox{#1}{\includegraphics{analysis/pall/#3}}
+	\end{center}
+	\vspace{-6mm}
+	\caption{#4}
+	\vspace{-6mm}
+	\label{fig:#3}
+	\end{wrapfigure}
+
+}
+
+\newcommand{\botagraph}[2]{%
+	\begin{figure}[!ht]
+	\centering
+    \includegraphics{analysis/pall/#1}
+	\caption{#2}
+	\label{fig:#1}
+	\end{figure}
+}
+
+\newcommand{\botagrapht}[4]{%
+	\begin{figure}[!ht]
+    \begin{minipage}{0.47\textwidth}
+    \centering
+    \includegraphics{analysis/pall/#1}
+	\caption{#2}
+	\label{fig:#1}
+    \end{minipage}
+    %\end{figure}
+	%\begin{figure}[!ht]
+    \begin{minipage}{0.47\textwidth}
+    \centering
+    \includegraphics{analysis/pall/#3}
+	\caption{#4}
+	\label{fig:#3}
+    \end{minipage}
+    \end{figure}
+}
+
+\newcommand{\botagraphs}[2]{%
+	\begin{figure}[!ht]
+	\centering
+    \includegraphics{analysis/#1}
+	\caption{#2}
+	\label{fig:#1}
+	\end{figure}
+}
+
+
+
+\newcommand{\botagraphtwide}[4]{%
+	\begin{figure}[!ht]
+    \begin{minipage}{0.47\textwidth}
+    \centering
+    \includegraphics{analysis/pall/#1}
+	\caption{#2}
+	\label{fig:#1}
+    \end{minipage}
+
+    \begin{minipage}{0.47\textwidth}
+    \centering
+    \includegraphics{analysis/pall/#3}
+	\caption{#4}
+	\label{fig:#3}
+    \end{minipage}
+    \end{figure}
+}
+
+
+
+\newcommand{\botafigaqui}[3][1.0]{%
+	\begin{figure}[!ht]
+	\centering
+	\vspace{2mm}
+	\scalebox{#1}{\includegraphics{figures/#2}}
+	\caption{#3}
+	\label{fig:#2}
+	\end{figure}
+}
+
+
+\newcommand{\botatab}[4]{
+	\begin{table}[ht]
+    % \def\arraystretch{1.5}%
+    % \setlength\tabcolsep{3pt}
+	\centering
+	{
+	\begin{tabular}{#1}
+	#4
+	\end{tabular}
+	}
+	\vspace{3mm}
+	\caption{#3}
+	\label{table:#2}
+	\end{table}
+}
+
+\newcommand{\botatabwrapped}[4]{
+	\begin{floatingtable}[rflt]{0.8\textwidth}{
+	\begin{tabular}{#1}
+	#4
+	\end{tabular}
+	}
+	\caption{#3}
+	\label{table:#2}
+	\end{floatingtable}
+}
+
+
+\newcommand{\botatablargo}[4]{
+	\begin{table*}[ht]
+	\centering
+	\vspace{0mm}
+	{\small
+	\begin{tabular}{#1}
+	#4
+	\end{tabular}
+	}
+	\caption{#3}
+	\label{table:#2}
+	\end{table*}
+}
+
+\newcommand{\twopartdef}[4]
+{
+	\left\{
+		\begin{array}{ll}
+			#1 & \mbox{if } #2 \\
+			#3 & \mbox{if } #4
+		\end{array}
+	\right.
+}
+
+\newcommand{\TODO}[1]{\colorbox{red}{TODO:} \colorbox{yellow}{#1}}
+\newcommand{\refmiss}{\colorbox{red}{[MISSING REFERENCE]}}
+
+
+\usepackage{ifthen}
+\usepackage{amssymb}
+\newboolean{showcomments}
+\setboolean{showcomments}{true} % toggle to show or hide comments
+\ifthenelse{\boolean{showcomments}}
+  {\newcommand{\nb}[2]{
+    \fcolorbox{gray}{yellow}{\bfseries\sffamily\scriptsize#1}
+    {\textsf{\small$\blacktriangleright$\textit{#2}$\blacktriangleleft$}}
+   }
+   \newcommand{\version}{\emph{\scriptsize$-$working$-$}}
+  }
+  {\newcommand{\nb}[2]{}
+   \newcommand{\version}{}
+  }
+
+\newcommand\alcides[1]{\nb{Alcides}{#1}}
+\newcommand\vasco[1]{\nb{Vasco}{#1}}
+\newcommand\andreia[1]{\nb{Andreia}{#1}}
+\newcommand\paulo[1]{\nb{Paulo}{#1}}
+
+\newcommand\todo[1]{\nb{Todo}{#1}}
+% end Macros for proof-reading
