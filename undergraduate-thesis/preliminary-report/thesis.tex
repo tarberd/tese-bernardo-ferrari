@@ -104,18 +104,6 @@
 \end{epigrafe}
 
 \begin{resumo}[Resumo]
-    % Compiladores são os programas de computadores que fazem o papel de tradutor entre as linguagens de programação e as linguagens de maquina.
-    % Eles recebem como entrada um texto escrito em uma linguagem fonte, chamado de programa fonte, e produzem como saída um texto escrito em uma linguagem de maquina alvo, chamado de programa alvo.
-    % O processo de tradução executado por um compilador pode ser separado em duas grandes etapas: a etapa de analise e a etapa de síntese.
-    % Durante a etapa de analise, um sistema de tipos pode ser utilizado.
-    % O sistema de tipos classificara as diferentes sentenças de um programa quanto aos tipos dos valores que as sentenças computam com o objetivo de provar a ausencia de determinados comportamentos de programas do programa fonte.
-    % Um dos possiveis sistemas de tipos é chamado de sistema de tipos refinados, onde é anexado os tipos dos valores de um programa predicados lógicos que garamtem propriedades extras.
-    % Entre as etapas de analise e síntese pode se fazer o uso de uma linguagem intermediária.
-    % O uso de uma linguagem intermediária é especialmente vantajoso pois, um compilador para a linguagem $i$ e maquina $j$ pode ser construído combinando um \textit{front end} para $i$ e um \textit{back end} para $j$.
-    % O projeto LLVM é uma biblioteca de funcionalidades para otimização de código intermediário e geração de código alvo.
-    % Estas funcionalidades são construídas ao redor de uma linguagem intermediária chamada \textit{LLVM intermediate representation}, ou LLVM IR\@.
-    % O objetivo do trabalho consiste em propor o projeto de uma linguagem de programação que utilize um sistema de refinamento de tipos e a confecção de seu compilador utilizando o ecossistema de ferramentas LLVM\@.
-    % É esperada que a ferramenta consiga fazer a analise do código fonte utilizando o sistema de tipos refinados proposto e sua tradução para código de maquina alvo.
     TODO Resumo
 
     % Atenção! a BU exige separação através de ponto (.). Ela recomanda de 3 a 5 keywords
@@ -176,6 +164,10 @@ A program written with a higher-level language such as C is fed into a compiler 
 During the translation process between the \textit{source} and \textit{target} languages, the compiler goes through two major execution steps: the analysis step, and the synthesis step~\cite{Aho:2006:CPT:1177220}.
 The analysis step, called the compiler's \textit{front end}, organizes the information included in the source program into a grammatical structure, and then uses this grammatical structure, together with some metadata collected during its construction, to build what is called an intermediate representation~\cite{Aho:2006:CPT:1177220}.
 Furthermore, the synthesis step, called the compiler's \textit{back end}, uses this intermediate representation to compute the desired target program~\cite{Aho:2006:CPT:1177220}.
+
+Though it is possible to build a compiler that translates directly to a target machine code, this hinders portability and modularity~\cite{appel2003modern}.
+Suppose we wish to implement a compiler for the source language $i$ to the target machine language $j$, we can implement just the compiler's \textit{front end} for $i$ and use a proven working \textit{back end} for $j$~\cite{Aho:2006:CPT:1177220}.
+Therefore, if we wish to implement compilers for $n$ different programming languages to $m$ different machine languages, we can avoid building $n \times m$ compilers building $n$ \textit{front ends} and $m$ \textit{back ends}~\cite{Aho:2006:CPT:1177220}.
 
 If we give the analysis-synthesis model of a compiler a more fine-grained look, we can identify that the compiler's front and back end operate as a series of phases, each one transforming one intermediate representation to another in order to further advance the computation of the target program~\cite{Aho:2006:CPT:1177220}.
 The analysis step, or front end, may be subdivided into: a lexical analyzer, a syntax analyzer, a semantic analyzer and an intermediate code generator; also, the synthesis step may be subdivided into: machine-independent code optimization, code generation, and machine-dependent code optimization~\cite{Aho:2006:CPT:1177220}.
@@ -307,7 +299,7 @@ The aim of this work is to find optimizations opportunities during intermediate 
 
 \section{Structure of the work}
 
-We will present here the structure of this work.
+In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to build the \textit{Ekitai} language. Furthermore, in Chapter~\ref{chapter:related_work}, we explore other pieces of work that are tangent to our goal. Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
 
 \chapter{Background}\label{chapter:background}
 
@@ -437,7 +429,7 @@ This approach creates a development cycle were the implementation hits programme
 
 In this chapter we will present prior work related to refinement types and llvm.
 
-\chapter{TODO:proposal}
+\chapter{The Ekitai language}\label{chapter:proposal}
 
 In this chapter we will present the built language and type system.
 
