@@ -305,18 +305,27 @@ Whereas in the implementation of \textit{Ekitai's} front end we will develop a f
 
 \section{Structure of the work}
 
-In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to design a higher level language's front end. Furthermore, in Chapter~\ref{chapter:related_work}, we explore other pieces of work that are tangent to our goal. Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
+In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to design a higher level language's front end. Furthermore, in Chapter~\ref{chapter:related_work}, we explore other pieces of work from articles and industry that are tangent to our goal. Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
 
 \chapter{A review on front end design and implementation}\label{chapter:background}
 
-In this chapter we will present the background needed to build a compiler and create an operational semantic for the refinement type system.
+In this chapter we present a brief review of the background needed to build a compiler's front end.
+We begin by presenting what is a lexical analyzer and how it is constructed in Section~\ref{chapter:background:sec:lexical}.
+We continue by presenting the aspects of a syntax analyzer in Section~\ref{chapter:background:sec:syntax}.
+Furthermore, we go on to explore the semantic analyzer and the tools used to formalize the type system in Section~\ref{chapter:background:sec:semantic}.
+And then explore the aspects of intermediate code generation in Section~\ref{chapter:background:sec:intermediate}.
 
-\section{Lexical Analysis}
+\section{Lexical Analysis}\label{chapter:background:sec:lexical}
 
-The first phase of a compiler is called lexical analysis, or \textit{scanning}.
-The lexical analyzer will read a stream of characters from the source program and group the characters into sequences called \textit{lexemes}.
-For each lexeme, the lexical analyzer generate a \textit{token} with different meta-data depending on the token type.
-For example, analysing the following program:
+The first phase of a compiler is called lexical analysis.
+The lexical analyzer will read a stream of characters from the source program and group the characters into sequences called \textit{lexemes} according to the \textit{patterns} defined for each \textit{token name}~\cite{Aho:2006:CPT:1177220}.
+\textcite{Aho:2006:CPT:1177220} describes that, for each lexeme grouped by reading the input character stream, the lexical analyzer will generate a \textit{token} which constitutes a pair of the token name and some optional metadata, e.g.\ the start and end position of the respective lexeme in the input character stream, written
+\begin{quote}
+    \begin{verbatim}
+<token name, metadata>
+\end{verbatim}
+\end{quote}
+For example, upon analyzing the following program:
 \begin{quote}
     \begin{verbatim}
 let a = b + 60 / c
@@ -325,17 +334,38 @@ let a = b + 60 / c
 A lexical analyzer may output the following token stream:
 \begin{quote}\label{figure:introduction_token_stream}
     \begin{verbatim}
-<let> <id, a> <=> <id, b> <+> <number, 60> </> <id, c>
+<let_keyword, {lexeme: "let", begin: 0, end: 3}>
+<identifier,  {lexeme: "x", begin: 4, end: 5}>
+<=,           {lexeme: "=", begin: 6, end: 7}>
+<identifier,  {lexeme: "b", begin: 8, end: 9}>
+<+,           {lexeme: "+", begin: 10, end: 11}>
+<number,      {lexeme: "60", begin: 12, end: 14}>
+</,           {lexeme: "/", begin: 15, end: 16}>
+<identifier,  {lexeme: "c", begin: 17, end: 18}>
 \end{verbatim}
 \end{quote}
-Where tokens are of the form \verb+<token-type, meta-data>+, when no meta-data is needed it can be omitted from the token notation.
-We can see that this lexical analyzer decided to map the lexemes `let', `=', `+' and `/', to the respective tokens \verb+<let>+, \verb+<=>+, \verb-<+>- and \verb+</>+;
-the lexemes `a', `b' and `c', to the respective tokens \verb+<id, a>+, \verb+<id, b>+, and \verb+<id, c>+, which all have the same token type `id' and carry as meta-data the lexeme that generated the mapping; and the lexeme `60', to the token \verb+<number, 60>+, which has token type `number' and has the its value of $60$ as meta-data.
+In this case, the metadata collected by the analyzer is very pedantic including even redundant data as the lexemes for simple patterns of the token names \verb+=+, \verb-+- and \verb+/+, when no metadata is needed it can be omitted from the token notation (e.g. \verb+<{>+).
 
-\section{Syntax Analysis}
+In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns}.
+One of the important notations for the description of token patterns are regular expressions.
+They are very effective in specifying the type of patterns usually needed to classify lexemes into tokens and can be used for automatic generation of a lexical analyzer~\cite{Aho:2006:CPT:1177220}.
+A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form $\verb+token name+ \rightarrow \verb+regular expression+$ as follows:
+\begin{equation*}
+    \begin{aligned}
+         & \verb+identifier+ \rightarrow \verb+[A-Za-z]+^+ \\
+         & \verb+number+ \rightarrow \verb+[0-9]+^+ \\
+         & \verb+let_keywork+ \rightarrow \verb+let+   \\
+         & \verb+=+ \rightarrow \verb+=+   \\
+         & \verb+/+ \rightarrow \verb+/+   \\
+         & \verb-+- \rightarrow \verb-+-   \\
+    \end{aligned}
+\end{equation*}
+This can then be used by lexical analyzer generators to generate a program for lexical analysis.
+
+\section{Syntax Analysis}\label{chapter:background:sec:syntax}
 
 The second phase of a compiler is called syntax analysis, or \textit{parsing}.
-The \textit{parser} then receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure.
+The \textit{parser} then receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure~\cite{Aho:2006:CPT:1177220}.
 
 % We can then build a parser $p$ for the following gammar in BNF notation:
 % \begin{quote}
@@ -352,8 +382,7 @@ If we give the token stream from Section~\ref{figure:introduction_token_stream} 
 This structure already has more information than the linear token stream it received as input.
 For example, it is prepared in such a way to preserve the order of operations from classic arithmetic, the tree has an interior node labeled $/$ with \verb+<number, 60>+ as its left child and \verb+<id, c>+ as its right child making it explicit that we must first divide $60$ by $c$ before evaluating the interior node labeled $+$ which depends on the result of $/$ as its right child.
 
-\begin{figure}
-    \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}\label{figure:introduction_ast}
+\begin{figure}[ht]\label{figure:introduction_ast}
     \centering
     \begin{tikzpicture}
         \node (is-root) {=}
@@ -371,9 +400,10 @@ For example, it is prepared in such a way to preserve the order of operations fr
                     }
             };
     \end{tikzpicture}
+    \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}
 \end{figure}
 
-\section{Semantic Analysis}
+\section{Semantic Analysis}\label{chapter:background:sec:semantic}
 
 The third phase of a compiler is called semantic analysis.
 It is responsible to use the tree structure generated by the parser to check if the source program is semantically consistent with the language specification.
@@ -385,13 +415,10 @@ Suppose a symbol table that maps the identifier `c' to the type `boolean', writt
 With this information, the type checker would be able to decide if the operation `\verb+60 / c+' is semantically sound to the language's type system.
 Does the language type system specifies as valid to divide a number by a boolean?
 
-\alcides{A partir daqui é o que faz sentido estar na introdução: identificar que tipos de erros são apanhados pelos typesystems, e indicar que existem sistemas de tipos mais avançados, onde podemos especificar predicados. Dar dois ou três exemplos. O resto pode ir também para background.}
-
 If it does, what does it mean to divide the value 60 by `false'?
 Maybe, whoever designed the language decided that if the dividend is a value of type number and the divisor is a value of type boolean, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
 Maybe, the language's type system forbids this behaviour and will halt the compilation process with some error message.
 This are decisions made when building a language's type system.
-
 
 \begin{itemize}
     \item \textbf{Division by zero:} Constraining the types of the division operation to `int' does not protect the program to execute a division by zero at run-time.
@@ -431,19 +458,25 @@ Ultimately going all the way to specifying and verifying the correctness of diff
 By enabling verification on the same language as the programming language, refinement types bridge implementation and prof together.
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof.
 
+\section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
-\chapter{State of the art in front end design}\label{chapter:related_work}
+\chapter{Related work in front end design}\label{chapter:related_work}
 
 In this chapter we will present prior work related to refinement types and llvm.
 \section{Pratt parsers}
 \section{Rust Analyzer}
 \section{Refinement types}
-\section{LLVM}
+\section{The LLVM intermediate representation}
 
 \chapter{The Ekitai language}\label{chapter:proposal}
 
-In this chapter we will present the built language and type system.
+In this chapter we will describe the design of the \textit{Ekitai} programming and the implementation of its front end to the LLVM intermediate representation.
 
+\section{The Ekitai's lexer}
+
+\section{The Ekitai's parser}
+
+In order to implement the Ekitai's parser the following
 \begin{bnf}
     \bnfprod{Source File}{\bnfes{} \bnfor{} \bnfpn{Module Items}}\\
     \bnfprod{Module Items}{\bnfpn{Module Item} \bnfsp{} \bnfpn{Module Items} \bnfor{}}\\
@@ -459,6 +492,10 @@ In this chapter we will present the built language and type system.
     \bnfprod{Constructor Parameter List}{\bnfts{(} \bnfpn{Constructor Parameters} \bnfts{)}}\\
     \bnfprod{Constructor Parameters}{\bnfpn{Type}}
 \end{bnf}
+
+\section{The Ekitai's type system}
+
+\section{The Ekitai's LLVM intermediate code generator}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Elementos pós-textuais                                       %%%
