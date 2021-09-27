@@ -11,17 +11,18 @@
 \usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
 \usepackage{csquotes}
 \usepackage{amsmath}
-\usepackage[style=abnt]{biblatex}
+\usepackage[epsilon, altpo]{backnaur}
 
 \usepackage{paper_alcides}
+
+\usepackage[style=abnt]{biblatex}
+\addbibresource[glob]{bibliography/*.bib}
 
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{positioning}
 
 \newcommand\myflowchartlowermargin{1.2cm}
-
-\addbibresource[glob]{bibliography/*.bib}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Configurações da classe (dados do trabalho)                  %%%
@@ -151,16 +152,16 @@
 
 As stated by~\textcite{Aho:2006:CPT:1177220}, \textquote{Programming languages are notations to describe computations to people and to machines}.
 These notations can take numerous forms.
-They range from lower-level languages, such as binary code ready to be executed by a specific machine, to a higher-level language, such as C, Java, Rust, Haskell and Ml.
-A lower-level language like binary code is very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two value, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
+They range from lower-level languages, such as machine code ready to be executed by a specific machine, to a higher-level language, such as C, Java, Rust, Haskell and Ml.
+A lower-level language like machine code is very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two value, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
 Whereas, in a higher-level language, we can describe computations in a more abstract set of notations, such as functions and types, without needing to expose details from the specific machine that will execute them~\cite{Aho:2006:CPT:1177220}.
 Hence, using a higher-level programming languages eases how people can describe computations to machines and to one another~\cite{Aho:2006:CPT:1177220}.
-However, in order to translate a higher-lever programming language to binary code capable of running on a machine's processor, we need to design and build programs called compilers~\cite{Aho:2006:CPT:1177220}.
+However, in order to translate a higher-lever programming language to machine code capable of running on a machine's processor, we need to design and build programs called compilers~\cite{Aho:2006:CPT:1177220}.
 
 A compiler is a program that receives as input a program written in a \textit{source} language and translates it to a semantically equivalent program written in a \textit{target} language
 ~\cite{Aho:2006:CPT:1177220}.
 This is what enables us to write programs in higher-level languages that are able to execute at a machine's processor.
-A program written with a higher-level language such as C is fed into a compiler like Clang, then Clang translates the provided source program to a program in a target language, like Intel's x86 processor's binary code, ready to be executed.
+A program written with a higher-level language such as C is fed into a compiler like Clang, then Clang translates the provided source program to a program in a target language, like Intel's x86 processor's machine code, ready to be executed.
 During the translation process between the \textit{source} and \textit{target} languages, the compiler goes through two major execution steps: the analysis step, and the synthesis step~\cite{Aho:2006:CPT:1177220}.
 The analysis step, called the compiler's \textit{front end}, organizes the information included in the source program into a grammatical structure, and then uses this grammatical structure, together with some metadata collected during its construction, to build what is called an intermediate representation~\cite{Aho:2006:CPT:1177220}.
 Furthermore, the synthesis step, called the compiler's \textit{back end}, uses this intermediate representation to compute the desired target program~\cite{Aho:2006:CPT:1177220}.
@@ -244,7 +245,7 @@ the phrase in~\ref{eq:type_example1} would be semantically unsound and should be
 
 According to \textcite{jhala2020refinement} type systems are mainly used to describe valid sets of values that can be used for different computations, so that the compiler can eliminate, during its execution, a variety of possible run-time errors during the target program execution.
 Type systems like the ones used by popular modern programming languages such as C\#, Haskell, Java, OCaml, Rust and Scala have similar kinds of rules and are the most widespread tool used to guarantee the correct behavior of a program~\cite{jhala2020refinement}.
-In \textcite{jhala2020refinement}, the authors affirm that, although type systems are widespread and effective, well-typed programs do go wrong; and goes on to describe a few wrong behaviors that are common to the most popular type systems. Within them, we have:
+\textcite{jhala2020refinement} affirm that, although type systems are widespread and effective, well-typed programs do go wrong; and the authors goes on to describe a few wrong behaviors that are common to the most popular type systems. Within them, we have:
 \begin{itemize}
     \item \textbf{Division by zero:} Constraining the types of the division operation to \verb/int/ does not protect the program to execute a division by zero at run-time; also, it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020refinement}.
     \item \textbf{Buffer overflow:} Constraining the index of the access of a \verb/array/ or \verb/string/ to \verb/int/ does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020refinement}.
@@ -273,39 +274,44 @@ Given these definitions, the refinement type checker can then prove, during the 
 
 \section{Goals}\label{chapter:introduction:sec:goals}
 
-The primary goal of this work is to answer the following question: Which opportunities for code optimization arrive from compiling a higher-level language with refinement types during intermediate code generation that are not possible without refinements types?
+The primary goal of this work is to discuss and validate the following thesis: A front-end for a higher-level language with refinement types can make use of refinement types to allow optimizations opportunities during intermediate code generation not present in higher-level languages without refinement types.
 
-For that we will be designing a language called \textit{Ekitai}.
-Designing a new language is particularly advantageous because we have full control of all the language features being implemented and allow us to build the language, the refinement type system, and the intermediate code generation, one feature at a time.
+For allowing this discussion, we will be designing a language with refinement types called \textit{Ekitai} and implementing its front end.
+Designing a new language is particularly advantageous because we have full control of all the language features being implemented and allow us to incrementally design the language, the refinement type system, and the intermediate code generation, one feature at a time.
 
-\subsection{Specific Goals}
-The specific goals of this work are to:
+\subsection{Specific Goals}\label{chapter:introduction:sec:goals:specific_goals}
+The specific research artifacts constructed by this work that allow the discussion of the thesis are:
 \begin{itemize}
-    \item Design a programming language;
-    \item Design the programming language's type system with refinement types using operational semantics;
-    \item Implement a compiler's front for the designed language including:
-    \begin{itemize}
-        \item A lexical analyzer;
-        \item A syntactic analyzer for the language's syntax;
-        \item A semantic analyzer with a type checker for the language's type system;
-        \item An intermediate code generator;
-    \end{itemize}
-    \item Find optimization opportunities during intermediate code generation.
+    \item The specification of \textit{Ekitai's} lexical elements;
+    \item The specification of \textit{Ekitai's} syntax;
+    \item The specification of \textit{Ekitai's} type system with refinement types;
+    \item The implementation of \textit{Ekitai's} front end including:
+          \begin{itemize}
+              \item A lexical analyzer;
+              \item A syntactic analyzer;
+              \item A semantic analyzer with a type checker;
+              \item An intermediate code generator;
+          \end{itemize}
+    \item The implementation of optimizations during intermediate code generation.
 \end{itemize}
 
 \section{Methodology}
 
-The aim of this work is to find optimizations opportunities during intermediate code generation of a higher-level language with refinement types. In order to achieve our goals we conducted applied exploratory research were we employed an engineering-oriented research methodology together with literature research to build the compilers front end.
+The aim of this work is to find optimizations opportunities during intermediate code generation of a higher-level language with refinement types.
+In order to achieve the specific goals specified in Section~\ref{chapter:introduction:sec:goals:specific_goals} we will employ different methods during research.
+
+In the specification of the \textit{Ekitai} programming language aspects we will employ techniques from the established literature and theory of language design and compiler construction.
+Whereas in the implementation of \textit{Ekitai's} front end we will develop a front end employing techniques from the established literature and from open-source modern industry programming language compilers and tools.
 
 \section{Structure of the work}
 
-In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to build the \textit{Ekitai} language. Furthermore, in Chapter~\ref{chapter:related_work}, we explore other pieces of work that are tangent to our goal. Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
+In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to design a higher level language's front end. Furthermore, in Chapter~\ref{chapter:related_work}, we explore other pieces of work that are tangent to our goal. Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
 
-\chapter{Background}\label{chapter:background}
+\chapter{A review on front end design and implementation}\label{chapter:background}
 
 In this chapter we will present the background needed to build a compiler and create an operational semantic for the refinement type system.
 
-\subsection{Lexical Analysis}
+\section{Lexical Analysis}
 
 The first phase of a compiler is called lexical analysis, or \textit{scanning}.
 The lexical analyzer will read a stream of characters from the source program and group the characters into sequences called \textit{lexemes}.
@@ -325,7 +331,8 @@ A lexical analyzer may output the following token stream:
 Where tokens are of the form \verb+<token-type, meta-data>+, when no meta-data is needed it can be omitted from the token notation.
 We can see that this lexical analyzer decided to map the lexemes `let', `=', `+' and `/', to the respective tokens \verb+<let>+, \verb+<=>+, \verb-<+>- and \verb+</>+;
 the lexemes `a', `b' and `c', to the respective tokens \verb+<id, a>+, \verb+<id, b>+, and \verb+<id, c>+, which all have the same token type `id' and carry as meta-data the lexeme that generated the mapping; and the lexeme `60', to the token \verb+<number, 60>+, which has token type `number' and has the its value of $60$ as meta-data.
-\subsection{Syntax Analysis}
+
+\section{Syntax Analysis}
 
 The second phase of a compiler is called syntax analysis, or \textit{parsing}.
 The \textit{parser} then receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure.
@@ -366,7 +373,7 @@ For example, it is prepared in such a way to preserve the order of operations fr
     \end{tikzpicture}
 \end{figure}
 
-\subsection{Semantic Analysis}
+\section{Semantic Analysis}
 
 The third phase of a compiler is called semantic analysis.
 It is responsible to use the tree structure generated by the parser to check if the source program is semantically consistent with the language specification.
@@ -425,13 +432,33 @@ By enabling verification on the same language as the programming language, refin
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof.
 
 
-\chapter{Related Work}\label{chapter:related_work}
+\chapter{State of the art in front end design}\label{chapter:related_work}
 
 In this chapter we will present prior work related to refinement types and llvm.
+\section{Pratt parsers}
+\section{Rust Analyzer}
+\section{Refinement types}
+\section{LLVM}
 
 \chapter{The Ekitai language}\label{chapter:proposal}
 
 In this chapter we will present the built language and type system.
+
+\begin{bnf}
+    \bnfprod{Source File}{\bnfes{} \bnfor{} \bnfpn{Module Items}}\\
+    \bnfprod{Module Items}{\bnfpn{Module Item} \bnfsp{} \bnfpn{Module Items} \bnfor{}}\\
+    \bnfmore{\bnfpn{Module Item}}\\
+    \bnfprod{Module Item}{\bnfpn{Function Definition} \bnfor{}}\\
+    \bnfmore{\bnfpn{Type Definition}}\\
+    \bnfprod{Type Definition}{\bnfpn{Name} \bnfsp{} \bnfpn{Value Constructor List}}\\
+    \bnfprod{Value Constructor List}{\bnfts{\{} \bnfsp{} \bnfpn{Value Constuctors} \bnfsp{} \bnfts{\}}}\\
+    \bnfprod{Value Constructors}{\bnfpn{Value Constructor} \bnfsp{} \bnfts{,} \bnfsp{} \bnfpn{Value Constructors} \bnfor{}}\\
+    \bnfmore{\bnfpn{Value Constructor} \bnfts{,} \bnfor{}}\\
+    \bnfmore{\bnfpn{Value Constructor}}\\
+    \bnfprod{Value Constructor}{\bnfpn{Name} \bnfsp{} \bnfpn{Constructor Parameter List}}\\
+    \bnfprod{Constructor Parameter List}{\bnfts{(} \bnfpn{Constructor Parameters} \bnfts{)}}\\
+    \bnfprod{Constructor Parameters}{\bnfpn{Type}}
+\end{bnf}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Elementos pós-textuais                                       %%%
