@@ -16,7 +16,10 @@
 \usepackage{paper_alcides}
 
 \usepackage[style=abnt]{biblatex}
-\addbibresource[glob]{bibliography/*.bib}
+\addbibresource{bibliography/llvm.bib}
+\addbibresource{bibliography/pratt.bib}
+\addbibresource{bibliography/refinements.bib}
+\addbibresource{bibliography/thesis.bib}
 
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
@@ -243,23 +246,23 @@ As a counter example, if defined by the type system that the multiplication betw
 \end{equation*}
 the phrase in~\ref{eq:type_example1} would be semantically unsound and should be indicated as a type error by the type checker.
 
-According to \textcite{jhala2020refinement} type systems are mainly used to describe valid sets of values that can be used for different computations, so that the compiler can eliminate, during its execution, a variety of possible run-time errors during the target program execution.
-Type systems like the ones used by popular modern programming languages such as C\#, Haskell, Java, OCaml, Rust and Scala have similar kinds of rules and are the most widespread tool used to guarantee the correct behavior of a program~\cite{jhala2020refinement}.
-\textcite{jhala2020refinement} affirm that, although type systems are widespread and effective, well-typed programs do go wrong; and the authors goes on to describe a few wrong behaviors that are common to the most popular type systems. Within them, we have:
+According to \textcite{jhala2020tutorial} type systems are mainly used to describe valid sets of values that can be used for different computations, so that the compiler can eliminate, during its execution, a variety of possible run-time errors during the target program execution.
+Type systems like the ones used by popular modern programming languages such as C\#, Haskell, Java, OCaml, Rust and Scala have similar kinds of rules and are the most widespread tool used to guarantee the correct behavior of a program~\cite{jhala2020tutorial}.
+\textcite{jhala2020tutorial} affirm that, although type systems are widespread and effective, well-typed programs do go wrong; and the authors goes on to describe a few wrong behaviors that are common to the most popular type systems. Within them, we have:
 \begin{itemize}
-    \item \textbf{Division by zero:} Constraining the types of the division operation to \verb/int/ does not protect the program to execute a division by zero at run-time; also, it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020refinement}.
-    \item \textbf{Buffer overflow:} Constraining the index of the access of a \verb/array/ or \verb/string/ to \verb/int/ does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020refinement}.
+    \item \textbf{Division by zero:} Constraining the types of the division operation to \verb/int/ does not protect the program to execute a division by zero at run-time; also, it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020tutorial}.
+    \item \textbf{Buffer overflow:} Constraining the index of the access of a \verb/array/ or \verb/string/ to \verb/int/ does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020tutorial}.
 \end{itemize}
 
 An effort can be made while designing a type system so that they can further restrict the values of certain types.
-We can be extended a type system to further \textit{refine} its types with logic predicates and this method is called \textit{Refinement types with predicates}~\cite{jhala2020refinement}.
-It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020refinement}.
+We can be extended a type system to further \textit{refine} its types with logic predicates and this method is called \textit{Refinement types with predicates}~\cite{jhala2020tutorial}.
+It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020tutorial}.
 For example, while \verb/int/ types can assume any integer values, we can write the refined type
 \begin{equation*}
     \verb/type nat = int[v | 0 <= v]/
 \end{equation*}
 where the newly defined type \verb!nat! will only be able to assume positive integer values.
-Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020refinement}.
+Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020tutorial}.
 For example, the author of an \verb!array! library may specify the functions signatures types
 \begin{equation*}
     \begin{aligned}
@@ -271,6 +274,13 @@ where \verb!size! and \verb!get! are functions and \verb!x! is the name of the f
 In this type system, a call to \verb+size(arr)+ returns a value $s$ of type \verb!nat! constrained to a single value equal to the length of \verb!arr!; hence, the type of $s$ constrains $s$ to the exact length of \verb+arr+.
 Furthermore, a call to \verb+get(arr, i)+ requires the index \verb+i+ to be within the bounds of \verb+arr+.
 Given these definitions, the refinement type checker can then prove, during the analysis phase (i.e.\ at compile-time), that the contracts of both \verb+size+ and \verb+get+ will not be violated, ensuring all array access to be sated when executing the target program (i.e.\ at run-time).
+
+\section{Motivation and research problem}
+
+There is an increasing number of uses of refinement types being implemented on top of existing languages.
+For example: the work of~\textcite{vazou2014liquidhaskell} presenting LiquidHaskell as refinement types for Haskell; the work of~\textcite{vekris2016refinementtypescript} integrating refinement types for TypeScript; and, the work of~\textcite{sammler2021refinedc} integrating refinement types for the C language.
+Although refinement types have been proved useful in improving the static checking capabilities of higher level languages, there is no research on bringing refinement types to the intermediate code generation phase of a compiler's front end.
+We then present the research problem of this research in the form of the following question: `What can we discover when we add refinement types to the intermediate code generation phase of a compiler's front end?'
 
 \section{Goals}\label{chapter:introduction:sec:goals}
 
@@ -300,8 +310,9 @@ The specific research artifacts constructed by this work that allow the discussi
 The aim of this work is to find optimizations opportunities during intermediate code generation of a higher-level language with refinement types.
 In order to achieve the specific goals specified in Section~\ref{chapter:introduction:sec:goals:specific_goals} we will employ different methods during research.
 
-In the specification of the \textit{Ekitai} programming language aspects we will employ techniques from the established literature and theory of language design and compiler construction.
-Whereas in the implementation of \textit{Ekitai's} front end we will develop a front end employing techniques from the established literature and from open-source modern industry programming language compilers and tools.
+In the specification of the \textit{Ekitai} programming language aspects we will employ techniques from the established literature, such as books and articles, on language design and compiler construction.
+Also, in order to specify the type system with refinement types we analyze the recent publications about refinement types in the ACM Sigplan's conferences and journals.
+Whereas in the implementation of \textit{Ekitai's} front end we will develop a front end using the Rust programming language employing techniques from the established literature, such as books and articles, and from open-source implementations of modern industry programming language compilers and tools.
 
 \section{Structure of the work}
 
@@ -403,6 +414,8 @@ For example, it is prepared in such a way to preserve the order of operations fr
     \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}
 \end{figure}
 
+To do. Here goes a short explanation on recursive descendant, LL and LR parsers. Abstract Syntax Trees and Concrete Syntax Trees.
+
 \section{Semantic Analysis}\label{chapter:background:sec:semantic}
 
 The third phase of a compiler is called semantic analysis.
@@ -418,61 +431,92 @@ Does the language type system specifies as valid to divide a number by a boolean
 If it does, what does it mean to divide the value 60 by `false'?
 Maybe, whoever designed the language decided that if the dividend is a value of type number and the divisor is a value of type boolean, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
 Maybe, the language's type system forbids this behaviour and will halt the compilation process with some error message.
-This are decisions made when building a language's type system.
+These are decisions made when building a language's type system.
 
-\begin{itemize}
-    \item \textbf{Division by zero:} Constraining the types of the division operation to `int' does not protect the program to execute a division by zero at run-time.
-          Also, it does not guarantee that the arithmetic operations will not under- or over-flow.
-    \item \textbf{Buffer overflow:} Constraining the index of the access of a `array' or `string' to `int' does not protect the program to try to access data from beyond the data structure's end.
-    \item \textbf{Logic bugs:} The type system of modern languages allow for the creation of custom types like \verb+structure date { day: int, month: int, year: int}+, where its values are compound of three `int' values for day, month and year.
-          But the type `date' can not guarantee that the value for day will be valid for a certain value of month and year.
-    \item \textbf{Correctness errors:} The type system can guarantee that a sorting procedure will produce a value of type list  but can not guarantee that the list was, in fact, sorted.
-\end{itemize}
-
-A type system can be extended to further \textit{refine} its types with logic predicates.
-This method is called \textit{Refinement types with predicates}.
-It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe.
-For example, while `int' types can assume any integer values, we can write the refined type
-\begin{quote}
-    \begin{verbatim}
-type nat = int[v | 0 <= v]
-\end{verbatim}
-\end{quote}
-where `nat' will only be able to assume positive integer values.
-Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs.
-For example, the author of a array library may write the functions
-\begin{quote}
-    \begin{verbatim}
-val size: x: array(a) -> nat[v | v = length(x)]
-val get: x: array(a) -> nat[v | v < length(x)] -> a
-\end{verbatim}
-\end{quote}
-which guarantees that a call to \verb+size(arr)+ returns a value with the exact length of \verb+arr+, and that a call to \verb+get(arr, i)+ requires the index \verb+i+ to be within the bounds of \verb+arr+.
-Given this definitions the refinement type checker can then prove, during the analysis phase (i.e.\ at compile-time), that the contracts of both \verb+size+ and \verb+get+ will not be violated, ensuring all array access to be sate when executing the target program (i.e.\ at run-time).
-
-Refinement types offer the option to add information to the type system about the invariants and correctness properties a programmer may care about.
-It is done in such a way that, if the programmer desires, no refinement needs to be added and can be thought like a typical type system.
-On the other hand, programmers can incrementally add refinements to ensure important properties about the source program.
-They could begin with basic safety requirements, e.g.\ eliminating division by zero and buffer overflow, or guarantee that a function does not receive a empty collection, and then incrementally add to the specification invariants of custom data types.
-Ultimately going all the way to specifying and verifying the correctness of different procedures at compile-time.
-By enabling verification on the same language as the programming language, refinement types bridge implementation and prof together.
-This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof.
+To do. Here goes type system theory from Types and programming languages.
 
 \section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
-\chapter{Related work in front end design}\label{chapter:related_work}
+As the last phase of a compiler's front end we have the intermediate code generation.
 
-In this chapter we will present prior work related to refinement types and llvm.
+To do. Here goes an introduction to Syntax Directed Translation with a short description of Single Static Assignment intermediate representations.
+
+\chapter{State of the art in front end design}\label{chapter:related_work}
+
+In this chapter we will present prior work related to front end construction, refinement types and the LLVM intermediate representation.
 \section{Pratt parsers}
-\section{Rust Analyzer}
-\section{Refinement types}
+
+The top-down operator precedence parsing algorithm proposed by~\textcite{pratt1973operatorprecedence}, colloquially called Pratt parsers, are top-down parsers that can avoid the common left recursion problem known to this class of parsers.
+It makes use of and two binding powers assigned to expression operator tokens to solve operator precedence without having to remove left recursion from the language's syntax grammar~\cite{pratt1973operatorprecedence}.
+This works for solving prefix, infix and postfix expressions and is widely used by production grade compilers and tools including ANTLR4~\cite{Parr13} and Rust Analyzer~\cite{matklad2020prattparsing}.
+\textcite{matklad2020challenginglrparsing} argues in favor of Pratt parsers as they can be made with production grade error resilience and that the author finds LR parser generators not suitable for production grade compilers and tools.
+
+% Consider the following grammar productions:
+% \begin{quote}
+%     \begin{verbatim}
+% <Sum> ::= <Sum> + <Int>
+%         | <Int>
+% \end{verbatim}
+% \end{quote}
+% And consider naive implementation of a parser for Sum
+% \begin{quote}
+%     \begin{verbatim}
+% fn sum(p: &mut Parser) {
+%     ...
+%     // Try parse <Sum> ::= <Sum> + <Int>
+%     sum(p); // (1)
+%     p.expect(PLUS_TOKEN);
+%     int(p);
+
+%     // If that fails, try <Sum> ::= <Int>
+%     ...
+% }
+% \end{verbatim}
+% \end{quote}
+% would recursively try to parse `sum' at (1).
+% \textcite{Aho:2006:CPT:1177220} argues that this can be solved by eliminating the left recursion from the grammar or by using more powerful parsing methods of the bottom-up family (e.g. $LR(1)$).
+% However, for a handwritten parser
+% \begin{quote}
+%     \begin{verbatim}
+% <Sum> ::= <Sum> + <Int>
+% \end{verbatim}
+% \end{quote}
+% indefinitely and never
+
+\section{Incremental compilation}
+
+To do. Explain how to build an incremental compiler with Salsa. Work in progress.
+
+\section{The Sprite Language}
+
+In the work presented by \textcite{jhala2020tutorial}, the authors implemented a higher level language called \textit{Sprite} iteratively adding refinement type features on top of a subset of the OCaml language.
+
+\section{Refinement types with predicates}
+
+A type system can be extended to further \textit{refine} its types with logic predicates~\cite{jhala2020tutorial}.
+In \textcite{jhala2020tutorial}, the authors call this technique \textit{Refinement types with predicates}.
+It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020tutorial}.
+Refinement types offer the option to add information to the type system about the invariants and correctness properties a programmer may care about~\cite{jhala2020tutorial}.
+It is done in such a way that, if the programmer desires, no refinement needs to be added and can be thought like a typical type system~\cite{jhala2020tutorial}.
+On the other hand, programmers can incrementally add refinements to ensure important properties about the source program~\cite{jhala2020tutorial}.
+They could begin with basic safety requirements, e.g.\ eliminating division by zero and buffer overflow, or guarantee that a function does not receive a empty collection, and then incrementally add to the specification invariants of custom data types~\cite{jhala2020tutorial}.
+Ultimately going all the way to specifying and verifying the correctness of different procedures at compile-time~\cite{jhala2020tutorial}.
+By enabling verification on the same language as the programming language, refinement types bridge implementation and prof together~\cite{jhala2020tutorial}.
+This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof~\cite{jhala2020tutorial}.
+
+To do. Work in progress.
+
 \section{The LLVM intermediate representation}
+
+To do. Work in progress.
 
 \chapter{The Ekitai language}\label{chapter:proposal}
 
 In this chapter we will describe the design of the \textit{Ekitai} programming and the implementation of its front end to the LLVM intermediate representation.
 
 \section{The Ekitai's lexer}
+
+To do. Work in progress.
 
 \section{The Ekitai's parser}
 
@@ -493,9 +537,15 @@ In order to implement the Ekitai's parser the following
     \bnfprod{Constructor Parameters}{\bnfpn{Type}}
 \end{bnf}
 
+To do. Work in progress.
+
 \section{The Ekitai's type system}
 
+To do. Work in progress.
+
 \section{The Ekitai's LLVM intermediate code generator}
+
+To do. Work in progress.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Elementos pós-textuais                                       %%%
