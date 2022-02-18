@@ -137,3 +137,21 @@ of C code.},
   location  = {Virtual, Canada},
   series    = {PLDI 2021}
 }
+
+@inproceedings{vazou2018refinementruby,
+  author    = {Kazerounian, Milod
+and Vazou, Niki
+and Bourgerie, Austin
+and Foster, Jeffrey S.
+and Torlak, Emina},
+  editor    = {Dillig, Isil
+and Palsberg, Jens},
+  title     = {Refinement Types for Ruby},
+  booktitle = {Verification, Model Checking, and Abstract Interpretation},
+  year      = {2018},
+  publisher = {Springer International Publishing},
+  address   = {Cham},
+  pages     = {269--290},
+  abstract  = {Refinement types are a popular way to specify and reason about key program properties. In this paper, we introduce RTR, a new system that adds refinement types to Ruby. RTR is built on top of RDL, a Ruby type checker that provides basic type information for the verification process. RTR works by encoding its verification problems into Rosette, a solver-aided host language. RTR handles mixins through assume-guarantee reasoning and uses just-in-time verification for metaprogramming. We formalize RTR by showing a translation from a core, Ruby-like language with refinement types into Rosette. We apply RTR to check a range of functional correctness properties on six Ruby programs. We find that RTR can successfully verify key methods in these programs, taking only a few minutes to perform verification.},
+  isbn      = {978-3-319-73721-8}
+}

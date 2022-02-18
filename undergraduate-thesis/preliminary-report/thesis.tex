@@ -40,7 +40,7 @@
 \titulo{Um projeto de linguagem de programação com tipos refinados e implementação de seu front end para LLVM-IR}
 
 \autor{Bernardo Ferrari Mendonça}
-\data{7 de Maio de 2021} % ou \today
+\data{28 de Setembro de 2021} % ou \today
 \instituicao{Universidade Federal de Santa Catarina}
 \centro{Centro Tecnológico}
 \local{Florianópolis} % Apenas cidade! Sem estado
@@ -58,15 +58,13 @@
 % %% Para TCCs, orientadores e coorientadores podem ser externos, logo a
 % %% BU exige que sua afiliação seja explicitada. Por padrão, assume-se
 % %% UFSC. Você pode alterar a afiliação com os comandos abaixo:
-\afiliacaoorientador{Universidade de Lisboa}
-\afiliacaocoorientador{Universidade Federal de Santa Catarina}
 
 % Orientador, coorientador, membros da banca e coordenador
 % As regras da BU agora exigem que Dr. apareça **depois** do nome
 % Dica: para gerar Profᵃ. use Prof\textsuperscript{a}.
 % Dica 2: para feminino use \orientadora e \coorientadora
-\orientador{Prof.\ Alcides Miguel Cachulo Aguiar Fonseca, Dr.}
-\coorientador{Prof.\ Rafael de Santiago, Dr.}
+\orientadorext{Prof.\ Alcides Miguel Cachulo Aguiar Fonseca, Dr.}{Universidade de Lisboa}
+\coorientadorext{Prof.\ Rafael de Santiago, Dr.}{Universidade Federal de Santa Catarina}
 \membrabanca{Prof\textsuperscript{a}. Jerusa Marchi, Dr.}{Universidade Federal de Santa Catarina}
 % Dica: se feminino, \coordenadora
 \coordenador{Prof.\ Jean Everson Martina, Dr}
@@ -144,7 +142,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Corpo do texto                                               %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\textual%
+\textual{}
 
 \chapter{Introduction}\label{chapter:introduction}
 
@@ -278,8 +276,9 @@ Given these definitions, the refinement type checker can then prove, during the 
 \section{Motivation and research problem}
 
 There is an increasing number of uses of refinement types being implemented on top of existing languages.
-For example: the work of~\textcite{vazou2014liquidhaskell} presenting LiquidHaskell as refinement types for Haskell; the work of~\textcite{vekris2016refinementtypescript} integrating refinement types for TypeScript; and, the work of~\textcite{sammler2021refinedc} integrating refinement types for the C language.
+For example: the work of~\textcite{vazou2014liquidhaskell} presenting LiquidHaskell as refinement types for the Haskell language; the work of~\textcite{vekris2016refinementtypescript} integrating refinement types for the TypeScript language; the work of~\textcite{sammler2021refinedc} integrating refinement types for the C language; and, the work of~\textcite{vazou2018refinementruby} integrating refinement types for the Ruby language.
 Although refinement types have been proved useful in improving the static checking capabilities of higher level languages, there is no research on bringing refinement types to the intermediate code generation phase of a compiler's front end.
+
 We then present the research problem of this research in the form of the following question: `What can we discover when we add refinement types to the intermediate code generation phase of a compiler's front end?'
 
 \section{Goals}\label{chapter:introduction:sec:goals}
