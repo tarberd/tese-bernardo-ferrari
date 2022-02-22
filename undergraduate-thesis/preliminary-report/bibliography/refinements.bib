@@ -1,10 +1,36 @@
-@misc{jhala2020tutorial,
-  title         = {Refinement Types: A Tutorial},
-  author        = {Ranjit Jhala and Niki Vazou},
-  year          = {2020},
-  eprint        = {2010.07763},
-  archiveprefix = {arXiv},
-  primaryclass  = {cs.PL}
+@article{vazou2014liquidhaskell,
+  author     = {Vazou, Niki and Seidel, Eric L. and Jhala, Ranjit},
+  title      = {LiquidHaskell: Experience with Refinement Types in the Real World},
+  year       = {2014},
+  issue_date = {December 2014},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {49},
+  number     = {12},
+  issn       = {0362-1340},
+  url        = {https://doi.org/10.1145/2775050.2633366},
+  doi        = {10.1145/2775050.2633366},
+  abstract   = {Haskell has many delightful features. Perhaps the one most beloved by its users is
+                its type system that allows developers to specify and verify a variety of program
+                properties at compile time. However, many properties, typically those that depend
+                on relationships between program values are impossible, or at the very least, cumbersome
+                to encode within the existing type system. Many such properties can be verified using
+                a combination of Refinement Types and external SMT solvers. We describe the refinement
+                type checker liquidHaskell, which we have used to specify and verify a variety of
+                properties of over 10,000 lines of Haskell code from various popular libraries, including
+                containers, hscolour, bytestring, text, vector-algorithms and xmonad. First, we present
+                a high-level overview of liquidHaskell, through a tour of its features. Second, we
+                present a qualitative discussion of the kinds of properties that can be checked --
+                ranging from generic application independent criteria like totality and termination,
+                to application specific concerns like memory safety and data structure correctness
+                invariants. Finally, we present a quantitative evaluation of the approach, with a
+                view towards measuring the efficiency and programmer effort required for verification,
+                and discuss the limitations of the approach.},
+  journal    = {SIGPLAN Not.},
+  month      = sep,
+  pages      = {39–51},
+  numpages   = {13},
+  keywords   = {verification, smt-based verification, Haskell, refinement types},
 }
 
 @article{vazou2014refinementhaskell,
@@ -20,57 +46,22 @@
   url        = {https://doi.org/10.1145/2692915.2628161},
   doi        = {10.1145/2692915.2628161},
   abstract   = {SMT-based checking of refinement types for call-by-value languages is a well-studied
-subject. Unfortunately, the classical translation of refinement types to verification
-conditions is unsound under lazy evaluation. When checking an expression, such systems
-implicitly assume that all the free variables in the expression are bound to values.
-This property is trivially guaranteed by eager, but does not hold under lazy, evaluation.
-Thus, to be sound and precise, a refinement type system for Haskell and the corresponding
-verification conditions must take into account which subset of binders actually reduces
-to values. We present a stratified type system that labels binders as potentially
-diverging or not, and that (circularly) uses refinement types to verify the labeling.
-We have implemented our system in LIQUIDHASKELL and present an experimental evaluation
-of our approach on more than 10,000 lines of widely used Haskell libraries. We show
-that LIQUIDHASKELL is able to prove 96% of all recursive functions terminating, while
-requiring a modest 1.7 lines of termination-annotations per 100 lines of code.},
+                subject. Unfortunately, the classical translation of refinement types to verification
+                conditions is unsound under lazy evaluation. When checking an expression, such systems
+                implicitly assume that all the free variables in the expression are bound to values.
+                This property is trivially guaranteed by eager, but does not hold under lazy, evaluation.
+                Thus, to be sound and precise, a refinement type system for Haskell and the corresponding
+                verification conditions must take into account which subset of binders actually reduces
+                to values. We present a stratified type system that labels binders as potentially
+                diverging or not, and that (circularly) uses refinement types to verify the labeling.
+                We have implemented our system in LIQUIDHASKELL and present an experimental evaluation
+                of our approach on more than 10,000 lines of widely used Haskell libraries. We show
+                that LIQUIDHASKELL is able to prove 96% of all recursive functions terminating, while
+                requiring a modest 1.7 lines of termination-annotations per 100 lines of code.},
   journal    = {SIGPLAN Not.},
   month      = aug,
   pages      = {269–282},
-  numpages   = {14}
-}
-
-@article{vazou2014liquidhaskell,
-  author     = {Vazou, Niki and Seidel, Eric L. and Jhala, Ranjit},
-  title      = {LiquidHaskell: Experience with Refinement Types in the Real World},
-  year       = {2014},
-  issue_date = {December 2014},
-  publisher  = {Association for Computing Machinery},
-  address    = {New York, NY, USA},
-  volume     = {49},
-  number     = {12},
-  issn       = {0362-1340},
-  url        = {https://doi.org/10.1145/2775050.2633366},
-  doi        = {10.1145/2775050.2633366},
-  abstract   = {Haskell has many delightful features. Perhaps the one most beloved by its users is
-    its type system that allows developers to specify and verify a variety of program
-    properties at compile time. However, many properties, typically those that depend
-    on relationships between program values are impossible, or at the very least, cumbersome
-    to encode within the existing type system. Many such properties can be verified using
-    a combination of Refinement Types and external SMT solvers. We describe the refinement
-    type checker liquidHaskell, which we have used to specify and verify a variety of
-    properties of over 10,000 lines of Haskell code from various popular libraries, including
-    containers, hscolour, bytestring, text, vector-algorithms and xmonad. First, we present
-    a high-level overview of liquidHaskell, through a tour of its features. Second, we
-    present a qualitative discussion of the kinds of properties that can be checked --
-    ranging from generic application independent criteria like totality and termination,
-    to application specific concerns like memory safety and data structure correctness
-    invariants. Finally, we present a quantitative evaluation of the approach, with a
-    view towards measuring the efficiency and programmer effort required for verification,
-    and discuss the limitations of the approach.},
-  journal    = {SIGPLAN Not.},
-  month      = sep,
-  pages      = {39–51},
-  numpages   = {13},
-  keywords   = {verification, smt-based verification, Haskell, refinement types}
+  numpages   = {14},
 }
 
 @article{vekris2016refinementtypescript,
@@ -86,22 +77,49 @@ requiring a modest 1.7 lines of termination-annotations per 100 lines of code.},
   url        = {https://doi.org/10.1145/2980983.2908110},
   doi        = {10.1145/2980983.2908110},
   abstract   = { We present Refined TypeScript (RSC), a lightweight refinement type system for TypeScript,
-that enables static verification of higher-order, imperative programs. We develop
-a formal system for RSC that delineates the interaction between refinement types and
-mutability, and enables flow-sensitive reasoning by translating input programs to
-an equivalent intermediate SSA form. By establishing type safety for the intermediate
-form, we prove safety for the input programs. Next, we extend the core to account
-for imperative and dynamic features of TypeScript, including overloading, type reflection,
-ad hoc type hierarchies and object initialization. Finally, we evaluate RSC on a set
-of real-world benchmarks, including parts of the Octane benchmarks, D3, Transducers,
-and the TypeScript compiler. We show how RSC successfully establishes a number of
-value dependent properties, such as the safety of array accesses and downcasts, while
-incurring a modest overhead in type annotations and code restructuring. },
+                that enables static verification of higher-order, imperative programs. We develop
+                a formal system for RSC that delineates the interaction between refinement types and
+                mutability, and enables flow-sensitive reasoning by translating input programs to
+                an equivalent intermediate SSA form. By establishing type safety for the intermediate
+                form, we prove safety for the input programs. Next, we extend the core to account
+                for imperative and dynamic features of TypeScript, including overloading, type reflection,
+                ad hoc type hierarchies and object initialization. Finally, we evaluate RSC on a set
+                of real-world benchmarks, including parts of the Octane benchmarks, D3, Transducers,
+                and the TypeScript compiler. We show how RSC successfully establishes a number of
+                value dependent properties, such as the safety of array accesses and downcasts, while
+                incurring a modest overhead in type annotations and code restructuring. },
   journal    = {SIGPLAN Not.},
   month      = jun,
   pages      = {310–325},
   numpages   = {16},
-  keywords   = {Immutability, Refinement Types, Type Systems, TypeScript}
+  keywords   = {Immutability, Refinement Types, Type Systems, TypeScript},
+}
+
+@inproceedings{vazou2018refinementruby,
+  author    = {Kazerounian, Milod
+               and Vazou, Niki
+               and Bourgerie, Austin
+               and Foster, Jeffrey S.
+               and Torlak, Emina},
+  editor    = {Dillig, Isil
+               and Palsberg, Jens},
+  title     = {Refinement Types for Ruby},
+  booktitle = {Verification, Model Checking, and Abstract Interpretation},
+  year      = {2018},
+  publisher = {Springer International Publishing},
+  address   = {Cham},
+  pages     = {269--290},
+  abstract  = {Refinement types are a popular way to specify and reason about key program properties. In this paper, we introduce RTR, a new system that adds refinement types to Ruby. RTR is built on top of RDL, a Ruby type checker that provides basic type information for the verification process. RTR works by encoding its verification problems into Rosette, a solver-aided host language. RTR handles mixins through assume-guarantee reasoning and uses just-in-time verification for metaprogramming. We formalize RTR by showing a translation from a core, Ruby-like language with refinement types into Rosette. We apply RTR to check a range of functional correctness properties on six Ruby programs. We find that RTR can successfully verify key methods in these programs, taking only a few minutes to perform verification.},
+  isbn      = {978-3-319-73721-8},
+}
+
+@misc{jhala2020tutorial,
+  title         = {Refinement Types: A Tutorial},
+  author        = {Ranjit Jhala and Niki Vazou},
+  year          = {2020},
+  eprint        = {2010.07763},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.PL},
 }
 
 @inproceedings{sammler2021refinedc,
@@ -114,44 +132,26 @@ incurring a modest overhead in type annotations and code restructuring. },
   url       = {https://doi.org/10.1145/3453483.3454036},
   doi       = {10.1145/3453483.3454036},
   abstract  = {Given the central role that C continues to play in systems software, and the difficulty
-of writing safe and correct C code, it remains a grand challenge to develop effective
-formal methods for verifying C programs. In this paper, we propose a new approach
-to this problem: a type system we call RefinedC, which combines ownership types (for
-modular reasoning about shared state and concurrency) with refinement types (for encoding
-precise invariants on C data types and Hoare-style specifications for C functions).
-RefinedC is both automated (requiring minimal user intervention) and foundational
-(producing a proof of program correctness in Coq), while at the same time handling
-a range of low-level programming idioms such as pointer arithmetic. In particular,
-following the approach of RustBelt, the soundness of the RefinedC type system is justified
-semantically by interpretation into the Coq-based Iris framework for higher-order
-concurrent separation logic. However, the typing rules of RefinedC are also designed
-to be encodable in a new “separation logic programming” language we call Lithium.
-By restricting to a carefully chosen (yet expressive) fragment of separation logic,
-Lithium supports predictable, automatic, goal-directed proof search without backtracking.
-We demonstrate the effectiveness of RefinedC on a range of representative examples
-of C code.},
+               of writing safe and correct C code, it remains a grand challenge to develop effective
+               formal methods for verifying C programs. In this paper, we propose a new approach
+               to this problem: a type system we call RefinedC, which combines ownership types (for
+               modular reasoning about shared state and concurrency) with refinement types (for encoding
+               precise invariants on C data types and Hoare-style specifications for C functions).
+               RefinedC is both automated (requiring minimal user intervention) and foundational
+               (producing a proof of program correctness in Coq), while at the same time handling
+               a range of low-level programming idioms such as pointer arithmetic. In particular,
+               following the approach of RustBelt, the soundness of the RefinedC type system is justified
+               semantically by interpretation into the Coq-based Iris framework for higher-order
+               concurrent separation logic. However, the typing rules of RefinedC are also designed
+               to be encodable in a new “separation logic programming” language we call Lithium.
+               By restricting to a carefully chosen (yet expressive) fragment of separation logic,
+               Lithium supports predictable, automatic, goal-directed proof search without backtracking.
+               We demonstrate the effectiveness of RefinedC on a range of representative examples
+               of C code.},
   booktitle = {Proceedings of the 42nd ACM SIGPLAN International Conference on Programming Language Design and Implementation},
   pages     = {158–174},
   numpages  = {17},
   keywords  = {Coq, proof automation, refinement types, separation logic, Iris, ownership types, C programming language},
   location  = {Virtual, Canada},
-  series    = {PLDI 2021}
-}
-
-@inproceedings{vazou2018refinementruby,
-  author    = {Kazerounian, Milod
-and Vazou, Niki
-and Bourgerie, Austin
-and Foster, Jeffrey S.
-and Torlak, Emina},
-  editor    = {Dillig, Isil
-and Palsberg, Jens},
-  title     = {Refinement Types for Ruby},
-  booktitle = {Verification, Model Checking, and Abstract Interpretation},
-  year      = {2018},
-  publisher = {Springer International Publishing},
-  address   = {Cham},
-  pages     = {269--290},
-  abstract  = {Refinement types are a popular way to specify and reason about key program properties. In this paper, we introduce RTR, a new system that adds refinement types to Ruby. RTR is built on top of RDL, a Ruby type checker that provides basic type information for the verification process. RTR works by encoding its verification problems into Rosette, a solver-aided host language. RTR handles mixins through assume-guarantee reasoning and uses just-in-time verification for metaprogramming. We formalize RTR by showing a translation from a core, Ruby-like language with refinement types into Rosette. We apply RTR to check a range of functional correctness properties on six Ruby programs. We find that RTR can successfully verify key methods in these programs, taking only a few minutes to perform verification.},
-  isbn      = {978-3-319-73721-8}
+  series    = {PLDI 2021},
 }

@@ -1,6 +1,7 @@
 \documentclass[
     oneside,
     english,
+    coorientadorbanca,
     embeddedlogo,
     noabntexcite
 ]{ufsc-thesis-rn46-2019}
@@ -11,10 +12,10 @@
 \usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
 \usepackage{csquotes}
 \usepackage{amsmath}
-\usepackage[epsilon, altpo]{backnaur}
 
 \usepackage{paper_alcides}
 
+\usepackage{caption} % configures hyperref to point to top of images
 \usepackage[style=abnt]{biblatex}
 \addbibresource{bibliography/llvm.bib}
 \addbibresource{bibliography/pratt.bib}
@@ -27,6 +28,11 @@
 
 \newcommand\myflowchartlowermargin{1.2cm}
 
+\newcommand{\bnfvar}[1]{\langle\textrm{#1}\rangle}
+\newcommand{\bnfter}[1]{\;\textrm{`}#1\textrm{'}\;}
+\newcommand{\bnfprod}[2]{\bnfvar{#1} & \;~::= \ & #2}
+\newcommand{\bnfmore}[1]{ & \;~\mid\ & #1}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Configurações da classe (dados do trabalho)                  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -37,10 +43,10 @@
 % alternativo opcional com []'s para ser usado no campo Title do PDF
 % IMPORTANTE: Os títulos deveriam ser iguais. Apenas use um título
 % alternativo se o título não puder ser expresso com letras e números
-\titulo{Um projeto de linguagem de programação com tipos refinados e implementação de seu front end para LLVM-IR}
+\titulo{A programming language with refinement types and its LLVM-IR front end implementation.}
 
 \autor{Bernardo Ferrari Mendonça}
-\data{28 de Setembro de 2021} % ou \today
+\data{24 de Fevereiro de 2022} % ou \today
 \instituicao{Universidade Federal de Santa Catarina}
 \centro{Centro Tecnológico}
 \local{Florianópolis} % Apenas cidade! Sem estado
@@ -67,7 +73,7 @@
 \coorientadorext{Prof.\ Rafael de Santiago, Dr.}{Universidade Federal de Santa Catarina}
 \membrabanca{Prof\textsuperscript{a}. Jerusa Marchi, Dr.}{Universidade Federal de Santa Catarina}
 % Dica: se feminino, \coordenadora
-\coordenador{Prof.\ Jean Everson Martina, Dr}
+\coordenador{Prof.\ Jean Everson Martina, Dr.}
 
 \begin{document}
 
@@ -94,7 +100,7 @@
 % \tableofcontents*
 
 \begin{dedicatoria}
-    Este trabalho é dedicado a minha mãe, Marcela Ferrari, e a minha irmã, Camila Ferrari.
+    This work is dedicated to my mother, Marcela Ferrari, my sister Camila Ferrari, and to my grandparents Márcio Ferrari and Cláudia Ferrari who plowed the field where I cloud bloom.
 \end{dedicatoria}
 
 \begin{agradecimentos}
@@ -123,8 +129,8 @@
 \listoffigures*  % O * evita que apareça no sumário
 
 % \begin{listadesimbolos}
-%   $\gets$   & Atribuição \\
-%   $\exists$   & Quantificação existencial \\
+%   \($1\)   & Atribuição \\
+%   \($1\)   & Quantificação existencial \\
 %   $\rightarrow$   & Implicação \\
 %   $\wedge$   & E lógico \\
 %   $\vee$   & Ou lógico \\
@@ -137,7 +143,7 @@
 %   mmmmm & Nenhum sentido, apenas estou aqui para demonstrar a largura máxima dessas colunas. Ao abrir o ambiente \texttt{listadesimbolos}, pode-se fornecer um argumento opcional indicando a largura da coluna da esquerda (o default é de 5em): \texttt{\textbackslash{}begin\{listadesimbolos\}[2cm] .... \textbackslash{}end\{listadesimbolos\}} \\
 % \end{listadesimbolos}
 
-\tableofcontents*%
+\tableofcontents*
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Corpo do texto                                               %%%
@@ -146,15 +152,10 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-% This work proposes a solution for translating a programming language with refinement types to the intermediate representation language LLVM-IR.\@
-% Throughout the work, we will be presenting: the design of a small programming language called \textit{Ekitai}; its operational semantics with refinement types as a formalization of the type system; and a compiler implementation for the designed language to LLVM-IR.\@
-% In this introductory chapter we will explore the motivations behind this work and its goals.
-% In our study, the \textit{target} language of interest is the binary code capable of being executed by a given machine's processor, also called \textit{machine language}.
-
 As stated by~\textcite{Aho:2006:CPT:1177220}, \textquote{Programming languages are notations to describe computations to people and to machines}.
 These notations can take numerous forms.
 They range from lower-level languages, such as machine code ready to be executed by a specific machine, to a higher-level language, such as C, Java, Rust, Haskell and Ml.
-A lower-level language like machine code is very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two value, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
+Lower-level languages like machine code are very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two value, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
 Whereas, in a higher-level language, we can describe computations in a more abstract set of notations, such as functions and types, without needing to expose details from the specific machine that will execute them~\cite{Aho:2006:CPT:1177220}.
 Hence, using a higher-level programming languages eases how people can describe computations to machines and to one another~\cite{Aho:2006:CPT:1177220}.
 However, in order to translate a higher-lever programming language to machine code capable of running on a machine's processor, we need to design and build programs called compilers~\cite{Aho:2006:CPT:1177220}.
@@ -175,7 +176,7 @@ If we give the analysis-synthesis model of a compiler a more fine-grained look, 
 The analysis step, or front end, may be subdivided into: a lexical analyzer, a syntax analyzer, a semantic analyzer and an intermediate code generator; also, the synthesis step may be subdivided into: machine-independent code optimization, code generation, and machine-dependent code optimization~\cite{Aho:2006:CPT:1177220}.
 The different phases and the intermediate representations between them can be seen at Figure~\ref{figure:compilation-phases}.
 
-\begin{figure}[!ht]\label{figure:compilation-phases}
+\begin{figure}[!ht]
     \centering
     \begin{tikzpicture}[
         >={Latex[width=2mm, length=2mm]},
@@ -217,7 +218,7 @@ The different phases and the intermediate representations between them can be se
         \draw (opt ind.east) -| (backend.north);
         \draw (opt dep.east) -| (backend);
     \end{tikzpicture}
-    \caption{Phases of a compiler and the intermediate representations between them. Adapted from~\textcite{Aho:2006:CPT:1177220}.}
+    \caption{Phases of a compiler and the intermediate representations between them. Adapted from~\textcite{Aho:2006:CPT:1177220}.}\label{figure:compilation-phases}
 \end{figure}
 
 According to \textcite{appel2003modern}, \textquote{An intermediate representation (IR) is a kind of abstract machine language that can express the target-machine operations without committing to too much machine-specific detail}.
@@ -253,19 +254,19 @@ Type systems like the ones used by popular modern programming languages such as 
 \end{itemize}
 
 An effort can be made while designing a type system so that they can further restrict the values of certain types.
-We can be extended a type system to further \textit{refine} its types with logic predicates and this method is called \textit{Refinement types with predicates}~\cite{jhala2020tutorial}.
+We can extend a type system to further \textit{refine} its types with logic predicates and this method is called \textit{Refinement types with predicates}~\cite{jhala2020tutorial}.
 It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020tutorial}.
 For example, while \verb/int/ types can assume any integer values, we can write the refined type
 \begin{equation*}
-    \verb/type nat = int[v | 0 <= v]/
+    \verb/type nat = {v:int | 0 <= v}/
 \end{equation*}
-where the newly defined type \verb!nat! will only be able to assume positive integer values.
+where the newly defined type \texttt{nat} will only be able to assume positive integer values.
 Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020tutorial}.
-For example, the author of an \verb!array! library may specify the functions signatures types
+For example, the author of an \texttt{array} library may specify the functions signatures types
 \begin{equation*}
     \begin{aligned}
-         & \verb/fn size: x:array(a) -> nat[v | v = length(x)]/ \\
-         & \verb/fn  get: x:array(a) -> nat[v | v < length(x)] -> a/
+         & \verb/fn size: x:array(a) -> {v:nat | v = length(x)}/      \\
+         & \verb/fn  get: x:array(a) -> {v:nat | v < length(x)} -> a/ \\
     \end{aligned}
 \end{equation*}
 where \verb!size! and \verb!get! are functions and \verb!x! is the name of the first variable.
@@ -277,9 +278,9 @@ Given these definitions, the refinement type checker can then prove, during the 
 
 There is an increasing number of uses of refinement types being implemented on top of existing languages.
 For example: the work of~\textcite{vazou2014liquidhaskell} presenting LiquidHaskell as refinement types for the Haskell language; the work of~\textcite{vekris2016refinementtypescript} integrating refinement types for the TypeScript language; the work of~\textcite{sammler2021refinedc} integrating refinement types for the C language; and, the work of~\textcite{vazou2018refinementruby} integrating refinement types for the Ruby language.
-Although refinement types have been proved useful in improving the static checking capabilities of higher level languages, there is no research on bringing refinement types to the intermediate code generation phase of a compiler's front end.
 
-We then present the research problem of this research in the form of the following question: `What can we discover when we add refinement types to the intermediate code generation phase of a compiler's front end?'
+Although refinement types have been proved useful in improving the static checking capabilities of higher level languages, there is a lack of research on bringing refinement types to the intermediate code generation phase of a compiler's front end.
+Hence, we state the research problem in the form of the question: `What can we discover when we add refinement types to the intermediate code generation phase of a compiler's front end?'.
 
 \section{Goals}\label{chapter:introduction:sec:goals}
 
@@ -330,88 +331,95 @@ And then explore the aspects of intermediate code generation in Section~\ref{cha
 The first phase of a compiler is called lexical analysis.
 The lexical analyzer will read a stream of characters from the source program and group the characters into sequences called \textit{lexemes} according to the \textit{patterns} defined for each \textit{token name}~\cite{Aho:2006:CPT:1177220}.
 \textcite{Aho:2006:CPT:1177220} describes that, for each lexeme grouped by reading the input character stream, the lexical analyzer will generate a \textit{token} which constitutes a pair of the token name and some optional metadata, e.g.\ the start and end position of the respective lexeme in the input character stream, written
-\begin{quote}
-    \begin{verbatim}
-<token name, metadata>
-\end{verbatim}
-\end{quote}
+\begin{equation*}
+    \verb|<token name, metadata>|
+\end{equation*}
 For example, upon analyzing the following program:
-\begin{quote}
-    \begin{verbatim}
-let a = b + 60 / c
-\end{verbatim}
-\end{quote}
+\begin{equation*}
+    \verb|let a = b + 60 / c|
+\end{equation*}
 A lexical analyzer may output the following token stream:
-\begin{quote}\label{figure:introduction_token_stream}
-    \begin{verbatim}
-<let_keyword, {lexeme: "let", begin: 0, end: 3}>
-<identifier,  {lexeme: "x", begin: 4, end: 5}>
-<=,           {lexeme: "=", begin: 6, end: 7}>
-<identifier,  {lexeme: "b", begin: 8, end: 9}>
-<+,           {lexeme: "+", begin: 10, end: 11}>
-<number,      {lexeme: "60", begin: 12, end: 14}>
-</,           {lexeme: "/", begin: 15, end: 16}>
-<identifier,  {lexeme: "c", begin: 17, end: 18}>
-\end{verbatim}
-\end{quote}
+\begin{equation}\label{figure:introduction_token_stream}
+    \begin{aligned}
+         & \verb/<let_keyword, {lexeme: "let", begin: 0, end: 3}>/  \\
+         & \verb/<identifier,  {lexeme: "a", begin: 4, end: 5}>/    \\
+         & \verb/<=,           {lexeme: "=", begin: 6, end: 7}>/    \\
+         & \verb/<identifier,  {lexeme: "b", begin: 8, end: 9}>/    \\
+         & \verb/<+,           {lexeme: "+", begin: 10, end: 11}>/  \\
+         & \verb/<number,      {lexeme: "60", begin: 12, end: 14}>/ \\
+         & \verb|</,           {lexeme: "/", begin: 15, end: 16}>|  \\
+         & \verb|<identifier,  {lexeme: "c", begin: 17, end: 18}>|  \\
+    \end{aligned}
+\end{equation}
 In this case, the metadata collected by the analyzer is very pedantic including even redundant data as the lexemes for simple patterns of the token names \verb+=+, \verb-+- and \verb+/+, when no metadata is needed it can be omitted from the token notation (e.g. \verb+<{>+).
 
 In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns}.
 One of the important notations for the description of token patterns are regular expressions.
 They are very effective in specifying the type of patterns usually needed to classify lexemes into tokens and can be used for automatic generation of a lexical analyzer~\cite{Aho:2006:CPT:1177220}.
-A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form $\verb+token name+ \rightarrow \verb+regular expression+$ as follows:
+A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form \(\verb+token name+ \rightarrow \verb+regular expression+\) as follows:
 \begin{equation*}
     \begin{aligned}
          & \verb+identifier+ \rightarrow \verb+[A-Za-z]+^+ \\
-         & \verb+number+ \rightarrow \verb+[0-9]+^+ \\
-         & \verb+let_keywork+ \rightarrow \verb+let+   \\
-         & \verb+=+ \rightarrow \verb+=+   \\
-         & \verb+/+ \rightarrow \verb+/+   \\
-         & \verb-+- \rightarrow \verb-+-   \\
+         & \verb+number+ \rightarrow \verb+[0-9]+^+        \\
+         & \verb+let_keywork+ \rightarrow \verb+let+       \\
+         & \verb+=+ \rightarrow \verb+=+                   \\
+         & \verb+/+ \rightarrow \verb+/+                   \\
+         & \verb-+- \rightarrow \verb-+-                   \\
     \end{aligned}
 \end{equation*}
-This can then be used by lexical analyzer generators to generate a program for lexical analysis.
+This rules can then, either be used by lexical analyzer generators to automatically generate a program for lexical analysis, or, be used as the formal specification for handwritten lexers to be based upon~\cite{Aho:2006:CPT:1177220}.
 
 \section{Syntax Analysis}\label{chapter:background:sec:syntax}
 
 The second phase of a compiler is called syntax analysis, or \textit{parsing}.
 The \textit{parser} then receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure~\cite{Aho:2006:CPT:1177220}.
 
-% We can then build a parser $p$ for the following gammar in BNF notation:
-% \begin{quote}
-% \begin{verbatim}
-% <let-statement> ::= let id = <expr>
-% <expr> ::= <term> + <expr> | <term>
-% <term> ::= <term> / <factor> | <factor>
-% <factor> ::= id | number
-% \end{verbatim}
-% \end{quote}
-% where we define productions of the type $symbol ::= expression$
-
-If we give the token stream from Section~\ref{figure:introduction_token_stream} as input to a parser it may output the tree structure found on Figure~\ref{figure:introduction_ast}.
+If we give the token stream~(\ref{figure:introduction_token_stream}) as input to a parser it may output the tree structure found on Figure~\ref{figure:introduction_ast}.
 This structure already has more information than the linear token stream it received as input.
-For example, it is prepared in such a way to preserve the order of operations from classic arithmetic, the tree has an interior node labeled $/$ with \verb+<number, 60>+ as its left child and \verb+<id, c>+ as its right child making it explicit that we must first divide $60$ by $c$ before evaluating the interior node labeled $+$ which depends on the result of $/$ as its right child.
+For example, it is prepared in such a way to preserve the order of operations from classic arithmetic.
+The tree is composed of two interior nodes labeled \texttt{bin-op} for binary operations: the bottom one, with \verb+<number, 60>+ as its left child, \verb+<id, c>+ as its right child, and the infix operator \texttt{/} as its middle child; and the top one, having the bottom \texttt{bin-op} node as its right child making it explicit that we must evaluate the bottom \texttt{bin-op}, dividing $60$ by $c$, before evaluating the top \texttt{bin-op}.
 
-\begin{figure}[ht]\label{figure:introduction_ast}
+\begin{figure}[ht]
     \centering
     \begin{tikzpicture}
-        \node (is-root) {=}
+        \node (is-root) {let}
         [sibling distance=2cm]
-        child { node {<id, a>} }
+        child { node {<let>} }
+        child { node {pattern} [sibling distance=2cm]
+                child { node {<id, a>} }
+            }
+        child { node {<=>} }
         child {
-                node {+}
+                node {bin-op}
                     [sibling distance=2cm]
                 child { node {<id, b>} }
+                child { node {<+>} }
                 child {
-                        node {/}
+                        node {bin-op}
                             [sibling distance=2.2cm]
                         child { node {<number, 60>} }
+                        child { node {</>} }
                         child { node {<id, c>} }
                     }
             };
     \end{tikzpicture}
-    \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}
+    \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}\label{figure:introduction_ast}
 \end{figure}
+
+Every programming language has precise rules that prescribe the correct syntactic structure of its programs and the syntax of such syntactic structure can be described by a context-free grammar~\cite{Aho:2006:CPT:1177220}.
+A context-free grammar has four components:
+\begin{itemize}
+    \item A finite set of \textit{terminal} symbols, usually called or tokens, and is composed by the set of token names defined in the lexical aspects of the language~\cite{Aho:2006:CPT:1177220};
+    \item A finite set of \textit{nonterminals} or \textit{variables} disjoint from the set of terminals, usually called \textit{syntactic variables}~\cite{Aho:2006:CPT:1177220};
+    \item A finite set of \textit{productions} or \textit{rules}, where each production is composed of a nonterminal and a string of zero or more terminals and nonterminals in no specific order~\cite{Aho:2006:CPT:1177220};
+    \item A designation of a nonterminal as the \textit{start} of the grammar~\cite{Aho:2006:CPT:1177220}.
+\end{itemize}
+
+A simple expression language could have its syntactical structure formalized by the grammar:
+\begin{alignat}{2}
+    &\bnfprod{Expr}{\bnfvar{Expr} \bnfter{+} \bnfvar{Expr}} \nonumber \\
+    &\bnfmore{\bnfvar{Expr} \bnfter{-} \bnfvar{Expr}} \nonumber
+\end{alignat}
 
 To do. Here goes a short explanation on recursive descendant, LL and LR parsers. Abstract Syntax Trees and Concrete Syntax Trees.
 
@@ -429,7 +437,7 @@ Does the language type system specifies as valid to divide a number by a boolean
 
 If it does, what does it mean to divide the value 60 by `false'?
 Maybe, whoever designed the language decided that if the dividend is a value of type number and the divisor is a value of type boolean, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
-Maybe, the language's type system forbids this behaviour and will halt the compilation process with some error message.
+Maybe, the language's type system forbids this behavior and will halt the compilation process with some error message.
 These are decisions made when building a language's type system.
 
 To do. Here goes type system theory from Types and programming languages.
@@ -520,21 +528,21 @@ To do. Work in progress.
 \section{The Ekitai's parser}
 
 In order to implement the Ekitai's parser the following
-\begin{bnf}
-    \bnfprod{Source File}{\bnfes{} \bnfor{} \bnfpn{Module Items}}\\
-    \bnfprod{Module Items}{\bnfpn{Module Item} \bnfsp{} \bnfpn{Module Items} \bnfor{}}\\
-    \bnfmore{\bnfpn{Module Item}}\\
-    \bnfprod{Module Item}{\bnfpn{Function Definition} \bnfor{}}\\
-    \bnfmore{\bnfpn{Type Definition}}\\
-    \bnfprod{Type Definition}{\bnfpn{Name} \bnfsp{} \bnfpn{Value Constructor List}}\\
-    \bnfprod{Value Constructor List}{\bnfts{\{} \bnfsp{} \bnfpn{Value Constuctors} \bnfsp{} \bnfts{\}}}\\
-    \bnfprod{Value Constructors}{\bnfpn{Value Constructor} \bnfsp{} \bnfts{,} \bnfsp{} \bnfpn{Value Constructors} \bnfor{}}\\
-    \bnfmore{\bnfpn{Value Constructor} \bnfts{,} \bnfor{}}\\
-    \bnfmore{\bnfpn{Value Constructor}}\\
-    \bnfprod{Value Constructor}{\bnfpn{Name} \bnfsp{} \bnfpn{Constructor Parameter List}}\\
-    \bnfprod{Constructor Parameter List}{\bnfts{(} \bnfpn{Constructor Parameters} \bnfts{)}}\\
-    \bnfprod{Constructor Parameters}{\bnfpn{Type}}
-\end{bnf}
+% \begin{bnf}
+%     \bnfprod{Source File}{\bnfes{} \bnfor{} \bnfpn{Module Items}}\\
+%     \bnfprod{Module Items}{\bnfpn{Module Item} \bnfsp{} \bnfpn{Module Items} \bnfor{}}\\
+%     \bnfmore{\bnfpn{Module Item}}\\
+%     \bnfprod{Module Item}{\bnfpn{Function Definition} \bnfor{}}\\
+%     \bnfmore{\bnfpn{Type Definition}}\\
+%     \bnfprod{Type Definition}{\bnfpn{Name} \bnfsp{} \bnfpn{Value Constructor List}}\\
+%     \bnfprod{Value Constructor List}{\bnfts{\{} \bnfsp{} \bnfpn{Value Constuctors} \bnfsp{} \bnfts{\}}}\\
+%     \bnfprod{Value Constructors}{\bnfpn{Value Constructor} \bnfsp{} \bnfts{,} \bnfsp{} \bnfpn{Value Constructors} \bnfor{}}\\
+%     \bnfmore{\bnfpn{Value Constructor} \bnfts{,} \bnfor{}}\\
+%     \bnfmore{\bnfpn{Value Constructor}}\\
+%     \bnfprod{Value Constructor}{\bnfpn{Name} \bnfsp{} \bnfpn{Constructor Parameter List}}\\
+%     \bnfprod{Constructor Parameter List}{\bnfts{(} \bnfpn{Constructor Parameters} \bnfts{)}}\\
+%     \bnfprod{Constructor Parameters}{\bnfpn{Type}}
+% \end{bnf}
 
 To do. Work in progress.
 
