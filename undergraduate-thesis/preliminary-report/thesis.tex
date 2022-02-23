@@ -12,10 +12,12 @@
 \usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
 \usepackage{csquotes}
 \usepackage{amsmath}
+\usepackage{mathtools}
 
 \usepackage{paper_alcides}
 
 \usepackage{caption} % configures hyperref to point to top of images
+\usepackage{subcaption} % adds subfigures
 \usepackage[style=abnt]{biblatex}
 \addbibresource{bibliography/llvm.bib}
 \addbibresource{bibliography/pratt.bib}
@@ -25,13 +27,19 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{positioning}
+\usetikzlibrary{trees}
 
 \newcommand\myflowchartlowermargin{1.2cm}
 
-\newcommand{\bnfvar}[1]{\langle\textrm{#1}\rangle}
-\newcommand{\bnfter}[1]{\;\textrm{`}#1\textrm{'}\;}
-\newcommand{\bnfprod}[2]{\bnfvar{#1} & \;~::= \ & #2}
-\newcommand{\bnfmore}[1]{ & \;~\mid\ & #1}
+\newcommand{\bnfvar}[1]{\ \bnfvars{#1}}
+\newcommand{\bnfvars}[1]{\langle\textrm{#1}\rangle}
+\newcommand{\bnfter}[1]{\;\bnfters{#1}}
+\newcommand{\bnfters}[1]{\textrm{`}\textrm{#1}\textrm{'}}
+\newcommand{\bnfor}[1]{\;\mid{} #1}
+\newcommand{\bnfprod}[2]{\bnfvars{#1} &\ &::= & #2}
+\newcommand{\bnfmore}[1]{ && \mid{} & #1}
+
+\newcommand{\token}[1]{$\langle\textrm{#1}\rangle$}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Configurações da classe (dados do trabalho)                  %%%
@@ -332,7 +340,7 @@ The first phase of a compiler is called lexical analysis.
 The lexical analyzer will read a stream of characters from the source program and group the characters into sequences called \textit{lexemes} according to the \textit{patterns} defined for each \textit{token name}~\cite{Aho:2006:CPT:1177220}.
 \textcite{Aho:2006:CPT:1177220} describes that, for each lexeme grouped by reading the input character stream, the lexical analyzer will generate a \textit{token} which constitutes a pair of the token name and some optional metadata, e.g.\ the start and end position of the respective lexeme in the input character stream, written
 \begin{equation*}
-    \verb|<token name, metadata>|
+    \langle \textrm{token name},\ \textrm{metadata}\rangle
 \end{equation*}
 For example, upon analyzing the following program:
 \begin{equation*}
@@ -341,30 +349,30 @@ For example, upon analyzing the following program:
 A lexical analyzer may output the following token stream:
 \begin{equation}\label{figure:introduction_token_stream}
     \begin{aligned}
-         & \verb/<let_keyword, {lexeme: "let", begin: 0, end: 3}>/  \\
-         & \verb/<identifier,  {lexeme: "a", begin: 4, end: 5}>/    \\
-         & \verb/<=,           {lexeme: "=", begin: 6, end: 7}>/    \\
-         & \verb/<identifier,  {lexeme: "b", begin: 8, end: 9}>/    \\
-         & \verb/<+,           {lexeme: "+", begin: 10, end: 11}>/  \\
-         & \verb/<number,      {lexeme: "60", begin: 12, end: 14}>/ \\
-         & \verb|</,           {lexeme: "/", begin: 15, end: 16}>|  \\
-         & \verb|<identifier,  {lexeme: "c", begin: 17, end: 18}>|  \\
+         & \langle \textrm{let},        &  & \{lexeme:\ \texttt{let}, &  & begin: 0,  &  & end: 3\}\rangle  \\
+         & \langle \textrm{identifier}, &  & \{lexeme:\ \texttt{a},   &  & begin: 4,  &  & end: 5\}\rangle  \\
+         & \langle =,                   &  & \{lexeme:\ \texttt{=},   &  & begin: 6,  &  & end: 7\}\rangle  \\
+         & \langle \textrm{identifier}, &  & \{lexeme:\ \texttt{b},   &  & begin: 8,  &  & end: 9\}\rangle  \\
+         & \langle +,                   &  & \{lexeme:\ +,            &  & begin: 10, &  & end: 11\}\rangle \\
+         & \langle \textrm{number},     &  & \{lexeme:\ \texttt{60},  &  & begin: 12, &  & end: 14\}\rangle \\
+         & \langle /,                   &  & \{lexeme:\ /,            &  & begin: 15, &  & end: 16\}\rangle \\
+         & \langle \textrm{identifier}, &  & \{lexeme:\ \texttt{c},   &  & begin: 17, &  & end: 18\}\rangle
     \end{aligned}
 \end{equation}
-In this case, the metadata collected by the analyzer is very pedantic including even redundant data as the lexemes for simple patterns of the token names \verb+=+, \verb-+- and \verb+/+, when no metadata is needed it can be omitted from the token notation (e.g. \verb+<{>+).
+In this case, the metadata collected by the analyzer is very pedantic including even redundant data as the lexemes for simple patterns of the token names $=$, $+$ and $/$, when no metadata is needed it can be omitted from the token notation (e.g. \verb+<{>+).
 
 In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns}.
 One of the important notations for the description of token patterns are regular expressions.
 They are very effective in specifying the type of patterns usually needed to classify lexemes into tokens and can be used for automatic generation of a lexical analyzer~\cite{Aho:2006:CPT:1177220}.
-A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form \(\verb+token name+ \rightarrow \verb+regular expression+\) as follows:
+A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form $\textit{token name} \rightarrow \textit{regular expression}$ as follows:
 \begin{equation*}
     \begin{aligned}
-         & \verb+identifier+ \rightarrow \verb+[A-Za-z]+^+ \\
-         & \verb+number+ \rightarrow \verb+[0-9]+^+        \\
-         & \verb+let_keywork+ \rightarrow \verb+let+       \\
-         & \verb+=+ \rightarrow \verb+=+                   \\
-         & \verb+/+ \rightarrow \verb+/+                   \\
-         & \verb-+- \rightarrow \verb-+-                   \\
+        \textrm{identifier} & \rightarrow \ {[A-Za-z]}^+ \\
+        \textrm{number}     & \rightarrow \ {[0-9]}^+    \\
+        \textrm{let}        & \rightarrow \ let          \\
+        =                   & \rightarrow \  =           \\
+        /                   & \rightarrow \ /            \\
+        +                   & \rightarrow \ +            \\
     \end{aligned}
 \end{equation*}
 This rules can then, either be used by lexical analyzer generators to automatically generate a program for lexical analysis, or, be used as the formal specification for handwritten lexers to be based upon~\cite{Aho:2006:CPT:1177220}.
@@ -374,54 +382,279 @@ This rules can then, either be used by lexical analyzer generators to automatica
 The second phase of a compiler is called syntax analysis, or \textit{parsing}.
 The \textit{parser} then receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure~\cite{Aho:2006:CPT:1177220}.
 
-If we give the token stream~(\ref{figure:introduction_token_stream}) as input to a parser it may output the tree structure found on Figure~\ref{figure:introduction_ast}.
+If we give the token stream~\eqref{figure:introduction_token_stream} as input to a parser it may produce the \textit{parse tree} structure found on Figure~\ref{figure:introduction_ast}.
 This structure already has more information than the linear token stream it received as input.
 For example, it is prepared in such a way to preserve the order of operations from classic arithmetic.
-The tree is composed of two interior nodes labeled \texttt{bin-op} for binary operations: the bottom one, with \verb+<number, 60>+ as its left child, \verb+<id, c>+ as its right child, and the infix operator \texttt{/} as its middle child; and the top one, having the bottom \texttt{bin-op} node as its right child making it explicit that we must evaluate the bottom \texttt{bin-op}, dividing $60$ by $c$, before evaluating the top \texttt{bin-op}.
+The tree is composed of two interior nodes labeled $\bnfvars{Expr}$ for binary operations: the bottom one, denoting the sub-expression
+\begin{equation*}
+    \bnfvar{Expr}_{bottom} = \texttt{60 / c}
+\end{equation*}
+and the top one, denoting the whole expression
+\begin{equation*}
+    \bnfvar{Expr}_{top} = \texttt{a +} \bnfvar{Expr}_{bottom} = \texttt{a + 60 / c}
+\end{equation*}
+This structure makes explicit that we must evaluate the result of $\bnfvars{Expr}_{bottom}$, dividing $60$ by $c$, before we can evaluate the $\bnfvars{Expr}_{top}$, adding $a$ to the result of $\bnfvars{Expr}_{bottom}$.
 
 \begin{figure}[ht]
     \centering
     \begin{tikzpicture}
-        \node (is-root) {let}
-        [sibling distance=2cm]
-        child { node {<let>} }
-        child { node {pattern} [sibling distance=2cm]
-                child { node {<id, a>} }
-            }
-        child { node {<=>} }
+        \node (is-root) {$\bnfvars{Let}$} [sibling distance=2cm]
+        child { node {let} }
         child {
-                node {bin-op}
-                    [sibling distance=2cm]
-                child { node {<id, b>} }
-                child { node {<+>} }
+                node {$\bnfvars{Pattern}$}
                 child {
-                        node {bin-op}
-                            [sibling distance=2.2cm]
-                        child { node {<number, 60>} }
-                        child { node {</>} }
-                        child { node {<id, c>} }
+                        node[align=center] {id}
+                        child {
+                                node {a}
+                                edge from parent[dashed]
+                            }
+                    }
+                child[missing] {}
+            }
+        child { node {=} }
+        child {
+                node {$\bnfvars{Expr}$}
+                    [sibling distance=1.2cm]
+                child {
+                        node {id}
+                        child {
+                                node {b}
+                                edge from parent[dashed]
+                            }
+                    }
+                child[missing]{}
+                child {
+                        node {$\bnfvars{Bin-op}$}
+                        child{ node {$+$} }
+                        child[missing]{}
+                    }
+                child[missing]{}
+                child {
+                        node {$\bnfvars{Expr}$}
+                            [sibling distance=2cm]
+                        child[missing]{}
+                        child {
+                                node {number}
+                                child {
+                                        node {60}
+                                        edge from parent[dashed]
+                                    }
+                            }
+                        child {
+                                node {$\bnfvars{Bin-op}$}
+                                child {
+                                        node {$/$}
+                                    }
+                            }
+                        child {
+                                node {id}
+                                child {
+                                        node {c}
+                                        edge from parent[dashed]
+                                    }
+                            }
                     }
             };
     \end{tikzpicture}
-    \caption{A possible parser output for the token stream from Section~\ref{figure:introduction_token_stream}}\label{figure:introduction_ast}
+    \caption{
+        A possible parse tree output for the token stream~\eqref{figure:introduction_token_stream}.
+        Leafs are shown as the token names from the token stream.
+        Here lexemes for non-trivial tokens are appended with dashed lines underneath token names for example purposes.
+    }\label{figure:introduction_ast}
 \end{figure}
 
+\subsection{Precise definition of context-free grammars and ambiguity}
 Every programming language has precise rules that prescribe the correct syntactic structure of its programs and the syntax of such syntactic structure can be described by a context-free grammar~\cite{Aho:2006:CPT:1177220}.
 A context-free grammar has four components:
 \begin{itemize}
-    \item A finite set of \textit{terminal} symbols, usually called or tokens, and is composed by the set of token names defined in the lexical aspects of the language~\cite{Aho:2006:CPT:1177220};
-    \item A finite set of \textit{nonterminals} or \textit{variables} disjoint from the set of terminals, usually called \textit{syntactic variables}~\cite{Aho:2006:CPT:1177220};
-    \item A finite set of \textit{productions} or \textit{rules}, where each production is composed of a nonterminal and a string of zero or more terminals and nonterminals in no specific order~\cite{Aho:2006:CPT:1177220};
+    \item A finite set $\Sigma$ of \textit{terminal} symbols, usually called or tokens, and is composed by the set of token names defined in the lexical aspects of the language~\cite{Aho:2006:CPT:1177220};
+    \item A finite set $V$ of \textit{nonterminals}, or \textit{variables}, disjoint from the set of terminals, usually called \textit{syntactic variables}~\cite{Aho:2006:CPT:1177220};
+    \item A finite set of \textit{productions}, or \textit{rules}, where each production is of the form
+          \begin{equation*}
+              \begin{alignedat}{2}
+                  \bnfprod{Variable}{\ s}
+              \end{alignedat}
+          \end{equation*}
+          where $s \in {(\Sigma \cup V)}^*$, meaning $s$ is a string of zero or more terminals and nonterminals in no specific order~\cite{Aho:2006:CPT:1177220, sipser2012introduction};
     \item A designation of a nonterminal as the \textit{start} of the grammar~\cite{Aho:2006:CPT:1177220}.
 \end{itemize}
 
-A simple expression language could have its syntactical structure formalized by the grammar:
+A simple expression language could have its syntactical structure formalized by the following grammar
+\begin{equation}~\label{eq:ambiguous_expr_grammar}
+    \begin{alignedat}{2}
+        \bnfprod{Expr}{\bnfvar{Expr} \bnfvar{Bin-op} \bnfvar{Expr}}  \\
+        \bnfmore{\bnfter{}\bnfvar{Expr}\bnfter{}}                    \\
+        \bnfmore{\bnfter{number}}                                    \\
+        \bnfmore{\bnfter{id}}                                        \\
+        \bnfprod{Bin-op}{\bnfter{+} \bnfor{\bnfter{-}} \bnfor{\bnfter{*}} \bnfor{\bnfter{/}}}
+    \end{alignedat}
+\end{equation}
+where: terminals have the token names between quotes, e.g. $\bnfters{id}$;
+nonterminals have the syntactic variables names between $\langle$ and $\rangle$, e.g. $\bnfvars{Expr}$;
+productions have the form
 \begin{alignat}{2}
-    &\bnfprod{Expr}{\bnfvar{Expr} \bnfter{+} \bnfvar{Expr}} \nonumber \\
-    &\bnfmore{\bnfvar{Expr} \bnfter{-} \bnfvar{Expr}} \nonumber
+    \bnfprod{V}{\ s} \nonumber
+\end{alignat}
+where $\bnfvars{V}$ is the variable at the \textit{head} of the production and $s$ is the string of terminals and nonterminals at the production's \textit{body};
+the designation of the starting variable is done by the variable at the head of the first production, in the example above the starting nonterminal is $\bnfvars{Expr}$.
+Furthermore, multiple productions can be abbreviated by using the \textit{or} operator denoted by `$\mid$' turning
+\begin{alignat}{2}
+    \bnfprod{V}{\ s^1} \nonumber \\
+    \bnfprod{V}{\ s^2} \nonumber
+\end{alignat}
+into
+\begin{alignat}{2}
+    \bnfprod{V}{\ s^1 \bnfor{s^2}} \nonumber
 \end{alignat}
 
-To do. Here goes a short explanation on recursive descendant, LL and LR parsers. Abstract Syntax Trees and Concrete Syntax Trees.
+In order to show that a particular sentence is in the language formalized by a context-free grammar, we can perform a derivation~\cite{sipser2012introduction}.
+A derivation starts with, first, writing the start variable~\cite{sipser2012introduction}.
+Then, second, we choose any variable from the sentence written so far and a production with the same variable as head replacing the chosen variable with the body of the chosen production~\cite{sipser2012introduction}.
+The, we repeat the second step until there is no more variables and the sentence is formed only by terminals~\cite{sipser2012introduction}.
+
+To show that the sentence `$id + number * id$' is present in the language specified by grammar~\eqref{eq:ambiguous_expr_grammar} we can perform multiple different derivations. Starting with the start variable
+\begin{equation*}
+    \begin{aligned}
+         & \bnfvars{Expr}
+    \end{aligned}
+\end{equation*}
+we know there are two binary operations, so we perform a derivation to
+\begin{equation*}
+    \begin{aligned}
+         & \bnfvars{Expr}\bnfvar{Bin-op}\bnfvar{Expr}
+    \end{aligned}
+\end{equation*}
+here we can choose what to derivate first.
+Although we could choose any variable from the sentence during derivation, we will stick to leftmost derivations, which mandates that we choose the leftmost variable, highlighted in \textbf{bold}, of the sentence to perform the derivation.
+So, we could have the leftmost derivation
+\begin{equation}\label{eq:ambiouous_derivation1}
+    \begin{aligned}
+         & \bnfvars{\textbf{Expr}}                                                         \\
+         & \bnfvars{\textbf{Expr}}\bnfvar{Bin-op}\bnfvar{Expr}                             \\
+         & \bnfvars{\textbf{Expr}}\bnfvar{Bin-op}\bnfvar{Expr}\bnfvar{Bin-op}\bnfvar{Expr} \\
+         & \textit{id}\bnfvar{\textbf{Bin-op}}\bnfvar{Expr}\bnfvar{Bin-op}\bnfvar{Expr}    \\
+         & \textit{id}\ + \bnfvar{\textbf{Expr}}\bnfvar{Bin-op}\bnfvar{Expr}               \\
+         & \textit{id}\ + \ \textit{number} \ \bnfvar{\textbf{Bin-op}}\bnfvar{Expr}        \\
+         & \textit{id}\ + \ \textit{number} \ * \ \bnfvar{\textbf{Expr}}                   \\
+         & \textit{id}\ + \ \textit{number} \ * \ \textit{id}
+    \end{aligned}
+\end{equation}
+but, we could also have a second leftmost derivation
+\begin{equation}\label{eq:ambiouous_derivation2}
+    \begin{aligned}
+         & \bnfvars{\textbf{Expr}}                                                  \\
+         & \bnfvars{\textbf{Expr}}\bnfvar{Bin-op}\bnfvar{Expr}                      \\
+         & \textit{id}\ \bnfvar{\textbf{Bin-op}}\bnfvar{Expr}                       \\
+         & \textit{id}\ + \ \bnfvar{\textbf{Expr}}                                  \\
+         & \textit{id}\ + \ \bnfvar{\textbf{Expr}}\bnfvar{Bin-op}\bnfvar{Expr}      \\
+         & \textit{id}\ + \ \textit{number} \ \bnfvar{\textbf{Bin-op}}\bnfvar{Expr} \\
+         & \textit{id}\ + \ \textit{number} \ * \ \bnfvar{\textbf{Expr}}            \\
+         & \textit{id}\ + \ \textit{number} \ * \ \textit{id}
+    \end{aligned}
+\end{equation}
+thus, having two leftmost derivations that shows the sentence belongs to the grammar's described language.
+
+A grammar is said to be \textit{ambiguous} if it had a non-unique leftmost or rightmost derivation for any sentence of the language it describes~\cite{Aho:2006:CPT:1177220}.
+Therefore, grammar~\eqref{eq:ambiguous_expr_grammar} is clearly ambiguous given derivations~\eqref{eq:ambiouous_derivation1} and~\eqref{eq:ambiouous_derivation2}.
+From the parse trees in Figure~\ref{fig:ambiguous_parse_tree} we can visualize that the order of operations differ between the derivations of `$id + number * id$'.
+In Figure~\ref{fig:ambiguous_parse_tree_a} we have $(id + number) * id$ and in Figure~\ref{fig:ambiguous_parse_tree_b} we have $id + (number * id)$ which have different mathematical meanings.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \begin{tikzpicture}
+            \node {$\bnfvars{Expr}$} [sibling distance=1.7cm]
+            child {
+                    node {$\bnfvars{Expr}$}
+                    child {
+                            node {id}
+                        }
+                    child {
+                            node {$\bnfvars{Bin-op}$}
+                            child{ node {$+$} }
+                        }
+                    child {
+                            node {number}
+                        }
+                }
+            child {
+                    node {$\bnfvars{Bin-op}$}
+                    child[missing]{}
+                    child[missing]{}
+                    child {
+                            node {$*$}
+                        }
+                }
+            child {
+                    node {id}
+                };
+        \end{tikzpicture}
+        \caption{Parse tree from derivation~\eqref{eq:ambiouous_derivation1}.}\label{fig:ambiguous_parse_tree_a}
+    \end{subfigure}
+    \qquad
+    \qquad
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \begin{tikzpicture}
+            \node (is-root) {$\bnfvars{Expr}$} [sibling distance=1.7cm]
+            child { node {id} }
+            child {
+                    node {$\bnfvars{Bin-op}$}
+                    child {
+                            node {$+$}
+                        }
+                    child[missing]{}
+                    child[missing]{}
+                }
+            child {
+                    node {$\bnfvars{Expr}$}
+                    child {
+                            node {number}
+                        }
+                    child {
+                            node {$\bnfvars{Bin-op}$}
+                            child{ node {$*$} }
+                        }
+                    child {
+                            node {id}
+                        }
+                };
+        \end{tikzpicture}
+        \caption{Parse tree from derivation~\eqref{eq:ambiouous_derivation2}.}\label{fig:ambiguous_parse_tree_b}
+    \end{subfigure}
+    \caption{
+        Visual representation of derivations~\eqref{eq:ambiouous_derivation1} and~\eqref{eq:ambiouous_derivation2} in its parse tree form.
+    }\label{fig:ambiguous_parse_tree}
+\end{figure}
+
+Compilers use parse trees to derive meaning and, therefore, ambiguous grammars are problematic for compilling~\cite{appel2003modern}.
+If we were to use some parsing generator algorithm such as $LL$, $LR$ and their variants, an effort should be made to transform such ambiguous grammars into unambiguous grammars.
+As an example we can present an unambiguous grammar relative to the grammar~\eqref{eq:ambiguous_expr_grammar} as
+\begin{equation}~\label{eq:unambiguous_expr_grammar}
+    \begin{alignedat}{2}
+        \bnfprod{Expr}{\bnfvar{Expr} \bnfter{+} \bnfvar{Term}} \\
+        \bnfmore{\bnfvar{Expr}\bnfter{-}\bnfvar{Term}} \\
+        \bnfmore{\bnfvar{Term}} \\
+        \bnfprod{Term}{\bnfvar{Term} \bnfter{*} \bnfvar{Factor}} \\
+        \bnfmore{\bnfvar{Term}\bnfter{/}\bnfvar{Factor}} \\
+        \bnfprod{Factor}{\bnfter{(}\bnfvar{Expr}\bnfter{)}} \\
+        \bnfmore{\bnfter{number}} \\
+        \bnfmore{\bnfter{id}}
+    \end{alignedat}
+\end{equation}
+which, by adding new variables to the grammar, can express unambiguously in its parse trees that: the operators $*$ and $/$ \textit{binds tighter}, or have a \textit{higher precedence}, then $+$ and $-$; and, the operators of the same \textit{binding power}, or \textit{precedence}, are left associative.
+
+\subsection{Review of top-down and bottom-up parsers}
+There are two main categories of parser
+
+syntax directed translation
+\begin{itemize}
+    \item left recursion
+    \item pratt parsers
+\end{itemize}
+
+To do. Here goes a short explanation of syntax directed translations recursive descendant, LL and LR parsers. Abstract Syntax Trees and Concrete Syntax Trees.
 
 \section{Semantic Analysis}\label{chapter:background:sec:semantic}
 
@@ -446,7 +679,7 @@ To do. Here goes type system theory from Types and programming languages.
 
 As the last phase of a compiler's front end we have the intermediate code generation.
 
-To do. Here goes an introduction to Syntax Directed Translation with a short description of Single Static Assignment intermediate representations.
+To do. Here goes an introduction of Single Static Assignment intermediate representations.
 
 \chapter{State of the art in front end design}\label{chapter:related_work}
 
@@ -523,7 +756,7 @@ In this chapter we will describe the design of the \textit{Ekitai} programming a
 
 \section{The Ekitai's lexer}
 
-To do. Work in progress.
+
 
 \section{The Ekitai's parser}
 
