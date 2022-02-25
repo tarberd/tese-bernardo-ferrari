@@ -34,15 +34,17 @@
 
 \newcommand\myflowchartlowermargin{1.2cm}
 
+\def\ppp{::=}
+\newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\bnfvar}[1]{\ \bnfvars{#1}}
-\newcommand{\bnfvars}[1]{\texttt{#1}}
+\newcommand{\bnfvars}[1]{\code{#1}}
 \newcommand{\bnfter}[1]{\ \bnfters{#1}}
-\newcommand{\bnfters}[1]{\textrm{`}\texttt{#1}\textrm{'}}
+\newcommand{\bnfters}[1]{\textrm{`}\code{#1}\textrm{'}}
 \newcommand{\bnfor}[1]{\;\mid{} #1}
-\newcommand{\bnfprod}[2]{\bnfvars{#1} &\ &::= & #2}
+\newcommand{\bnfprod}[2]{\bnfvars{#1} &\ &\ppp& #2}
 \newcommand{\bnfmore}[1]{ && \mid{} & #1}
 
-\newcommand{\token}[1]{$\langle\texttt{#1}\rangle$}
+\newcommand{\token}[1]{$\langle\code{#1}\rangle$}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Configurações da classe (dados do trabalho)                  %%%
@@ -166,9 +168,9 @@
 As stated by~\textcite{Aho:2006:CPT:1177220}, \textquote{Programming languages are notations to describe computations to people and to machines}.
 These notations can take numerous forms.
 They range from lower-level languages, such as machine code ready to be executed by a specific machine, to a higher-level language, such as C, Java, Rust, Haskell and Ml.
-Lower-level languages like machine code are very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two value, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
+Lower-level languages like machine code are very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two values, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
 Whereas, in a higher-level language, we can describe computations in a more abstract set of notations, such as functions and types, without needing to expose details from the specific machine that will execute them~\cite{Aho:2006:CPT:1177220}.
-Hence, using a higher-level programming languages eases how people can describe computations to machines and to one another~\cite{Aho:2006:CPT:1177220}.
+Hence, using higher-level programming languages eases how people can describe computations to machines and to one another~\cite{Aho:2006:CPT:1177220}.
 However, in order to translate a higher-lever programming language to machine code capable of running on a machine's processor, we need to design and build programs called compilers~\cite{Aho:2006:CPT:1177220}.
 
 A compiler is a program that receives as input a program written in a \textit{source} language and translates it to a semantically equivalent program written in a \textit{target} language
@@ -243,16 +245,16 @@ The type checking executed during the semantic analysis phase is designed in acc
 \textcite{pierce2002types} defines a type system as: \textquote{A tractable syntactic method for proving the absence of certain program behaviors by classifying phrases according to the kinds of values they compute}.
 Hence, a phrase written with higher-level notations such as
 \begin{equation}\label{eq:type_example1}
-  \verb+x * 30+
+  \code{x * 30}
 \end{equation}
-may be classified to compute a value of type \verb+Integer+, written
+may be classified to compute a value of type \code{Integer}, written
 \begin{equation*}
-  \verb+x * 30: Integer+
+  \code{x * 30}:\code{Integer}
 \end{equation*}
 meaning that~\ref{eq:type_example1} is a phrase that computes a mathematical integer value.
-As a counter example, if defined by the type system that the multiplication between a value of type \verb/Character/ and a value of type \verb/Integer/ was not allowed, and we had both classifications
+As a counter example, if defined by the type system that the multiplication between a value of type \code{Character} and a value of type \code{Integer} was not allowed, and we had both classifications
 \begin{equation*}
-  \verb/x: Character/ \quad \textrm{and} \quad \verb/30: Integer/
+  \code{x: Character} \quad \textrm{and} \quad \code{30: Integer}
 \end{equation*}
 the phrase in~\ref{eq:type_example1} would be semantically unsound and should be indicated as a type error by the type checker.
 
@@ -260,30 +262,30 @@ According to \textcite{jhala2020tutorial} type systems are mainly used to descri
 Type systems like the ones used by popular modern programming languages such as C\#, Haskell, Java, OCaml, Rust and Scala have similar kinds of rules and are the most widespread tool used to guarantee the correct behavior of a program~\cite{jhala2020tutorial}.
 \textcite{jhala2020tutorial} affirm that, although type systems are widespread and effective, well-typed programs do go wrong; and the authors goes on to describe a few wrong behaviors that are common to the most popular type systems. Within them, we have:
 \begin{itemize}
-  \item \textbf{Division by zero:} Constraining the types of the division operation to \verb/int/ does not protect the program to execute a division by zero at run-time; also, it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020tutorial}.
-  \item \textbf{Buffer overflow:} Constraining the index of the access of a \verb/array/ or \verb/string/ to \verb/int/ does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020tutorial}.
+  \item \textbf{Division by zero:} Constraining the types of the division operation to \code{int} does not protect the program to execute a division by zero at run-time; also, it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020tutorial}.
+  \item \textbf{Buffer overflow:} Constraining the index of the access of an \code{array} or \code{string} to \code{int} does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020tutorial}.
 \end{itemize}
 
 An effort can be made while designing a type system so that they can further restrict the values of certain types.
 We can extend a type system to further \textit{refine} its types with logic predicates and this method is called \textit{Refinement types with predicates}~\cite{jhala2020tutorial}.
 It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020tutorial}.
-For example, while \verb/int/ types can assume any integer values, we can write the refined type
+For example, while \code{int} types can assume any integer values, we can write the refined type
 \begin{equation*}
-  \verb/type nat = {v:int | 0 <= v}/
+  \code{type nat = \{v:int | 0 <= v\}}
 \end{equation*}
-where the newly defined type \texttt{nat} will only be able to assume positive integer values.
+where the newly defined type \code{nat} will only be able to assume positive integer values.
 Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020tutorial}.
-For example, the author of an \texttt{array} library may specify the functions signatures types
+For example, the author of an \code{array} library may specify the functions signatures types
 \begin{equation*}
   \begin{aligned}
-     & \verb/fn size: x:array(a) -> {v:nat | v = length(x)}/      \\
-     & \verb/fn  get: x:array(a) -> {v:nat | v < length(x)} -> a/ \\
+     & \code{fn size: x:array(a) -> \{v:nat | v = length(x)\}}      \\
+     & \code{fn  get: x:array(a) -> \{v:nat | v < length(x)\} -> a} \\
   \end{aligned}
 \end{equation*}
-where \verb!size! and \verb!get! are functions and \verb!x! is the name of the first variable.
-In this type system, a call to \verb+size(arr)+ returns a value $s$ of type \verb!nat! constrained to a single value equal to the length of \verb!arr!; hence, the type of $s$ constrains $s$ to the exact length of \verb+arr+.
-Furthermore, a call to \verb+get(arr, i)+ requires the index \verb+i+ to be within the bounds of \verb+arr+.
-Given these definitions, the refinement type checker can then prove, during the analysis phase (i.e.\ at compile-time), that the contracts of both \verb+size+ and \verb+get+ will not be violated, ensuring all array access to be sated when executing the target program (i.e.\ at run-time).
+where \code{size} and \code{get} are functions and \code{x} is the name of the first variable.
+In this type system, a call to \code{size(arr)} returns a value $s$ of type \code{nat} constrained to a single value equal to the length of \code{arr}; hence, the type of $s$ constrains $s$ to the exact length of \code{arr}.
+Furthermore, a call to \code{get(arr, i)} requires the index \code{i} to be within the bounds of \code{arr}.
+Given these definitions, the refinement type checker can then prove, during the analysis phase (i.e.\ at compile-time), that the contracts of both \code{size} and \code{get} will not be violated, ensuring all array access to be sated when executing the target program (i.e.\ at run-time).
 
 \section{Motivation and research problem}
 
@@ -347,26 +349,25 @@ The lexical analyzer will read a stream of characters from the source program an
 \end{equation*}
 For example, upon analyzing the following program:
 \begin{equation*}
-  \verb|let a = b + 60 / c|
+  \code{let a = b + 60 / c}
 \end{equation*}
 A lexical analyzer may output the following token stream:
 \begin{equation}\label{figure:introduction_token_stream}
   \begin{aligned}
-     & \langle \textrm{let},        &  & \{lexeme:\ \texttt{let}, &  & begin: 0,  &  & end: 3\}\rangle  \\
-     & \langle \textrm{identifier}, &  & \{lexeme:\ \texttt{a},   &  & begin: 4,  &  & end: 5\}\rangle  \\
-     & \langle =,                   &  & \{lexeme:\ \texttt{=},   &  & begin: 6,  &  & end: 7\}\rangle  \\
-     & \langle \textrm{identifier}, &  & \{lexeme:\ \texttt{b},   &  & begin: 8,  &  & end: 9\}\rangle  \\
-     & \langle +,                   &  & \{lexeme:\ +,            &  & begin: 10, &  & end: 11\}\rangle \\
-     & \langle \textrm{number},     &  & \{lexeme:\ \texttt{60},  &  & begin: 12, &  & end: 14\}\rangle \\
-     & \langle /,                   &  & \{lexeme:\ /,            &  & begin: 15, &  & end: 16\}\rangle \\
-     & \langle \textrm{identifier}, &  & \{lexeme:\ \texttt{c},   &  & begin: 17, &  & end: 18\}\rangle
+     & \langle \textrm{let},        &  & \{lexeme:\ \code{let}, &  & begin: 0,  &  & end: 3\}\rangle  \\
+     & \langle \textrm{identifier}, &  & \{lexeme:\ \code{a},   &  & begin: 4,  &  & end: 5\}\rangle  \\
+     & \langle =,                   &  & \{lexeme:\ \code{=},   &  & begin: 6,  &  & end: 7\}\rangle  \\
+     & \langle \textrm{identifier}, &  & \{lexeme:\ \code{b},   &  & begin: 8,  &  & end: 9\}\rangle  \\
+     & \langle +,                   &  & \{lexeme:\ \code{+},   &  & begin: 10, &  & end: 11\}\rangle \\
+     & \langle \textrm{number},     &  & \{lexeme:\ \code{60},  &  & begin: 12, &  & end: 14\}\rangle \\
+     & \langle /,                   &  & \{lexeme:\ \code{/},   &  & begin: 15, &  & end: 16\}\rangle \\
+     & \langle \textrm{identifier}, &  & \{lexeme:\ \code{c},   &  & begin: 17, &  & end: 18\}\rangle
   \end{aligned}
 \end{equation}
 In this case, the metadata collected by the analyzer is very pedantic including even redundant data as the lexemes for simple patterns of the token names $=$, $+$ and $/$.
-When no metadata is needed it can be omitted from the token notation, e.g. \verb+<{>+.
+When no metadata is needed it can be omitted from the token notation, e.g. \token{\{}.
 
-In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns}.
-One of the important notations for the description of token patterns are regular expressions.
+In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns} and one of the important notations for the description of token patterns are regular expressions~\cite{Aho:2006:CPT:1177220}.
 They are very effective in specifying the type of patterns usually needed to classify lexemes into tokens and can be used for automatic generation of a lexical analyzer~\cite{Aho:2006:CPT:1177220}.
 A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form $\textit{token name} \rightarrow \textit{regular expression}$ as follows:
 \begin{equation*}
@@ -391,13 +392,13 @@ This structure has more information than the linear token stream it received as 
 For example, it is prepared in such a way to preserve the order of operations from classic arithmetic.
 Consequently, the tree is composed of two interior nodes labeled $\bnfvars{Expr}$ for binary operations: the bottom one, denoting the sub-expression
 \begin{equation*}
-  \bnfvar{Expr}_{bottom} = \texttt{60 / c}
+  \bnfvar{Expr}_{bottom} = \code{60 / c}
 \end{equation*}
 and the top one, denoting the whole expression
 \begin{equation*}
-  \bnfvar{Expr}_{top} = \texttt{a +} \bnfvar{Expr}_{bottom} = \texttt{a + 60 / c}
+  \bnfvar{Expr}_{top} = \code{a +} \bnfvar{Expr}_{bottom} = \code{a + 60 / c}
 \end{equation*}
-This structure makes explicit that we must first evaluate the result of $\bnfvars{Expr}_{bottom}$, dividing $60$ by $c$, before we can evaluate the result of $\bnfvars{Expr}_{top}$, adding $a$ to the result of $\bnfvars{Expr}_{bottom}$.
+This structure makes explicit that we must first evaluate the result of $\bnfvars{Expr}_{bottom}$, dividing \code{60} by \code{c}, before we can evaluate the result of $\bnfvars{Expr}_{top}$, adding \code{a} to the result of $\bnfvars{Expr}_{bottom}$.
 
 \begin{figure}[ht]
   \centering
@@ -652,7 +653,7 @@ which, by adding new variables to the grammar, can express unambiguously in its 
 \subsection{Review of top-down and bottom-up parsers}
 There are two main categories of parser.
 First we have parsers that try to construct the parse tree by finding a leftmost derivation starting from the root and creating the nodes of the parse three in preorder, called \textit{top-down} parsers~\cite{Aho:2006:CPT:1177220}.
-And second we have parsers that try to construct the parse tree beginning at the leaves and working up to the root by construction a rightmost derivation in reverse by applying a series of reductions on the input stream~\cite{Aho:2006:CPT:1177220}.
+And second we have parsers that try to construct the parse tree beginning at the leaves and working up to the root by performing a rightmost derivation in reverse applying a series of reductions on the input stream~\cite{Aho:2006:CPT:1177220}.
 
 Top-down parsers, also called recursive descent parsers, have the advantage of its algorithms being simple enough to be used to construct parsers by hand~\cite{appel2003modern}.
 Although simple, classic implementations of recursive descent parsers, such as the $LL(1)$ and $LL(k)$ predictive parsers, cannot deal with ambiguous grammars and, since they rely on leftmost derivations, cannot deal with left recursions on grammar productions~\cite{Aho:2006:CPT:1177220}.
@@ -802,23 +803,26 @@ If we try to parse the sentence `$id_1 + number * id_2$' it:
 \begin{itemize}
   \item parses $id_1$ and name its node `left';
   \item enters the loop and parse $\bnfters{+}$ which have a binding power to the left of $1$ and to the right of $2$;
-  \item checks if it binds to the left stronger than the minimum binding power. In this case it does not since the minimum starts at $0$, continuing on to recursively parse $\bnfters{number}$ which becomes the new left;
-  \item the next operator is then $\bnfters{*}$ with binding power $3$ and $4$, this time the left binding power still is not smaller than the minimum of $2$, and we recursively parse $id_2$ which becomes a new left;
-  \item now upon trying to parse a new operator we break from the loop and return the node for $id_2$ then we construct a node $\bnfvars{Expr}$ with left, which is $\bnfter{number}$ for this iteration, $*$ and $id_2$;
-  \item we then return again with another $\bnfvars{Expr}$ node with left, which now is $id_1$, $+$ and the last returned expression as right side finally forming the parse tree with correct precedence found at Figure~\ref{eq:ambiouous_derivation2}.
+  \item checks if it binds to the left stronger than the minimum binding power, in this case it does not since the minimum starts at $0$, continuing on to recursively parse $\bnfters{number}$ which its node becomes the new `left' in the new recursion step;
+  \item the next operator is then $\bnfters{*}$ with binding power $3$ and $4$, this time the left binding power still is not smaller than the minimum of $2$, and we recursively parse $id_2$ which again its node becomes a new `left';
+  \item now, upon trying to parse a new operator, we break from the loop and return the node for $id_2$ and name it `right'; then, we construct a node $\bnfvars{Expr}$ with `left', which is $\bnfter{number}$ for this iteration, the operator $*$, and `right', which is $id_2$;
+  \item we then return again with another $\bnfvars{Expr}$ node with `left', which now is $id_1$, the operator $+$, and the last returned expression as `right' finally forming the parse tree with correct precedence found at Figure~\ref{eq:ambiouous_derivation2}.
 \end{itemize}
 The loop to keep checking if the next operation binds stronger than the minimum for the recursion guaranties both correct associativity and operator precedence~\cite{pratt1973operatorprecedence}.
 
 Besides the work of~\textcite{pratt1973operatorprecedence}, there are recursive descent parsers which can parse a bigger range of ambiguous and left recursive grammars.
-\textcite{10.1007/978-3-540-77442-6_12} proposes a handwritten parser combinator approach that uses composable higher-order functions, together with memoization and backtracking, in order to allow parsing both ambiguity and left recursion in polynomial time.
-There is also the works of~\textcite{10.1145/583852.581483} that proposes a handwritten parser approach called \textit{Packrat} using memoization, backtracking, and unlimited look ahead to parse $LL(k)$ and $LR(k)$ grammars by using \textit{Parsing Expression Grammar} (PEG) definitions, formalized by~\textcite{10.1145/982962.964011}, for the input, which differs from context-free grammars by imposing a total order to the rules set of the grammar together, therefore, PEGs cannot be ambiguous because there is no choice involved in which production to choose for derivation.
-Furthermore, \textcite{10.1145/1328408.1328424} extended Packrat parsing extending its memoization process to allow left-recursion.
+\textcite{10.1007/978-3-540-77442-6_12} proposes a handwritten parser combinator approach that uses composable higher-order functions, together with memoization and backtracking, in order to allow parsing both ambiguity and left recursive grammars in polynomial time.
+There is also the works of~\textcite{10.1145/583852.581483} that proposes a handwritten parser approach, called \textit{Packrat}, using memoization, backtracking, and unlimited look ahead to parse $LL(k)$ and $LR(k)$ grammars by using \textit{Parsing Expression Grammar} (PEG) definitions, formalized by~\textcite{10.1145/982962.964011}, which differs from context-free grammars by imposing a total order to the rules set of the grammar.
+Therefore, PEGs cannot be ambiguous because there is no choice involved in which production to choose for derivation~\cite{10.1145/982962.964011}.
+Furthermore, \textcite{10.1145/1328408.1328424} extended Packrat to allow left-recursion by changing its memoization process.
 
 Bottom-up parsers have fewer context-free grammar constraints~\cite{Aho:2006:CPT:1177220}.
 They still have troubles with ambiguous grammars due to shift-reduce conflicts but no longer require a non-left recursive and left factored grammar~\cite{Aho:2006:CPT:1177220}.
 Writing a bottom-up shift-reduce parser for an $LR$ class grammar is not an easy task, thankfully
 parser generators for $LR(1)$ and $LR(k)$ languages are capable of generating very efficient parsers for a large range of context-free grammars~\cite{Aho:2006:CPT:1177220}.
 Even allowing grammar designers to solve shifting-reduce conflicts by hand assigning whether to shift or to reduce for every conflict~\cite{Aho:2006:CPT:1177220}.
+
+Although using bottom-up parser generators are desirable for its expressiveness and efficiency, in the works of \textcite{matklad2020challenginglrparsing, matklad2020prattparsing} for the Rust Analyzer, and~\textcite{Parr13} for the ANTLR parser generator, the authors advocate to implement handwritten recursive descent top-down parser for it allows the implementation of better error messages and error recovery algorithms for modern compiler implementations and tools.
 
 \subsection{Semantic actions and syntax-directed translations}
 
@@ -828,7 +832,7 @@ They are pieces of code that we can attach to the body of grammar production rul
 Syntax-directed definitions, then, are used to perform \textit{syntax-directed translations} by executing the code specified by the semantic actions during specific moments of the parsing process~\cite{Aho:2006:CPT:1177220}.
 Take the following syntax-directed definition
 \begin{alignat}{2}
-  \bnfprod{Expr}{\bnfvar{Term} \bnfvar{Expr2}\ \text{\texttt{\{Expr.n = Expr(Term.n, Expr2.n)\}}}} \label{eq:sdd_example}
+  \bnfprod{Expr}{\bnfvar{Term} \bnfvar{Expr2}\ \text{\code{\{Expr.n = Expr(Term.n, Expr2.n)\}}}} \label{eq:sdd_example}
 \end{alignat}
 Note that the attribute $n$ for the variables $\bnfvars{Expr}$, $\bnfvars{Term}$ and $\bnfvars{Expr2}$, can be thought of as the return node value of a parsing function for this production.
 If we give a closed look at the parser implemented in Figure~\ref{fig:predictive_parser_expr}, we can see this semantic action at line 4, after parsing $\bnfvars{Term}$ and $\bnfvars{Expr2}$, returning the value of the attribute $Expr.n$.
@@ -836,9 +840,9 @@ Furthermore, the position of the semantic action in a production body determines
 In this example it is positioned after the parser finishes parsing the production.
 
 It is possible to write an entire compiler into the semantic actions of a parser~\cite{appel2003modern}.
-However, this approach limits the compiler to analyze the source program in the strict order it was parsed~\cite{appel2003modern}.
+However, this approach limits the compiler to analyze the source program in the strict order it is parsed~\cite{appel2003modern}.
 Hence, using some sort of intermediate representation between syntax analysis and semantics analysis allows the semantic analyzer to be free from the constraints of the parsing algorithm~\cite{appel2003modern}.
-One possible implementation is for the parser to output a tree data structure.
+One possible solution is to design the semantic actions in such a way that they output an intermediate tree data structure~\cite{appel2003modern}.
 When the parser builds a tree with leaf nodes for each token and interior nodes for each production parsed we call such tree a \textit{concrete parse tree}~\cite{appel2003modern}.
 An example of a concrete parse tree together with metadata collected for each node can be found at Figure~\ref{fig:concrete_syntax_tree}.
 
@@ -858,18 +862,18 @@ Expr
     \end{minted}
   \end{minipage}
   \caption{
-    A sample concrete syntax tree of grammar~\ref{fig:fat_expr_grammar} for sentence \texttt{5 + a}.
+    A sample concrete syntax tree of grammar~\ref{fig:fat_expr_grammar} for sentence \code{5 + a}.
   }\label{fig:concrete_syntax_tree}
 \end{figure}
 
-Sometimes a concrete parse tree is too verbose, like a tree for the grammar in Figure~\ref{fig:fat_expr_grammar}, and it is ideal to transform this tree into a simpler one in order to facilitate semantic analysis~\cite{appel2003modern}.
+Sometimes a concrete parse tree is too verbose, like a tree for the grammar in Figure~\ref{fig:fat_expr_grammar}, and, it is ideal to transform this tree into a simpler one in order to facilitate semantic analysis~\cite{appel2003modern}.
 We can then create a second grammar with the \textit{abstract syntax} of the language.
 The abstract syntax grammar does not need to follow the constraints of syntax analysis and only exists to facilitate the later stages of compilation~\cite{appel2003modern}.
-An abstract syntax for the language described by the grammar in Figure~\ref{fig:fat_expr_grammar} could be the ambiguous grammar~\eqref{eq:ambiguous_expr_grammar}.
+For example, we can use the ambiguous grammar at~\eqref{eq:ambiguous_expr_grammar} as the abstract syntax for the language described by the grammar in Figure~\ref{fig:fat_expr_grammar}.
 
-A compiler could easily translate a concrete parse tree into an \textit{abstract syntax tree}~\cite{appel2003modern}.
-Such a structure is called an Abstract Syntax Tree~\cite{appel2003modern} (AST).
-An AST can easily be programmed by the use of programming constructs such as \textit{Abstract Data Types} (ADT) as show in Figure~\ref{fig:abstract_syntax_adt}.
+A compiler could easily translate a concrete parse tree into an \textit{Abstract Syntax Tree} (AST)~\cite{appel2003modern}.
+An AST can be programmed by the use of programming constructs such as \textit{Abstract Data Types} (ADT) as show in Figure~\ref{fig:abstract_syntax_adt}.
+In Section~\ref{chapter:background:sec:semantic} we will explore how to formally define the abstract tree and the rules that allows us to check if the semantic properties of the language are sound.
 
 \begin{figure}[ht]
   \centering
@@ -896,10 +900,10 @@ enum BinOp {
 \subsection{Syntax error recovery}
 
 When a parser fails to find a derivation for the input it is called a syntax error~\cite{appel2003modern}.
-If we find an error, it would be advantageous for the user of the compiler if the parsing did not halt the compilers' execution on the first error.
-This is what can be accomplished with error recovery.
+If we find an error, it would be advantageous for the user of the compiler if the parsing did not halt the compilers' execution on the first error~\cite{appel2003modern}.
+This is what can be accomplished with error recovery~\cite{appel2003modern}.
 One way we can build error recovery into top-down parsers is by the use of recovery token sets.
-Essentially, the once a parser using recovery token set finds an error, it discards all tokens until it finds a token in the recovery token set, then returns an error node containing the discarded tokens hopping that the father nodes will be able to continue parsing.
+Essentially, once a parser using recovery token set finds an error, it discards all tokens until it finds a token in the recovery token set, then returns an error node containing the discarded tokens hopping that the father nodes will be able to continue parsing from the token found in the recovery token set.
 
 \section{Semantic Analysis}\label{chapter:background:sec:semantic}
 
@@ -922,8 +926,12 @@ An important part of semantic analysis is \textit{type checking} where it will t
 %   \bnfmore{\bnfter{id}}                                     \label{eq:fat_expr_grammar_fac3}
 % \end{alignat}
 
-If we feed a type checker with the tree structure presented on Figure~\ref{figure:introduction_ast}, it may make use of a symbol table containing the type information of the identifiers `b' and `c' to type check all nodes of the tree for consistency.
-Suppose a symbol table that maps the identifier `c' to the type `boolean', written `\verb+c: boolean+', which would compose of the values `true' and `false'.
+If we feed a type checker with the abstract syntax tree for the program
+\begin{equation*}
+  \verb|b + 60 * c|
+\end{equation*}
+it may make use of a \textit{context} containing the type information of the identifiers \code{b} and \code{c} to type check all nodes of the tree for consistency.
+Suppose a context that maps the identifier \code{c} to the type \code{Bool}, written \code{c:Bool}, which would compose of the values `true' and `false'.
 With this information, the type checker would be able to decide if the operation `\verb+60 / c+' is semantically sound to the language's type system.
 Does the language type system specifies as valid to divide a number by a boolean?
 If it does, what does it mean to divide the value 60 by `false'?
@@ -992,7 +1000,7 @@ When given as inference rules, the fact that $T$ is the smallest possible set is
 Also, the rules with no premise are called \textit{axioms} and are written with no bar, since there is nothing to put above it.
 Furthermore, \textcite{pierce2002types} points out that what we are calling \textit{inference rules} are actually \textit{rule schemas} which represents the infinite set of \textit{concrete rules} that can be obtained by substituting each variable by all possible sentences of the syntactic category, e.g.\ substituting each variable $\bnfvars{t}$ by every possible term in the inference rules above.
 
-We can than derive a prof for \texttt{(b + 5) * c} as
+We can than derive a prof for \code{(b + 5) * c} as
 \begin{equation*}
   \inferrule{
     \inferrule{
@@ -1084,7 +1092,7 @@ and the inference rules that define the typing relation for~\eqref{eq:sample_ter
     \bnfters{if} \bnfvar{t}_1 \bnfter{then} \bnfvar{t}_2 \bnfter{else} \bnfvar{t}_3 : \bnfvars{T}
   }
 \end{align*}
-now we can prove if $\texttt{2 * 3 == 42}: \bnfters{Bool}$ by the following sequence of inferences
+now we can prove if $\code{2 * 3 == 42}: \bnfters{Bool}$ by the following sequence of inferences
 \begin{equation*}
   \inferrule*[]{
     \inferrule*[
@@ -1102,10 +1110,10 @@ now we can prove if $\texttt{2 * 3 == 42}: \bnfters{Bool}$ by the following sequ
     \\ \bnfvars{2} \bnfter{*} \bnfvar{3} \bnfter{==} \bnfvar{42}: \bnfters{Bool}
   }
 \end{equation*}
-but if we try to prove something wrong like $\texttt{2 * true}: \bnfters{Num}$ we will quickly find that there are no rules that allow us to reach the type relation axioms.
+but if we try to prove something wrong like $\code{2 * true}: \bnfters{Num}$ we will quickly find that there are no rules that allow us to reach the type relation axioms.
 
-But what happens if we try to prove $\texttt{a + 5} : \bnfters{Num}$ for example?
-We currently have no rules that allow us to know infer the type of \texttt{a}.
+But what happens if we try to prove $\code{a + 5} : \bnfters{Num}$ for example?
+We currently have no rules that allow us to know infer the type of \code{a}.
 Nor do we have the capabilities with the current presented theory.
 In order to for us to be capable of expressing the types of variables we need to extend the typing relation from a two-place relation into a three-place relation adding a context $\Gamma$~\cite{pierce2002types}.
 
