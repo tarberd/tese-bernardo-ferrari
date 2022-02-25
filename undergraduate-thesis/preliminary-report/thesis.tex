@@ -15,6 +15,7 @@
 \usepackage{mathtools}
 \usepackage[newfloat]{minted}
 \usepackage{graphicx}
+\usepackage{mathpartir}
 
 \usepackage{paper_alcides}
 
@@ -34,14 +35,14 @@
 \newcommand\myflowchartlowermargin{1.2cm}
 
 \newcommand{\bnfvar}[1]{\ \bnfvars{#1}}
-\newcommand{\bnfvars}[1]{\langle\textrm{#1}\rangle}
-\newcommand{\bnfter}[1]{\;\bnfters{#1}}
-\newcommand{\bnfters}[1]{\textrm{`}\textrm{#1}\textrm{'}}
+\newcommand{\bnfvars}[1]{\texttt{#1}}
+\newcommand{\bnfter}[1]{\ \bnfters{#1}}
+\newcommand{\bnfters}[1]{\textrm{`}\texttt{#1}\textrm{'}}
 \newcommand{\bnfor}[1]{\;\mid{} #1}
 \newcommand{\bnfprod}[2]{\bnfvars{#1} &\ &::= & #2}
 \newcommand{\bnfmore}[1]{ && \mid{} & #1}
 
-\newcommand{\token}[1]{$\langle\textrm{#1}\rangle$}
+\newcommand{\token}[1]{$\langle\texttt{#1}\rangle$}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Configurações da classe (dados do trabalho)                  %%%
@@ -402,11 +403,11 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
   \centering
   \begin{tikzpicture}
     \node (is-root) {$\bnfvars{Let}$} [sibling distance=2cm]
-    child { node {let} }
+    child { node {$\bnfters{let}$} }
     child {
         node {$\bnfvars{Pattern}$}
         child {
-            node[align=center] {id}
+            node[align=center] {$\bnfters{id}$}
             child {
                 node {a}
                 edge from parent[dashed]
@@ -414,12 +415,12 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
           }
         child[missing] {}
       }
-    child { node {=} }
+    child { node {$\bnfters{=}$} }
     child {
         node {$\bnfvars{Expr}$}
           [sibling distance=1.2cm]
         child {
-            node {id}
+            node {$\bnfters{id}$}
             child {
                 node {b}
                 edge from parent[dashed]
@@ -428,7 +429,7 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
         child[missing]{}
         child {
             node {$\bnfvars{Bin-op}$}
-            child{ node {$+$} }
+            child{ node {$\bnfters{+}$} }
             child[missing]{}
           }
         child[missing]{}
@@ -437,7 +438,7 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
               [sibling distance=2cm]
             child[missing]{}
             child {
-                node {number}
+                node {$\bnfters{number}$}
                 child {
                     node {60}
                     edge from parent[dashed]
@@ -446,11 +447,11 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
             child {
                 node {$\bnfvars{Bin-op}$}
                 child {
-                    node {$/$}
+                    node {$\bnfters{/}$}
                   }
               }
             child {
-                node {id}
+                node {$\bnfters{id}$}
                 child {
                     node {c}
                     edge from parent[dashed]
@@ -486,14 +487,14 @@ A simple expression language could have its syntactical structure formalized by 
 \begin{equation}~\label{eq:ambiguous_expr_grammar}
   \begin{alignedat}{2}
     \bnfprod{Expr}{\bnfvar{Expr} \bnfvar{Bin-op} \bnfvar{Expr}}  \\
-    \bnfmore{\bnfter{}\bnfvar{Expr}\bnfter{}}                    \\
+    \bnfmore{\bnfter{(}\bnfvar{Expr}\bnfter{)}}                  \\
     \bnfmore{\bnfter{number}}                                    \\
     \bnfmore{\bnfter{id}}                                        \\
     \bnfprod{Bin-op}{\bnfter{+} \bnfor{\bnfter{-}} \bnfor{\bnfter{*}} \bnfor{\bnfter{/}}}
   \end{alignedat}
 \end{equation}
 where: terminals have the token names between quotes, e.g. $\bnfters{id}$;
-nonterminals have the syntactic variables names between $\langle$ and $\rangle$, e.g. $\bnfvars{Expr}$;
+nonterminals have the syntactic variables as normal words, e.g. $\bnfvars{Expr}$;
 productions have the form
 \begin{alignat}{2}
   \bnfprod{V}{\ s} \nonumber
@@ -571,14 +572,14 @@ In Figure~\ref{fig:ambiguous_parse_tree_a} we have $(id + number) * id$ and in F
       child {
           node {$\bnfvars{Expr}$}
           child {
-              node {id}
+              node {$\bnfters{id}$}
             }
           child {
               node {$\bnfvars{Bin-op}$}
-              child{ node {$+$} }
+              child{ node {$\bnfters{+}$} }
             }
           child {
-              node {number}
+              node {$\bnfters{number}$}
             }
         }
       child {
@@ -586,11 +587,11 @@ In Figure~\ref{fig:ambiguous_parse_tree_a} we have $(id + number) * id$ and in F
           child[missing]{}
           child[missing]{}
           child {
-              node {$*$}
+              node {$\bnfters{*}$}
             }
         }
       child {
-          node {id}
+          node {$\bnfters{id}$}
         };
     \end{tikzpicture}
     \caption{Parse tree from derivation~\eqref{eq:ambiouous_derivation1}.}\label{fig:ambiguous_parse_tree_a}
@@ -601,11 +602,11 @@ In Figure~\ref{fig:ambiguous_parse_tree_a} we have $(id + number) * id$ and in F
     \centering
     \begin{tikzpicture}
       \node (is-root) {$\bnfvars{Expr}$} [sibling distance=1.7cm]
-      child { node {id} }
+      child { node {$\bnfters{id}$} }
       child {
           node {$\bnfvars{Bin-op}$}
           child {
-              node {$+$}
+              node {$\bnfters{+}$}
             }
           child[missing]{}
           child[missing]{}
@@ -613,14 +614,14 @@ In Figure~\ref{fig:ambiguous_parse_tree_a} we have $(id + number) * id$ and in F
       child {
           node {$\bnfvars{Expr}$}
           child {
-              node {number}
+              node {$\bnfters{number}$}
             }
           child {
               node {$\bnfvars{Bin-op}$}
-              child{ node {$*$} }
+              child{ node {$\bnfters{*}$} }
             }
           child {
-              node {id}
+              node {$\bnfters{id}$}
             }
         };
     \end{tikzpicture}
@@ -888,7 +889,7 @@ enum BinOp {
     \end{minted}
   \end{minipage}
   \caption{
-    An example of an abstract syntax for grammar~\eqref{eq:ambiguous_expr_grammar} described by Abstract data types.
+    An example of an abstract syntax for grammar at Figure~\eqref{eq:ambiguous_expr_grammar} described by Abstract data types.
   }\label{fig:abstract_syntax_adt}
 \end{figure}
 
@@ -900,25 +901,224 @@ This is what can be accomplished with error recovery.
 One way we can build error recovery into top-down parsers is by the use of recovery token sets.
 Essentially, the once a parser using recovery token set finds an error, it discards all tokens until it finds a token in the recovery token set, then returns an error node containing the discarded tokens hopping that the father nodes will be able to continue parsing.
 
-
 \section{Semantic Analysis}\label{chapter:background:sec:semantic}
 
 The third phase of a compiler is called semantic analysis.
-It is responsible to use the tree structure generated by the parser to check if the source program is semantically consistent with the language specification.
+It is responsible to use the AST generated by the parser to check if the source program is semantically consistent with the language specification.
 An important part of semantic analysis is \textit{type checking} where it will try to validate the program to the language specification's type system.
 
-If we feed a type checker with the tree structure presented on Figure~\ref{figure:introduction_ast}.
-It may make use of a symbol table containing the type information of the identifiers `b' and `c' to type check all nodes of the tree for consistency.
+% Suppose the following abstract syntax for terms
+% \begin{alignat}{2}
+%   \bnfprod{term}{\bnfvar{term} \bnfvar{Expr2}}              \label{eq:fat_expr_grammar_expr}  \\
+%   \bnfprod{Expr2}{\bnfter{+}\bnfvar{Term} \bnfvar{Expr2}}   \label{eq:fat_expr_grammar_expr2} \\
+%   \bnfmore{\bnfter{-}\bnfvar{Term}\bnfvar{Expr2}}           \label{eq:fat_expr_grammar_expr3} \\
+%   \bnfmore{\ \epsilon}                                      \label{eq:fat_expr_grammar_expr4} \\
+%   \bnfprod{Term}{\bnfvar{Factor} \bnfvar{Term2}}            \label{eq:fat_expr_grammar_term}  \\
+%   \bnfprod{Term2}{\bnfter{*}\bnfvar{Factor} \bnfvar{Term2}} \label{eq:fat_expr_grammar_term2} \\
+%   \bnfmore{\bnfter{/}\bnfvar{Factor}\bnfvar{Term2}}         \label{eq:fat_expr_grammar_term3} \\
+%   \bnfmore{\ \epsilon}                                      \label{eq:fat_expr_grammar_term4} \\
+%   \bnfprod{Factor}{\bnfter{(}\bnfvar{Expr}\bnfter{)}}       \label{eq:fat_expr_grammar_fact}  \\
+%   \bnfmore{\bnfter{number}}                                 \label{eq:fat_expr_grammar_fac2}  \\
+%   \bnfmore{\bnfter{id}}                                     \label{eq:fat_expr_grammar_fac3}
+% \end{alignat}
+
+If we feed a type checker with the tree structure presented on Figure~\ref{figure:introduction_ast}, it may make use of a symbol table containing the type information of the identifiers `b' and `c' to type check all nodes of the tree for consistency.
 Suppose a symbol table that maps the identifier `c' to the type `boolean', written `\verb+c: boolean+', which would compose of the values `true' and `false'.
 With this information, the type checker would be able to decide if the operation `\verb+60 / c+' is semantically sound to the language's type system.
 Does the language type system specifies as valid to divide a number by a boolean?
-
 If it does, what does it mean to divide the value 60 by `false'?
-Maybe, whoever designed the language decided that if the dividend is a value of type number and the divisor is a value of type boolean, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
+
+Maybe, whoever designed the language decided that, if the dividend is a value of type number and the divisor is a value of type boolean, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
 Maybe, the language's type system forbids this behavior and will halt the compilation process with some error message.
 These are decisions made when building a language's type system.
 
-To do. Here goes type system theory from Types and programming languages.
+In order to star reasoning about the semantic aspects of a language suppose the following abstract syntax
+\begin{equation}~\label{eq:sample_term_ast}
+  \begin{alignedat}{2}
+    \bnfprod{term}{\bnfvar{term} \bnfter{+} \bnfvar{term}} \\
+    \bnfmore{\bnfvar{term} \bnfter{-} \bnfvar{term}}       \\
+    \bnfmore{\bnfvar{term} \bnfter{*} \bnfvar{term}}       \\
+    \bnfmore{\bnfvar{term} \bnfter{/} \bnfvar{term}}       \\
+    \bnfmore{\bnfter{number}}                              \\
+    \bnfmore{\bnfter{id}}
+  \end{alignedat}
+\end{equation}
+this set of productions defines a set of all possible terms, although compact and expressive it is only one of several ways of describing the syntax of a language~\cite{pierce2002types}.
+According to \textcite{pierce2002types}, using the grammar to define the set of all terms is actually just a compact notation for the following inductive definition: The set of all terms is the smallest set $T$ such that
+\begin{align}
+   & \{\bnfters{nubmer}, \bnfter{id}\} \subseteq T \label{eq:example_clause1}            \\
+   & \textrm{if } \bnfvars{t}_1 \in T \textrm{ and } \bnfvars{t}_2 \in T \textrm{ then }
+  \{
+  \bnfvars{t}_1 \bnfter{+} \bnfvar{t}_2,
+  \bnfvar{t}_1 \bnfter{-} \bnfvar{t}_2,
+  \bnfvar{t}_1 \bnfter{*} \bnfvar{t}_2,
+  \bnfvar{t}_1 \bnfter{/} \bnfvar{t}_2
+  \} \subseteq T\label{eq:example_clause2}
+\end{align}
+Formally, this definition defines $T$ as a set of \textit{trees} and not a set of strings~\cite{pierce2002types}.
+A shorthand definition for the same inductive definition of terms can be given in \textit{inference rules}, as following:
+\begin{align*}
+  \bnfters{id} \in T &  & \bnfters{number} \in T
+\end{align*}
+\begin{align*}
+  \inferrule{
+  \bnfvars{t}_1 \in T \\ \bnfvars{t}_2 \in T
+  }{
+    \bnfvars{t}_1 \bnfter{+} \bnfvar{t}_2 \in T
+  }
+   &  &
+  \inferrule{
+  \bnfvars{t}_1 \in T \\ \bnfvars{t}_2 \in T
+  }{
+    \bnfvars{t}_1 \bnfter{-} \bnfvar{t}_2 \in T
+  }
+\end{align*}
+\begin{align*}
+  \inferrule{
+  \bnfvars{t}_1 \in T \\ \bnfvars{t}_2 \in T
+  }{
+    \bnfvars{t}_1 \bnfter{*} \bnfvar{t}_2 \in T
+  }
+   &  &
+  \inferrule{
+  \bnfvars{t}_1 \in T \\ \bnfvars{t}_2 \in T
+  }{
+    \bnfvars{t}_1 \bnfter{/} \bnfvar{t}_2 \in T
+  }
+\end{align*}
+where the first two rules restate the first clause in~\eqref{eq:example_clause1} and the last 4 rules restate the second clause in~\eqref{eq:example_clause2}.
+Each rule means that if we found the statements in the premises listed above the line, then we may derive the conclusion below the line.
+When given as inference rules, the fact that $T$ is the smallest possible set is not stated explicitly.
+Also, the rules with no premise are called \textit{axioms} and are written with no bar, since there is nothing to put above it.
+Furthermore, \textcite{pierce2002types} points out that what we are calling \textit{inference rules} are actually \textit{rule schemas} which represents the infinite set of \textit{concrete rules} that can be obtained by substituting each variable by all possible sentences of the syntactic category, e.g.\ substituting each variable $\bnfvars{t}$ by every possible term in the inference rules above.
+
+We can than derive a prof for \texttt{(b + 5) * c} as
+\begin{equation*}
+  \inferrule{
+    \inferrule{
+      \bnfvars{b} \in T \\ \bnfvars{5} \in T
+    }{
+      \bnfvars{b} \bnfter{+} \bnfvar{5} \in T
+    }
+    \\ \bnfvars{c} \in T
+  }{
+    \bnfvars{b} \bnfter{+} \bnfvar{5} \bnfter{*} \bnfvar{t} \in T
+  }
+\end{equation*}
+Here we see the concrete inference rules in play, and not the rules schemas.
+We constructed the inference rules in such a way that proving is no different from finding a derivation of the grammar.
+In the next section we will show how to enrich inference rules to prove more complex languages.
+
+\subsection{Boolean and Integer terms}
+
+Consider following extension of~\eqref{eq:sample_term_ast} with boolean types and a couple new terms:
+\begin{equation}~\label{eq:sample_term_ast_bool}
+  \begin{alignedat}{2}
+    \bnfprod{term}{\bnfvar{term} \bnfvar{op} \bnfvar{term}} \\
+    \bnfmore{\bnfter{if} \bnfvar{term} \bnfter{then} \bnfvar{term} \bnfter{else} \bnfvar{term}} \\
+    \bnfmore{\bnfter{number}}                              \\
+    \bnfmore{\bnfter{true}}                              \\
+    \bnfmore{\bnfter{false}}                              \\
+    \bnfmore{\bnfter{id}} \\
+    \bnfprod{op}{\bnfvar{oparit}} \\
+    \bnfmore{\bnfvar{opbool}} \\
+    \bnfmore{\bnfvar{opcomp}} \\
+    \bnfprod{oparit}{\bnfter{+} \bnfor{\bnfter{-}}} \\
+    \bnfmore{\bnfter{*} \bnfor{\bnfter{/}}} \\
+    \bnfprod{opcomp}{\bnfter{<} \bnfor{\bnfter{<=}}} \\
+    \bnfmore{\bnfter{==} \bnfor{\bnfter{!=}}} \\
+    \bnfprod{opbool}{\bnfter{\&\&} \bnfor{\bnfter{||}}}
+  \end{alignedat}
+\end{equation}
+Before the new abstract syntax constructs, in~\eqref{eq:sample_term_ast}, all terms were numbers or variables to numbers, and we did not need to verify if in $\bnfvars{t}_1 \bnfter{+} \bnfvar{t}_2$ the sum operation was well-defined for $\bnfvars{t}_1$ and $\bnfvars{t}_2$.
+We need a system so we can prove that both $\bnfvars{t}_1$ and $\bnfvars{t}_2$ are numbers in $\bnfvars{t}_1 \bnfter{+} \bnfvar{t}_2$, for accomplishing the goal we introduce the formal notion of types.
+
+The typing relation for arithmetic expressions is written as $\bnfvars{term} : \bnfvars{Type}$, and means that $\bnfvars{term}$ is of type $\bnfvars{Type}$ where $\bnfvars{Type}$ is a new syntactic form for the types of the language~\cite{pierce2002types}. Also, the relation is defined by a set of inference rules assigning types to terms~\cite{pierce2002types}.
+
+We introduce the syntactic form for $\bnfvars{T}$ as
+\begin{equation}~\label{eq:sample_term_ast_bool_t}
+  \begin{alignedat}{2}
+    \bnfprod{T}{\bnfter{Nat}} \\
+    \bnfmore{\bnfter{Bool}}
+  \end{alignedat}
+\end{equation}
+and the inference rules that define the typing relation for~\eqref{eq:sample_term_ast_bool} as
+\begin{align*}
+  \bnfters{true} : \bnfters{Bool}
+   &  & \bnfters{false} : \bnfters{Bool}
+   &  & \bnfters{number} : \bnfters{Nat}
+\end{align*}
+\begin{align*}
+  \inferrule*[right=num-arith]{
+    \bnfvars{t}_1 : \bnfters{Num}
+  \\ \bnfvars{t}_2 : \bnfters{Num}
+  \\ \bnfvar{op} \in \bnfvars{oparit}
+  }{
+    \bnfvars{t}_1 \bnfvar{op} \bnfvar{t}_2 : \bnfters{Num}
+  }
+\end{align*}
+\begin{align*}
+  \inferrule*[right=num-compare]{
+    \bnfvars{t}_1 : \bnfters{Num}
+  \\ \bnfvars{t}_2 : \bnfters{Num}
+  \\ \bnfvar{op} \in \bnfvars{opcomp}
+  }{
+    \bnfvars{t}_1 \bnfvar{op} \bnfvar{t}_2 : \bnfters{Bool}
+  }
+\end{align*}
+\begin{align*}
+  \inferrule*[right=bool-arith]{
+    \bnfvars{t}_1 : \bnfters{Bool}
+  \\ \bnfvars{t}_2 : \bnfters{Bool}
+  \\ \bnfvar{op} \in \bnfvars{opbool}
+  }{
+    \bnfvars{t}_1 \bnfvar{op} \bnfvar{t}_2 : \bnfters{Bool}
+  }
+\end{align*}
+\begin{align*}
+  \inferrule*[right=if]{
+    \bnfvars{t}_1 : \bnfters{Bool}
+  \\ \bnfvars{t}_2 : \bnfvars{T}
+  \\ \bnfvars{t}_3 : \bnfvars{T}
+  }{
+    \bnfters{if} \bnfvar{t}_1 \bnfter{then} \bnfvar{t}_2 \bnfter{else} \bnfvar{t}_3 : \bnfvars{T}
+  }
+\end{align*}
+now we can prove if $\texttt{2 * 3 == 42}: \bnfters{Bool}$ by the following sequence of inferences
+\begin{equation*}
+  \inferrule*[]{
+    \inferrule*[
+      leftskip=2em,rightskip=2em,vdots=1.5em]
+    {
+      \bnfvars{2} : \bnfters{Num}  \bnfter{*} \bnfvar{3} : \bnfters{Num}
+      \\\bnfvars{3} : \bnfters{Num}
+      \\ \bnfters{*} \in \bnfvars{oparit}
+    }{
+      \bnfvars{2} \bnfter{*} \bnfvar{3} : \bnfters{Num}
+    }
+    \\ \bnfvars{42} : \bnfters{Num}
+    \\ \bnfters{==} \in \bnfvars{opcomp}
+  }{
+    \\ \bnfvars{2} \bnfter{*} \bnfvar{3} \bnfter{==} \bnfvar{42}: \bnfters{Bool}
+  }
+\end{equation*}
+but if we try to prove something wrong like $\texttt{2 * true}: \bnfters{Num}$ we will quickly find that there are no rules that allow us to reach the type relation axioms.
+
+But what happens if we try to prove $\texttt{a + 5} : \bnfters{Num}$ for example?
+We currently have no rules that allow us to know infer the type of \texttt{a}.
+Nor do we have the capabilities with the current presented theory.
+In order to for us to be capable of expressing the types of variables we need to extend the typing relation from a two-place relation into a three-place relation adding a context $\Gamma$~\cite{pierce2002types}.
+
+The context $\Gamma$, also called \textit{typing context}, is a set of assumptions of the form $\bnfters{id} : \bnfvars{Type}$~\cite{pierce2002types}.
+It is described by the syntactic form
+\begin{equation}~\label{eq:sample_term_ast_bool_g}
+  \begin{alignedat}{2}
+    \bnfprod{$\Gamma$}{\ \Gamma \bnfter{,} \bnfter{id} : \bnfvars{Type}} \\
+    \bnfmore{\bnfter{$\emptyset$}}
+  \end{alignedat}
+\end{equation}
+
+The new three-place typing relation is written $\Gamma \vdash \bnfvars{term} : \bnfvars{Type}$.
 
 \section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
@@ -929,10 +1129,6 @@ To do. Here goes an introduction of Single Static Assignment intermediate repres
 \chapter{State of the art in front end design}\label{chapter:related_work}
 
 In this chapter we will present prior work related to refinement types and the LLVM intermediate representation.
-
-\section{The Sprite Language}
-
-In the work presented by \textcite{jhala2020tutorial}, the authors implemented a higher level language called \textit{Sprite} iteratively adding refinement type features on top of a subset of the OCaml language.
 
 \section{Refinement types with predicates}
 
@@ -958,8 +1154,6 @@ To do. Work in progress.
 In this chapter we will describe the design of the \textit{Ekitai} programming and the implementation of its front end to the LLVM intermediate representation.
 
 \section{The Ekitai's lexer}
-
-
 
 \section{The Ekitai's parser}
 
@@ -987,6 +1181,10 @@ To do. Work in progress.
 To do. Work in progress.
 
 \section{The Ekitai's LLVM intermediate code generator}
+
+To do. Work in progress.
+
+\section{Conclusion}
 
 To do. Work in progress.
 
