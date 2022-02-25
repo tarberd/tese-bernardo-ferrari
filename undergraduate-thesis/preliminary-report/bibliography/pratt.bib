@@ -21,6 +21,46 @@
   year      = {1986},
 }
 
+@article{10.1145/583852.581483,
+  abstract   = {Packrat parsing is a novel technique for implementing parsers in a lazy functional programming language. A packrat parser provides the power and flexibility of top-down parsing with backtracking and unlimited lookahead, but nevertheless guarantees linear parse time. Any language defined by an LL(k) or LR(k) grammar can be recognized by a packrat parser, in addition to many languages that conventional linear-time algorithms do not support. This additional power simplifies the handling of common syntactic idioms such as the widespread but troublesome longest-match rule, enables the use of sophisticated disambiguation strategies such as syntactic and semantic predicates, provides better grammar composition properties, and allows lexical analysis to be integrated seamlessly into parsing. Yet despite its power, packrat parsing shares the same simplicity and elegance as recursive descent parsing; in fact converting a backtracking recursive descent parser into a linear-time packrat parser often involves only a fairly straightforward structural change. This paper describes packrat parsing informally with emphasis on its use in practical applications, and explores its advantages and disadvantages with respect to the more conventional alternatives.},
+  address    = {New York, NY, USA},
+  author     = {Ford, Bryan},
+  doi        = {10.1145/583852.581483},
+  issn       = {0362-1340},
+  issue_date = {September 2002},
+  journal    = {SIGPLAN Not.},
+  keywords   = {top-down parsing, backtracking, memoization, scannerless parsing, Haskell, lexical analysis, parser combinators},
+  month      = {sep},
+  number     = {9},
+  numpages   = {12},
+  pages      = {36–47},
+  publisher  = {Association for Computing Machinery},
+  title      = {Packrat Parsing: Simple, Powerful, Lazy, Linear Time, Functional Pearl},
+  url        = {https://doi.org/10.1145/583852.581483},
+  volume     = {37},
+  year       = {2002},
+}
+
+@article{10.1145/982962.964011,
+  abstract   = {For decades we have been using Chomsky's generative system of grammars, particularly context-free grammars (CFGs) and regular expressions (REs), to express the syntax of programming languages and protocols. The power of generative grammars to express ambiguity is crucial to their original purpose of modelling natural languages, but this very power makes it unnecessarily difficult both to express and to parse machine-oriented languages using CFGs. Parsing Expression Grammars (PEGs) provide an alternative, recognition-based formal foundation for describing machine-oriented syntax, which solves the ambiguity problem by not introducing ambiguity in the first place. Where CFGs express nondeterministic choice between alternatives, PEGs instead use prioritized choice. PEGs address frequently felt expressiveness limitations of CFGs and REs, simplifying syntax definitions and making it unnecessary to separate their lexical and hierarchical components. A linear-time parser can be built for any PEG, avoiding both the complexity and fickleness of LR parsers and the inefficiency of generalized CFG parsing. While PEGs provide a rich set of operators for constructing grammars, they are reducible to two minimal recognition schemas developed around 1970, TS/TDPL and gTS/GTDPL, which are here proven equivalent in effective recognition power.},
+  address    = {New York, NY, USA},
+  author     = {Ford, Bryan},
+  doi        = {10.1145/982962.964011},
+  issn       = {0362-1340},
+  issue_date = {January 2004},
+  journal    = {SIGPLAN Not.},
+  keywords   = {scannerless parsing, parsing expression grammars, regular expressions, syntactic predicates, GTDPL, unified grammars, BNF, TDPL, lexical analysis, context-free grammars, packrat parsing},
+  month      = {jan},
+  number     = {1},
+  numpages   = {12},
+  pages      = {111–122},
+  publisher  = {Association for Computing Machinery},
+  title      = {Parsing Expression Grammars: A Recognition-Based Syntactic Foundation},
+  url        = {https://doi.org/10.1145/982962.964011},
+  volume     = {39},
+  year       = {2004},
+}
+
 @book{wilson2007beautiful,
   author    = {Wilson, G. and Oram, A.},
   isbn      = {9780596554675},
@@ -30,6 +70,40 @@
   title     = {Beautiful Code: Leading Programmers Explain How They Think},
   url       = {https://books.google.com.br/books?id=gJrmszNHQV4C},
   year      = {2007},
+}
+
+@inproceedings{10.1007/978-3-540-77442-6_12,
+  abstract  = {Parser combinators are higher-order functions used to build parsers as executable specifications of grammars. Some existing implementations are only able to handle limited ambiguity, some have exponential time and/or space complexity for ambiguous input, most cannot accommodate left-recursive grammars. This paper describes combinators, implemented in Haskell, which overcome all of these limitations.},
+  address   = {Berlin, Heidelberg},
+  author    = {Frost, Richard A.
+               and Hafiz, Rahmatullah
+               and Callaghan, Paul},
+  booktitle = {Practical Aspects of Declarative Languages},
+  editor    = {Hudak, Paul
+               and Warren, David S.},
+  isbn      = {978-3-540-77442-6},
+  pages     = {167--181},
+  publisher = {Springer Berlin Heidelberg},
+  title     = {Parser Combinators for Ambiguous Left-Recursive Grammars},
+  year      = {2008},
+}
+
+@inproceedings{10.1145/1328408.1328424,
+  abstract  = {Packrat parsing offers several advantages over other parsing techniques, such as the guarantee of linear parse times while supporting backtracking and unlimited look-ahead. Unfortunately, the limited support for left recursion in packrat parser implementations makes them difficult to use for a large class of grammars (Java's, for example). This paper presents a modification to the memoization mechanism used by packrat parser implementations that makes it possible for them to support (even indirectly or mutually) left-recursive rules. While it is possible for a packrat parser with our modification to yield super-linear parse times for some left-recursive grammars, our experimentsshow that this is not the case for typical uses of left recursion.},
+  address   = {New York, NY, USA},
+  author    = {Warth, Alessandro and Douglass, James R. and Millstein, Todd},
+  booktitle = {Proceedings of the 2008 ACM SIGPLAN Symposium on Partial Evaluation and Semantics-Based Program Manipulation},
+  doi       = {10.1145/1328408.1328424},
+  isbn      = {9781595939777},
+  keywords  = {packrat parsing, left recursion},
+  location  = {San Francisco, California, USA},
+  numpages  = {8},
+  pages     = {103–110},
+  publisher = {Association for Computing Machinery},
+  series    = {PEPM '08},
+  title     = {Packrat Parsers Can Support Left Recursion},
+  url       = {https://doi.org/10.1145/1328408.1328424},
+  year      = {2008},
 }
 
 @book{Parr13,

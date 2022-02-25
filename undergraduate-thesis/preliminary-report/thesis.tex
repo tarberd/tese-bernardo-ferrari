@@ -383,12 +383,12 @@ This rules can then, either be used by lexical analyzer generators to automatica
 \section{Syntax Analysis}\label{chapter:background:sec:syntax}
 
 The second phase of a compiler is called syntax analysis, or \textit{parsing}.
-The \textit{parser} then receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure~\cite{Aho:2006:CPT:1177220}.
+The \textit{parser} receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure~\cite{Aho:2006:CPT:1177220}.
 
 If we give the token stream~\eqref{figure:introduction_token_stream} as input to a parser it may produce the \textit{parse tree} structure found on Figure~\ref{figure:introduction_ast}.
 This structure has more information than the linear token stream it received as input.
 For example, it is prepared in such a way to preserve the order of operations from classic arithmetic.
-The tree is composed of two interior nodes labeled $\bnfvars{Expr}$ for binary operations: the bottom one, denoting the sub-expression
+Consequently, the tree is composed of two interior nodes labeled $\bnfvars{Expr}$ for binary operations: the bottom one, denoting the sub-expression
 \begin{equation*}
   \bnfvar{Expr}_{bottom} = \texttt{60 / c}
 \end{equation*}
@@ -470,7 +470,7 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
 Every programming language has precise rules that prescribe the correct syntactic structure of its programs and the syntax of such syntactic structure can be described by a context-free grammar~\cite{Aho:2006:CPT:1177220}.
 A context-free grammar has four components:
 \begin{itemize}
-  \item A finite set $\Sigma$ of \textit{terminal} symbols, usually called or tokens, and is composed by the set of token names defined in the lexical aspects of the language~\cite{Aho:2006:CPT:1177220};
+  \item A finite set $\Sigma$ of \textit{terminal} symbols, usually called tokens, composed by the set of token names defined in the lexical aspects of the language~\cite{Aho:2006:CPT:1177220};
   \item A finite set $V$ of \textit{nonterminals}, or \textit{variables}, disjoint from the set of terminals, usually called \textit{syntactic variables}~\cite{Aho:2006:CPT:1177220};
   \item A finite set of \textit{productions}, or \textit{rules}, where each production is of the form
         \begin{equation*}
@@ -632,7 +632,7 @@ In Figure~\ref{fig:ambiguous_parse_tree_a} we have $(id + number) * id$ and in F
 \end{figure}
 
 Compilers use parse trees to derive meaning and, therefore, ambiguous grammars are problematic for compilling~\cite{appel2003modern}.
-If we were to use some parsing generator algorithm, such as $LL$, $LR$ and their variants, an effort should be made to transform such ambiguous grammars into unambiguous grammars.
+If we were to use some parsing generator algorithm, such as $LL$, $LR$ and their variants, an effort should be made to transform such ambiguous grammars into unambiguous grammars~\cite{appel2003modern}.
 As an example, we can present an unambiguous grammar relative to the grammar~\eqref{eq:ambiguous_expr_grammar} as
 \begin{equation}~\label{eq:unambiguous_expr_grammar}
   \begin{alignedat}{2}
@@ -657,20 +657,26 @@ Top-down parsers, also called recursive descent parsers, have the advantage of i
 Although simple, classic implementations of recursive descent parsers, such as the $LL(1)$ and $LL(k)$ predictive parsers, cannot deal with ambiguous grammars and, since they rely on leftmost derivations, cannot deal with left recursions on grammar productions~\cite{Aho:2006:CPT:1177220}.
 There may also be the need to run a left factoring algorithm in order to generate a correct predictive parsing table for $LL(1)$ and $LL(k)$ automatic parser generators~\cite{Aho:2006:CPT:1177220}.
 
-A non left recursive, left factored grammar for grammar~\eqref{eq:unambiguous_expr_grammar} can be built as
-\begin{alignat}{2}
-  \bnfprod{Expr}{\bnfvar{Term} \bnfvar{Expr2}}              \label{eq:fat_expr_grammar_expr}  \\
-  \bnfprod{Expr2}{\bnfter{+}\bnfvar{Term} \bnfvar{Expr2}}   \label{eq:fat_expr_grammar_expr2} \\
-  \bnfmore{\bnfter{-}\bnfvar{Term}\bnfvar{Expr2}}           \nonumber                         \\
-  \bnfmore{\ \epsilon}                                      \nonumber                         \\
-  \bnfprod{Term}{\bnfvar{Factor} \bnfvar{Term2}}            \label{eq:fat_expr_grammar_term}  \\
-  \bnfprod{Term2}{\bnfter{*}\bnfvar{Factor} \bnfvar{Term2}} \label{eq:fat_expr_grammar_term2} \\
-  \bnfmore{\bnfter{/}\bnfvar{Factor}\bnfvar{Term2}}         \nonumber                         \\
-  \bnfmore{\ \epsilon}                                      \nonumber                         \\
-  \bnfprod{Factor}{\bnfter{(}\bnfvar{Expr}\bnfter{)}}       \label{eq:fat_expr_grammar_fact}  \\
-  \bnfmore{\bnfter{number}}                                 \nonumber                         \\
-  \bnfmore{\bnfter{id}}  \nonumber
-\end{alignat}
+A non left recursive, left factored grammar for grammar~\eqref{eq:unambiguous_expr_grammar} can be built as show in Figure~\ref{fig:fat_expr_grammar}.
+\begin{figure}[ht]
+  \centering
+  \begin{alignat}{2}
+    \bnfprod{Expr}{\bnfvar{Term} \bnfvar{Expr2}}              \label{eq:fat_expr_grammar_expr}  \\
+    \bnfprod{Expr2}{\bnfter{+}\bnfvar{Term} \bnfvar{Expr2}}   \label{eq:fat_expr_grammar_expr2} \\
+    \bnfmore{\bnfter{-}\bnfvar{Term}\bnfvar{Expr2}}           \label{eq:fat_expr_grammar_expr3} \\
+    \bnfmore{\ \epsilon}                                      \label{eq:fat_expr_grammar_expr4} \\
+    \bnfprod{Term}{\bnfvar{Factor} \bnfvar{Term2}}            \label{eq:fat_expr_grammar_term}  \\
+    \bnfprod{Term2}{\bnfter{*}\bnfvar{Factor} \bnfvar{Term2}} \label{eq:fat_expr_grammar_term2} \\
+    \bnfmore{\bnfter{/}\bnfvar{Factor}\bnfvar{Term2}}         \label{eq:fat_expr_grammar_term3} \\
+    \bnfmore{\ \epsilon}                                      \label{eq:fat_expr_grammar_term4} \\
+    \bnfprod{Factor}{\bnfter{(}\bnfvar{Expr}\bnfter{)}}       \label{eq:fat_expr_grammar_fact}  \\
+    \bnfmore{\bnfter{number}}                                 \label{eq:fat_expr_grammar_fac2}  \\
+    \bnfmore{\bnfter{id}}                                     \label{eq:fat_expr_grammar_fac3}
+  \end{alignat}
+  \caption{
+    A context-free grammar after left factoring and removing left recursions from grammar~\eqref{eq:unambiguous_expr_grammar}.
+  }\label{fig:fat_expr_grammar}
+\end{figure}
 This grammar complies with every constraint imposed by a classic implementation of a predictive recursive descent parser since it is unambiguous, free of left recursions and left factored.
 An example implementation of predictive parsers for the variables $\bnfvars{Expr}$, $\bnfvars{Expr2}$, $\bnfvars{Term}$, $\bnfvars{Term2}$ and $\bnfvars{Factor}$ can be found respectively at Figures~\ref{fig:predictive_parser_expr},~\ref{fig:predictive_parser_expr2},~\ref{fig:predictive_parser_term},~\ref{fig:predictive_parser_term2} and~\ref{fig:predictive_parser_fact}.
 
@@ -694,10 +700,10 @@ fn parse_Expr(p: Parser) -> Parse {
       \begin{minted}[breaklines, linenos, fontsize=\footnotesize]{rust}
 fn parse_Expr2(p: Parser) -> Parse {
   if p.at("+") | p.at("-") {
-    p.eat_token();
+    let op = p.eat_token();
     let t = parse_Term(p);
     let e2 = parse_Expr2(p);
-    Expr2(t, e2)
+    Expr2(op, t, e2)
   } else {
     Empty
   }
@@ -731,10 +737,10 @@ fn parse_Term(p: Parser) -> Parse {
       \begin{minted}[breaklines, linenos, fontsize=\footnotesize]{rust}
 fn parse_Term2(p: Parser) -> Parse {
   if p.at("*") | p.at("/") {
-    p.eat_token();
+    let op = p.eat_token();
     let f = parse_Factor(p);
     let t2 = parse_Term2(p);
-    Term2(f, t2)
+    Term2(op, f, t2)
   } else {
     Empty
   }
@@ -752,7 +758,7 @@ fn parse_Term2(p: Parser) -> Parse {
   \centering
   \begin{minipage}{0.5\textwidth}
     \begin{minted}[breaklines, linenos, fontsize=\footnotesize]{rust}
-fn parse_Factor(p: Parser) -> Tree {
+fn parse_Factor(p: Parser) -> Parse {
   if p.at("(") {
     p.eat_token();
     let expr = parse_Expr(p);
@@ -775,25 +781,9 @@ fn parse_Factor(p: Parser) -> Tree {
   }\label{fig:predictive_parser_fact}
 \end{figure}
 
-We were once again forced to add new variables to the already unambiguous grammar~\eqref{eq:unambiguous_expr_grammar}.
-The transformations added variables without clear meanings, such as $\bnfvars{Expr2}$ and $\bnfvars{Term2}$, further complicating the parse tree.
-In order to enrich the capabilities of recursive descendant parsers, advances were made to allow recursive descendant parsers to parse some ambiguous grammars with left recursion without the need to left factoring.
-\textcite{pratt1973operatorprecedence} proposed an `top-down operator precedence' approach to parse arithmetic expressions by assigning a total order to tokens using a function for the left and right binding power of tokens in order to uniquely create parse trees of ambiguous left recursive expression grammars.
-An example Pratt parser for grammar~\eqref{eq:ambiguous_expr_grammar} is found at Figure~\ref{fig:pratt_parser_expr_grammar}.
-Pratt parsers work by combining iteration with recursion.
-If we try to parse the sentence `$id_1 + number * id_2$' it:
-\begin{itemize}
-  \item parses $id_1$ and name its node `left';
-  \item then enter the loop and parse $\bnfters{+}$ which have a binding power to the left of $1$ and to the right of $2$;
-  \item if it binds to the left stronger than the minimum binding power for continuing we stop and return the left node. In this case it does not since the minimum starts at $0$, and we go on to recursively parse $\bnfters{number}$ which becomes the new left;
-  \item the next operator is then $\bnfters{*}$ with binding power $3$ and $4$, this time the left binding power still is not smaller than the minimum of $2$, and we recursively parse $id_2$ which becomes a new left;
-  \item now upon trying to parse a new operator we break from the loop and return the node for $id_2$ then we construct a node $\bnfvars{Expr}$ with left, which is $\bnfter{number}$ for this iteration, $*$ and $id_2$;
-  \item we then return again with another $\bnfvars{Expr}$ node with left, which now is $id_1$, $+$ and the last returned expression as right side finally forming the parse tree with correct precedence found at Figure~\ref{eq:ambiouous_derivation2}.
-\end{itemize}
-
 \begin{figure}
   \centering
-  \begin{minipage}{0.7\textwidth}
+  \begin{minipage}{0.9\textwidth}
     \inputminted[breaklines, linenos, fontsize=\footnotesize]{rust}{code/pratt_example.rs}
   \end{minipage}
   \caption{
@@ -801,13 +791,115 @@ If we try to parse the sentence `$id_1 + number * id_2$' it:
   }\label{fig:pratt_parser_expr_grammar}
 \end{figure}
 
+We were once again forced to add new variables to the already unambiguous grammar~\eqref{eq:unambiguous_expr_grammar}.
+The transformations added variables without clear meanings, such as $\bnfvars{Expr2}$ and $\bnfvars{Term2}$, further complicating the parse tree.
+In order to enrich the capabilities of recursive descendant parsers, advances were made to allow recursive descendant parsers to parse some ambiguous grammars with left recursion without the need to left factoring.
+\textcite{pratt1973operatorprecedence} proposed a \textit{top-down operator precedence} approach to parse arithmetic expressions by assigning a total order to tokens using a function for the left and right binding power of tokens in order to uniquely create parse trees of ambiguous left recursive expression grammars.
+An example Pratt parser for grammar~\eqref{eq:ambiguous_expr_grammar} is found at Figure~\ref{fig:pratt_parser_expr_grammar}.
+Pratt parsers work by combining recursion with iteration.
+If we try to parse the sentence `$id_1 + number * id_2$' it:
 \begin{itemize}
-  \item error recovery
-  \item syntax directed translation
-  \item semantic actions
-  \item abstract syntax trees
-  \item concrete syntax trees
+  \item parses $id_1$ and name its node `left';
+  \item enters the loop and parse $\bnfters{+}$ which have a binding power to the left of $1$ and to the right of $2$;
+  \item checks if it binds to the left stronger than the minimum binding power. In this case it does not since the minimum starts at $0$, continuing on to recursively parse $\bnfters{number}$ which becomes the new left;
+  \item the next operator is then $\bnfters{*}$ with binding power $3$ and $4$, this time the left binding power still is not smaller than the minimum of $2$, and we recursively parse $id_2$ which becomes a new left;
+  \item now upon trying to parse a new operator we break from the loop and return the node for $id_2$ then we construct a node $\bnfvars{Expr}$ with left, which is $\bnfter{number}$ for this iteration, $*$ and $id_2$;
+  \item we then return again with another $\bnfvars{Expr}$ node with left, which now is $id_1$, $+$ and the last returned expression as right side finally forming the parse tree with correct precedence found at Figure~\ref{eq:ambiouous_derivation2}.
 \end{itemize}
+The loop to keep checking if the next operation binds stronger than the minimum for the recursion guaranties both correct associativity and operator precedence~\cite{pratt1973operatorprecedence}.
+
+Besides the work of~\textcite{pratt1973operatorprecedence}, there are recursive descent parsers which can parse a bigger range of ambiguous and left recursive grammars.
+\textcite{10.1007/978-3-540-77442-6_12} proposes a handwritten parser combinator approach that uses composable higher-order functions, together with memoization and backtracking, in order to allow parsing both ambiguity and left recursion in polynomial time.
+There is also the works of~\textcite{10.1145/583852.581483} that proposes a handwritten parser approach called \textit{Packrat} using memoization, backtracking, and unlimited look ahead to parse $LL(k)$ and $LR(k)$ grammars by using \textit{Parsing Expression Grammar} (PEG) definitions, formalized by~\textcite{10.1145/982962.964011}, for the input, which differs from context-free grammars by imposing a total order to the rules set of the grammar together, therefore, PEGs cannot be ambiguous because there is no choice involved in which production to choose for derivation.
+Furthermore, \textcite{10.1145/1328408.1328424} extended Packrat parsing extending its memoization process to allow left-recursion.
+
+Bottom-up parsers have fewer context-free grammar constraints~\cite{Aho:2006:CPT:1177220}.
+They still have troubles with ambiguous grammars due to shift-reduce conflicts but no longer require a non-left recursive and left factored grammar~\cite{Aho:2006:CPT:1177220}.
+Writing a bottom-up shift-reduce parser for an $LR$ class grammar is not an easy task, thankfully
+parser generators for $LR(1)$ and $LR(k)$ languages are capable of generating very efficient parsers for a large range of context-free grammars~\cite{Aho:2006:CPT:1177220}.
+Even allowing grammar designers to solve shifting-reduce conflicts by hand assigning whether to shift or to reduce for every conflict~\cite{Aho:2006:CPT:1177220}.
+
+\subsection{Semantic actions and syntax-directed translations}
+
+As put by~\textcite{appel2003modern} \textquote{A compiler must do more than recognize whether a sentence belongs to the language of a grammar, it must do something useful with that sentence}.
+The specification of \textit{semantic actions} allows us to do something useful with sentences that are parsed~\cite{appel2003modern}.
+They are pieces of code that we can attach to the body of grammar production rules to specify \textit{syntax-directed definitions}~\cite{Aho:2006:CPT:1177220}.
+Syntax-directed definitions, then, are used to perform \textit{syntax-directed translations} by executing the code specified by the semantic actions during specific moments of the parsing process~\cite{Aho:2006:CPT:1177220}.
+Take the following syntax-directed definition
+\begin{alignat}{2}
+  \bnfprod{Expr}{\bnfvar{Term} \bnfvar{Expr2}\ \text{\texttt{\{Expr.n = Expr(Term.n, Expr2.n)\}}}} \label{eq:sdd_example}
+\end{alignat}
+Note that the attribute $n$ for the variables $\bnfvars{Expr}$, $\bnfvars{Term}$ and $\bnfvars{Expr2}$, can be thought of as the return node value of a parsing function for this production.
+If we give a closed look at the parser implemented in Figure~\ref{fig:predictive_parser_expr}, we can see this semantic action at line 4, after parsing $\bnfvars{Term}$ and $\bnfvars{Expr2}$, returning the value of the attribute $Expr.n$.
+Furthermore, the position of the semantic action in a production body determines when the semantic action executes during parsing.
+In this example it is positioned after the parser finishes parsing the production.
+
+It is possible to write an entire compiler into the semantic actions of a parser~\cite{appel2003modern}.
+However, this approach limits the compiler to analyze the source program in the strict order it was parsed~\cite{appel2003modern}.
+Hence, using some sort of intermediate representation between syntax analysis and semantics analysis allows the semantic analyzer to be free from the constraints of the parsing algorithm~\cite{appel2003modern}.
+One possible implementation is for the parser to output a tree data structure.
+When the parser builds a tree with leaf nodes for each token and interior nodes for each production parsed we call such tree a \textit{concrete parse tree}~\cite{appel2003modern}.
+An example of a concrete parse tree together with metadata collected for each node can be found at Figure~\ref{fig:concrete_syntax_tree}.
+
+\begin{figure}[ht]
+  \centering
+  \begin{minipage}{0.5\textwidth}
+    \begin{minted}[breaklines, linenos, fontsize=\footnotesize]{text}
+Expr
+  Term
+    Factor
+      Number "5"
+  Expr2
+    Plus "+"
+    Term
+      Factor
+        Id "a"
+    \end{minted}
+  \end{minipage}
+  \caption{
+    A sample concrete syntax tree of grammar~\ref{fig:fat_expr_grammar} for sentence \texttt{5 + a}.
+  }\label{fig:concrete_syntax_tree}
+\end{figure}
+
+Sometimes a concrete parse tree is too verbose, like a tree for the grammar in Figure~\ref{fig:fat_expr_grammar}, and it is ideal to transform this tree into a simpler one in order to facilitate semantic analysis~\cite{appel2003modern}.
+We can then create a second grammar with the \textit{abstract syntax} of the language.
+The abstract syntax grammar does not need to follow the constraints of syntax analysis and only exists to facilitate the later stages of compilation~\cite{appel2003modern}.
+An abstract syntax for the language described by the grammar in Figure~\ref{fig:fat_expr_grammar} could be the ambiguous grammar~\eqref{eq:ambiguous_expr_grammar}.
+
+A compiler could easily translate a concrete parse tree into an \textit{abstract syntax tree}~\cite{appel2003modern}.
+Such a structure is called an Abstract Syntax Tree~\cite{appel2003modern} (AST).
+An AST can easily be programmed by the use of programming constructs such as \textit{Abstract Data Types} (ADT) as show in Figure~\ref{fig:abstract_syntax_adt}.
+
+\begin{figure}[ht]
+  \centering
+  \begin{minipage}{0.6\textwidth}
+    \begin{minted}[breaklines, linenos, fontsize=\footnotesize]{rust}
+enum Ast {
+  Expr(Ast, BinOp, Ast),
+  Number(Int),
+  Id(String),
+}
+enum BinOp {
+  Plus,
+  Minus,
+  Times,
+  Div,
+}
+    \end{minted}
+  \end{minipage}
+  \caption{
+    An example of an abstract syntax for grammar~\eqref{eq:ambiguous_expr_grammar} described by Abstract data types.
+  }\label{fig:abstract_syntax_adt}
+\end{figure}
+
+\subsection{Syntax error recovery}
+
+When a parser fails to find a derivation for the input it is called a syntax error~\cite{appel2003modern}.
+If we find an error, it would be advantageous for the user of the compiler if the parsing did not halt the compilers' execution on the first error.
+This is what can be accomplished with error recovery.
+One way we can build error recovery into top-down parsers is by the use of recovery token sets.
+Essentially, the once a parser using recovery token set finds an error, it discards all tokens until it finds a token in the recovery token set, then returns an error node containing the discarded tokens hopping that the father nodes will be able to continue parsing.
+
 
 \section{Semantic Analysis}\label{chapter:background:sec:semantic}
 
@@ -836,51 +928,7 @@ To do. Here goes an introduction of Single Static Assignment intermediate repres
 
 \chapter{State of the art in front end design}\label{chapter:related_work}
 
-In this chapter we will present prior work related to front end construction, refinement types and the LLVM intermediate representation.
-
-
-\section{Pratt parsers}
-
-The top-down operator precedence parsing algorithm proposed by~\textcite{pratt1973operatorprecedence}, colloquially called Pratt parsers, are top-down parsers that can avoid the common left recursion problem known to this class of parsers.
-It makes use of and two binding powers assigned to expression operator tokens to solve operator precedence without having to remove left recursion from the language's syntax grammar~\cite{pratt1973operatorprecedence}.
-This works for solving prefix, infix and postfix expressions and is widely used by production grade compilers and tools including ANTLR4~\cite{Parr13} and Rust Analyzer~\cite{matklad2020prattparsing}.
-\textcite{matklad2020challenginglrparsing} argues in favor of Pratt parsers as they can be made with production grade error resilience and that the author finds LR parser generators not suitable for production grade compilers and tools.
-
-% Consider the following grammar productions:
-% \begin{quote}
-%     \begin{verbatim}
-% <Sum> ::= <Sum> + <Int>
-%         | <Int>
-% \end{verbatim}
-% \end{quote}
-% And consider naive implementation of a parser for Sum
-% \begin{quote}
-%     \begin{verbatim}
-% fn sum(p: &mut Parser) {
-%     ...
-%     // Try parse <Sum> ::= <Sum> + <Int>
-%     sum(p); // (1)
-%     p.expect(PLUS_TOKEN);
-%     int(p);
-
-%     // If that fails, try <Sum> ::= <Int>
-%     ...
-% }
-% \end{verbatim}
-% \end{quote}
-% would recursively try to parse `sum' at (1).
-% \textcite{Aho:2006:CPT:1177220} argues that this can be solved by eliminating the left recursion from the grammar or by using more powerful parsing methods of the bottom-up family (e.g. $LR(1)$).
-% However, for a handwritten parser
-% \begin{quote}
-%     \begin{verbatim}
-% <Sum> ::= <Sum> + <Int>
-% \end{verbatim}
-% \end{quote}
-% indefinitely and never
-
-\section{Incremental compilation}
-
-To do. Explain how to build an incremental compiler with Salsa. Work in progress.
+In this chapter we will present prior work related to refinement types and the LLVM intermediate representation.
 
 \section{The Sprite Language}
 

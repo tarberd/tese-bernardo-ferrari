@@ -32,8 +32,6 @@ fn parse_Expr_binding_power(p: Parser, min_bp: Int) -> Parse {
   }
   left
 }
-fn parse_BinOp(p: Parser) -> BinOp {
-}
 fn binding_power(op: BinOp) -> (Int, Int) {
   match op {
     Sum | Minus => (1, 2),
