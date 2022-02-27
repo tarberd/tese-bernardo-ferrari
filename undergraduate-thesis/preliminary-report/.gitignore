@@ -1,14 +1,2 @@
-thesis.aux
-thesis.bbl
-thesis.blg
-thesis.fdb_latexmk
-thesis.fls
-thesis.lof
-thesis.log
-thesis.pdf
-thesis.synctex.gz
-thesis.toc
-thesis.64
-thesis.bcf
-thesis.run.xml
+build
 .vscode

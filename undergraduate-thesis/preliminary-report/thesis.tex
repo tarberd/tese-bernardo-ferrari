@@ -1,47 +1,57 @@
+% !TeX program = xelatex
 \documentclass[
   oneside,
   english,
   coorientadorbanca,
-  embeddedlogo,
   noabntexcite
 ]{ufsc-thesis-rn46-2019}
 
-\usepackage[T1]{fontenc} % fontes
-\usepackage[utf8]{inputenc} % UTF-8
-\usepackage{lmodern}
-\usepackage{pdfpages} % Inclui PDF externo (ficha catalográfica)
-\usepackage{csquotes}
+% font config
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguages{portuguese}
+
+% math and code typesetting
 \usepackage{amsmath}
 \usepackage{mathtools}
-\usepackage[newfloat]{minted}
-\usepackage{graphicx}
-\usepackage{mathpartir}
+\usepackage{mathpartir} % typesetting inference rules
+\usepackage[outputdir=build, newfloat]{minted}
 
+% graphics
+\usepackage{pdfpages} % including pdf files
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{trees}
+
+% text revisions
 \usepackage{paper_alcides}
 
+% citation and references
+\usepackage{hyperref} % links
+\usepackage{csquotes} % Quoting authors
 \usepackage{caption} % configures hyperref to point to top of images
 \usepackage{subcaption} % adds subfigures
+
+% bibliography
 \usepackage[style=abnt]{biblatex}
 \addbibresource{bibliography/llvm.bib}
 \addbibresource{bibliography/pratt.bib}
 \addbibresource{bibliography/refinements.bib}
 \addbibresource{bibliography/thesis.bib}
 
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta}
-\usetikzlibrary{positioning}
-\usetikzlibrary{trees}
-
+% commands
 \newcommand\myflowchartlowermargin{1.2cm}
 
-\def\ppp{::=}
+\def\bnfdef{::=}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\bnfvar}[1]{\ \bnfvars{#1}}
 \newcommand{\bnfvars}[1]{\code{#1}}
 \newcommand{\bnfter}[1]{\ \bnfters{#1}}
 \newcommand{\bnfters}[1]{\textrm{`}\code{#1}\textrm{'}}
 \newcommand{\bnfor}[1]{\;\mid{} #1}
-\newcommand{\bnfprod}[2]{\bnfvars{#1} &\ &\ppp& #2}
+\newcommand{\bnfprod}[2]{\bnfvars{#1} &\ &\bnfdef& #2}
 \newcommand{\bnfmore}[1]{ && \mid{} & #1}
 
 \newcommand{\token}[1]{$\langle\code{#1}\rangle$}
