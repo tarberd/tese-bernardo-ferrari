@@ -1,0 +1,4 @@
+verbatimEnvironments:
+  rustcode: 1
+
+defaultIndent: '  '
