@@ -380,7 +380,7 @@ For example, while \codett{Int} types can assume any integer values, we can writ
   \codett{type Nat = \{v:Int | 0 <= v\}}
 \end{equation*}
 where the newly defined type \codett{Nat} will only be able to assume positive integer values.
-Alone, this refinements may seam a just a gimmick, but combined with functions the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020tutorial}.
+Alone, this refinements may seam just a gimmick, but combined with functions the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020tutorial}.
 For example, the author of an \codett{array} library may specify the functions signatures types
 \begin{equation*}
   \begin{aligned}
@@ -476,10 +476,10 @@ Next, we perform the inductive construction
 \end{align*}
 This construction shows that $\Sigma^*$ is composed of all strings of finite size for all permutations of the alphabet~\cite{HopcroftMotwaniUllman07}.
 
-After the definition of the set of all strings over an alphabet $\Sigma*$, we can broadly define a language $L$ as a proper subset of $\Sigma^*$, written $L \subseteq \Sigma^*$.
+After the definition of the set of all strings over an alphabet, we can broadly define a language $L$ as a proper subset of $\Sigma^*$, written $L \subseteq \Sigma^*$.
 Although having a simple definition, proving that a string $s$ belongs to a language $L$ turns out to be rather challenging.
 Furthermore, we end up using different languages with different symbols for lexical, syntax and semantic analysis in order to verify the source program.
-Although, for example, the lexer may take as the alphabet symbols the characters present in the encoding of its input (e.g., UTF-8 and ASCII), the parser may have as its alphabet symbols the token names outputted by the lexer.
+Although, for example, the lexer may take as its symbols the characters present in the encoding of its input file (e.g., UTF-8 and ASCII), the parser may take the token names outputted by the lexer as its symbols.
 In the next sections~\ref{chapter:background:sec:lexical},~\ref{chapter:background:sec:syntax}, and~\ref{chapter:background:sec:semantic}, we explore the different formal tools the different analysis steps use to prove that a string of their respective symbols is a valid source program and how they produce an output for the next step in compilation.
 
 \section{Lexical Analysis}\label{chapter:background:sec:lexical}
