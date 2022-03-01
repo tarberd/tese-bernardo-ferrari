@@ -352,23 +352,24 @@ may be classified to compute a value of type \codett{Int}, written
 \begin{equation*}
   \typer{x * 30}{Int}
 \end{equation*}
-meaning that~\ref{eq:type_example1} is a phrase that computes a mathematical integer value.
-As a counter example, if defined by the type system that the multiplication between a value of type \codett{Character} and a value of type \codett{Int} was not allowed, and we had both classifications
+meaning that~\eqref{eq:type_example1} is a phrase that computes a mathematical integer value.
+As a counter example, if defined by the type system that the multiplication between a value of type \codett{Bool} and a value of type \codett{Int} was not allowed, and we had both classifications
 \begin{equation*}
-  \typer{x}{Character}
+  \typer{x}{Bool}
   \qquad
   \text{and}
   \qquad
   \typer{30}{Int}
 \end{equation*}
-the phrase in~\ref{eq:type_example1} would be semantically unsound and should be indicated as a type error by the type checker.
+the phrase in~\eqref{eq:type_example1} would be semantically unsound and should be indicated as a type error by the type checker.
 
-According to \textcite{jhala2020tutorial} type systems are mainly used to describe valid sets of values that can be used for different computations, so that the compiler can eliminate, during its execution, a variety of possible run-time errors during the target program execution.
-Type systems like the ones used by popular modern programming languages such as C\#, Haskell, Java, OCaml, Rust and Scala have similar kinds of rules and are the most widespread tool used to guarantee the correct behavior of a program~\cite{jhala2020tutorial}.
-\textcite{jhala2020tutorial} affirm that, although type systems are widespread and effective, well-typed programs do go wrong; and the authors goes on to describe a few wrong behaviors that are common to the most popular type systems. Within them, we have:
+According to \textcite{jhala2020tutorial}, type systems are mainly used to describe valid sets of values that can be used for different computations so that the compiler can eliminate a variety of possible run-time errors before the target program execution.
+Type systems like the ones used by popular modern programming languages, such as C\#, Haskell, Java, OCaml, Rust and Scala, have similar kinds of rules and are the most widespread tool used to guarantee the correct behavior of a program~\cite{jhala2020tutorial}.
+\textcite{jhala2020tutorial} affirm that, although type systems are widespread and effective, well-typed programs do go wrong.
+The authors elaborate a few wrong behaviors that are common to the most popular type systems. Within them, we have:
 \begin{itemize}
-  \item \textbf{Division by zero:} Constraining the types of the division operation to \codett{Int} does not protect the program to execute a division by zero at run-time; also, it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020tutorial}.
-  \item \textbf{Buffer overflow:} Constraining the index of the access of an \codett{array} or \codett{String} to \codett{Int} does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020tutorial}.
+  \item \textbf{Division by zero:} Constraining the types of the division operation to \codett{Int} does not protect the program to execute a division by zero at run-time, and it does not guarantee that the arithmetic operations will not under- or over-flow~\cite{jhala2020tutorial}.
+  \item \textbf{Buffer overflow:} Constraining the index of the access of an \codett{Array} or \codett{String} to \codett{Int} does not protect the program to try to access data from beyond the data structure's end~\cite{jhala2020tutorial}.
 \end{itemize}
 
 An effort can be made while designing a type system so that they can further restrict the values of certain types.
@@ -376,10 +377,10 @@ We can extend a type system to further \textit{refine} its types with logic pred
 It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020tutorial}.
 For example, while \codett{Int} types can assume any integer values, we can write the refined type
 \begin{equation*}
-  \codett{type nat = \{v:int | 0 <= v\}}
+  \codett{type Nat = \{v:Int | 0 <= v\}}
 \end{equation*}
-where the newly defined type \codett{nat} will only be able to assume positive integer values.
-Alone, this refinements may seam a just a gimmick, but combined with function the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020tutorial}.
+where the newly defined type \codett{Nat} will only be able to assume positive integer values.
+Alone, this refinements may seam a just a gimmick, but combined with functions the programmer can describe precise contracts that describe the functions legal inputs and outputs~\cite{jhala2020tutorial}.
 For example, the author of an \codett{array} library may specify the functions signatures types
 \begin{equation*}
   \begin{aligned}
@@ -387,10 +388,10 @@ For example, the author of an \codett{array} library may specify the functions s
      & \codett{fn  get: x:array(a) -> \{v:Nat | v < length(x)\} -> a} \\
   \end{aligned}
 \end{equation*}
-where \codett{size} and \codett{get} are functions and \codett{x} is the name of the first variable.
+where \codett{size} and \codett{get} are functions and \codett{x} is the name of the first argument.
 In this type system, a call to \code{size(arr)} returns a value $s$ of type \codett{Nat} constrained to a single value equal to the length of \codett{arr}; hence, the type of $s$ constrains $s$ to the exact length of \codett{arr}.
 Furthermore, a call to \code{get(arr, i)} requires the index \codett{i} to be within the bounds of \codett{arr}.
-Given these definitions, the refinement type checker can then prove, during the analysis phase (i.e.\ at compile-time), that the contracts of both \codett{size} and \codett{get} will not be violated, ensuring all array access to be sated when executing the target program (i.e.\ at run-time).
+Given these definitions, the refinement type checker can then prove, during the analysis phase (i.e.,\ at compile-time), that the contracts of both \codett{size} and \codett{get} will not be violated, ensuring all array access to be sated when executing the target program (i.e.,\ at run-time)~\cite{jhala2020tutorial}.
 
 \section{Motivation and research problem}
 
@@ -398,7 +399,7 @@ There is an increasing number of uses of refinement types being implemented on t
 For example: the work of~\textcite{vazou2014liquidhaskell} presenting LiquidHaskell as refinement types for the Haskell language; the work of~\textcite{vekris2016refinementtypescript} integrating refinement types for the TypeScript language; the work of~\textcite{sammler2021refinedc} integrating refinement types for the C language; and, the work of~\textcite{vazou2018refinementruby} integrating refinement types for the Ruby language.
 
 Although refinement types have been proved useful in improving the static checking capabilities of higher level languages, there is a lack of research on bringing refinement types to the intermediate code generation phase of a compiler's front end.
-Hence, we state the research problem in the form of the question: `What can we discover when we add refinement types to the intermediate code generation phase of a compiler's front end?'.
+Hence, we state the research problem in the form of the question: What can we discover when we add refinement types to the intermediate code generation phase of a compiler's front end?
 
 \section{Goals}\label{chapter:introduction:sec:goals}
 
@@ -439,16 +440,53 @@ In the next chapter, Chapter~\ref{chapter:background}, we will introduce the bac
 \chapter{A review on front end design and implementation}\label{chapter:background}
 
 In this chapter we present a brief review of the background needed to build a compiler's front end.
-We begin by presenting what is a lexical analyzer and how it is constructed in Section~\ref{chapter:background:sec:lexical}.
+We begin by presenting the formal definition of a language in Section~\ref{ch:background:sec:strings_and_languages}.
+Then, give a brief overview of what is a lexical analyzer and how it is constructed in Section~\ref{chapter:background:sec:lexical}.
 We continue by presenting the aspects of a syntax analyzer in Section~\ref{chapter:background:sec:syntax}.
 Furthermore, we go on to explore the semantic analyzer and the tools used to formalize the type system in Section~\ref{chapter:background:sec:semantic}.
-And then explore the aspects of intermediate code generation in Section~\ref{chapter:background:sec:intermediate}.
+And then, explore the aspects of intermediate code generation in Section~\ref{chapter:background:sec:intermediate}.
+
+\section{Strings and Languages}\label{ch:background:sec:strings_and_languages}
+
+As stated by \textcite{sipser2012introduction}, \textquote{strings of characters are fundamental building blocks in computer science}.
+In order to define what a string of characters is, \textcite{sipser2012introduction} defines an \textit{alphabet} to be any nonempty finite set composed by its \textit{symbols}.
+The author elaborates that a \textit{string over an alphabet} is a finite sequence of symbols from that alphabet~\cite{sipser2012introduction}.
+For example, if we build the English alphabet as the set of symbols
+\begin{equation*}
+  \Sigma = \{\code{a}, \code{b}, \code{c}, \code{d}, \dots, \code{x}, \code{y}, \code{z}\}
+\end{equation*}
+then, the word \code{compiler} would be a string over $\Sigma$.
+
+Formally, a string $s$ over an alphabet $\Sigma$ is a string $s$ such that $s \in \Sigma^*$, called the Kleen closure of $\Sigma$~\cite{HopcroftMotwaniUllman07}.
+In order to perform the inductive construction of $\Sigma^*$ we need to first define the empty string, written $\epsilon$, then, define the concatenation operation $uv = s$, where
+\begin{gather*}
+  u, v, s, w \in \Sigma^* \\
+  u = u_1 u_2 u_3 \dots u_i \quad \text{where} \quad u_1 u_2 u_3 \dots u_i \in \Sigma \quad \text{and} \quad i \geq 0\\
+  v = v_1 v_2 v_3 \dots v_i \quad \text{where} \quad v_1 v_2 v_3 \dots v_i \in \Sigma \quad \text{and} \quad j \geq 0\\
+  s = u_1 u_2 u_3 \dots u_i v_1 v_2 v_3 \dots v_i \\
+  u\epsilon = u \quad \epsilon u = u\\
+  (uv)w = u(vw)
+\end{gather*}
+Next, we perform the inductive construction
+\begin{align*}
+  \Sigma^0     & = \{ \epsilon \}                                           \\
+  \Sigma^1     & = \Sigma                                                   \\
+  \Sigma^{i+1} & = \{ uv \mid u \in \Sigma^{i}\ \text{and}\ v \in \Sigma \} \\
+  \Sigma^*     & = \bigcup_{i \geq 0} \Sigma^i
+\end{align*}
+This construction shows that $\Sigma^*$ is composed of all strings of finite size for all permutations of the alphabet~\cite{HopcroftMotwaniUllman07}.
+
+After the definition of the set of all strings over an alphabet $\Sigma*$, we can broadly define a language $L$ as a proper subset of $\Sigma^*$, written $L \subseteq \Sigma^*$.
+Although having a simple definition, proving that a string $s$ belongs to a language $L$ turns out to be rather challenging.
+Furthermore, we end up using different languages with different symbols for lexical, syntax and semantic analysis in order to verify the source program.
+Although, for example, the lexer may take as the alphabet symbols the characters present in the encoding of its input (e.g., UTF-8 and ASCII), the parser may have as its alphabet symbols the token names outputted by the lexer.
+In the next sections~\ref{chapter:background:sec:lexical},~\ref{chapter:background:sec:syntax}, and~\ref{chapter:background:sec:semantic}, we explore the different formal tools the different analysis steps use to prove that a string of their respective symbols is a valid source program and how they produce an output for the next step in compilation.
 
 \section{Lexical Analysis}\label{chapter:background:sec:lexical}
 
 The first phase of a compiler is called lexical analysis.
 The lexical analyzer will read a stream of characters from the source program and group the characters into sequences called \textit{lexemes} according to the \textit{patterns} defined for each \textit{token name}~\cite{Aho:2006:CPT:1177220}.
-\textcite{Aho:2006:CPT:1177220} describes that, for each lexeme grouped by reading the input character stream, the lexical analyzer will generate a \textit{token} which constitutes a pair of the token name and some optional metadata, e.g.\ the start and end position of the respective lexeme in the input character stream, written
+\textcite{Aho:2006:CPT:1177220} describes that, for each lexeme grouped by reading the input character stream, the lexical analyzer will generate a \textit{token} which constitutes a pair of the token name and some optional metadata (e.g., the start and end position of the respective lexeme in the input character stream) written
 \begin{equation*}
   \langle \textit{token name},\ \textit{metadata}\rangle
 \end{equation*}
@@ -470,10 +508,10 @@ A lexical analyzer may output the following token stream:
   \end{aligned}
 \end{equation}
 In this case, the metadata collected by the analyzer is very pedantic including even redundant data as the lexemes for simple patterns of the token names \codett{=}, \codett{+} and \codett{/}.
-When no metadata is needed it can be omitted from the token notation, e.g. \token{\{}.
+When no metadata is needed it can be omitted from the token notation (e.g., \token{\{}).
 
-In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns} and one of the important notations for the description of token patterns are regular expressions~\cite{Aho:2006:CPT:1177220}.
-They are very effective in specifying the type of patterns usually needed to classify lexemes into tokens and can be used for automatic generation of a lexical analyzer~\cite{Aho:2006:CPT:1177220}.
+In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns}, and one of the important notations for the description of token patterns are regular expressions~\cite{Aho:2006:CPT:1177220}.
+Regular expressions are very effective in specifying the type of patterns usually needed to classify lexemes into tokens and can be used for automatic generation of a lexical analyzer~\cite{Aho:2006:CPT:1177220}.
 A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form $\textit{token name} \rightarrow \textit{regular expression}$ as follows:
 \begin{equation*}
   \begin{aligned}
@@ -574,19 +612,21 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
 \end{figure}
 
 \subsection{Precise definition of context-free grammars and ambiguity}
-Every programming language has precise rules that prescribe the correct syntactic structure of its programs and the syntax of such syntactic structure can be described by a context-free grammar~\cite{Aho:2006:CPT:1177220}.
-A context-free grammar has four components:
+Every programming language has precise rules that prescribe the correct syntactic structure of its programs~\cite{Aho:2006:CPT:1177220}.
+In order to formally describe the rules of such syntactic structure, we can use a context-free grammar~\cite{Aho:2006:CPT:1177220}.
+A context-free grammar is a finite set of constructs that allows us to build the set of all sentences of a given context-free Language~\cite{sipser2012introduction}.
+They have four components:
 \begin{itemize}
   \item A finite set $\Sigma$ of \textit{terminal} symbols, usually called tokens, composed by the set of token names defined in the lexical aspects of the language~\cite{Aho:2006:CPT:1177220};
   \item A finite set $V$ of \textit{nonterminals}, or \textit{variables}, disjoint from the set of terminals, usually called \textit{syntactic variables}~\cite{Aho:2006:CPT:1177220};
-  \item A finite set of \textit{productions}, or \textit{rules}, where each production is of the form
+  \item A finite set $R$ of \textit{productions}, or \textit{rules}, where each production is of the form
         \begin{equation*}
           \begin{alignedat}{2}
             \bnfprod{Variable}{s}
           \end{alignedat}
         \end{equation*}
-        where \bnfvar{V} is the variable at the production's \textit{head}, and $s \in {(\Sigma \cup V)}^*$, meaning $s$ is a string of zero or more terminals and nonterminals in no specific order, is the string at the production's \textit{body}~\cite{Aho:2006:CPT:1177220, sipser2012introduction};
-  \item A designation of a nonterminal as the \textit{start} of the grammar~\cite{Aho:2006:CPT:1177220}.
+        where \bnfvar{V} is the variable at the production's \textit{head}, and $s \in {(\Sigma \cup V)}^*$ is the string at the production's \textit{body}~\cite{sipser2012introduction};
+  \item And, a designation of a nonterminal $S$ as the \textit{start} of the grammar~\cite{Aho:2006:CPT:1177220}.
 \end{itemize}
 
 A simple expression language could have its syntactical structure formalized by the following grammar
@@ -599,9 +639,9 @@ A simple expression language could have its syntactical structure formalized by 
     \bnfprod{BinOp}{\bnfter{+} \bnfor{\bnfter{-}} \bnfor{\bnfter{*}} \bnfor{\bnfter{/}}}
   \end{alignedat}
 \end{equation}
-where: terminals have the token names between quotes, e.g. $\bnfter{id}$;
-nonterminals have the syntactic variables as normal words, e.g. $\bnfvar{Expr}$;
-and, the designation of the starting variable is done by the variable at the head of the first production, in the example above the starting nonterminal is $\bnfvar{Expr}$.
+where: terminals have the token names between quotes (e.g., $\bnfter{id}$);
+nonterminals have the syntactic variables as normal words (e.g., $\bnfvar{Expr}$);
+and, the designation of the starting variable is done by the variable at the head of the first production (e.g., in the example above the starting nonterminal is $\bnfvar{Expr}$).
 Furthermore, multiple productions can be abbreviated by using the \textit{or} operator denoted by `$\mid$' turning
 \begin{alignat}{2}
   \bnfprod{V}{$s^1$} \nonumber \\
@@ -617,40 +657,61 @@ A derivation starts with, first, writing the start variable~\cite{sipser2012intr
 Then, second, we choose any variable from the sentence written so far and a production with the same variable as head replacing the chosen variable with the body of the chosen production~\cite{sipser2012introduction}.
 Then, we repeat the second step until there is no more variables and the sentence is formed only by terminals~\cite{sipser2012introduction}.
 
-To show that the sentence of token names \code{id + number * id} is present in the language specified by grammar~\eqref{eq:ambiguous_expr_grammar} we can perform multiple different derivations. Starting with the start variable
+Formally, \textcite{sipser2012introduction} defines that, given sentences $u, v \in {(\Sigma \cup V)}^*$, $u$ \textit{derives} $v$, written $u \Rightarrow^* v$, if $u = v$ or if there exists sentences $s_1, s_2, s_3, \dots, s_k \in {(\Sigma \cup V)}^*$ for $k \geq 0$ where
+\begin{equation*}
+  u \Rightarrow s_1 \Rightarrow  s_2, \Rightarrow s_3, \Rightarrow \dots \Rightarrow s_k \Rightarrow v
+\end{equation*}
+we can define that the language $L$ of the grammar is the set $L = \{s \in \Sigma^* \mid S \Rightarrow^* s\}$, meaning $L$ is the set of all sentences $s$ composed only by terminal symbols that can be derived from the starting variable $S$.
+
+Take, for example, the sentence $s = \code{id + number * id}$ and the language $L$ specified by grammar~\eqref{eq:ambiguous_expr_grammar}. We can proof that $s \in L$ by showing that $\bnfvar{Expr} \Rightarrow^* s$, so we start by writing the start variable
 \begin{equation*}
   \bnfvar{Expr}
 \end{equation*}
-we know there are two binary operations, so we perform a derivation to
+then choose a production with \bnfvar{Expr} as head and substitute \bnfvar{Exrp} with the production's body. We know there are two binary operations, so we choose the production which its body is \code{\bnfvar{Expr} \bnfvar{BinOP} \bnfvar{Expr}} producing the derivation
 \begin{equation*}
-  \code{\bnfvar{Expr} \bnfvar{BinOp} \bnfvar{Expr}}
+  \bnfvar{Expr} \Rightarrow \code{\bnfvar{Expr} \bnfvar{BinOp} \bnfvar{Expr}}
 \end{equation*}
-here we can choose what to derivate first.
+For the next derivation step, we are open to choose what variable to derivate first.
 Although we could choose any variable from the sentence during derivation, we will stick to leftmost derivations, which mandates that we choose the leftmost variable, highlighted in \textbf{bold}, of the sentence to perform the derivation.
 So, we could have the leftmost derivation
 \begin{equation}\label{eq:ambiouous_derivation1}
   \begin{aligned}
-     & \code{\bnfvar{\textbf{Expr}}}                                                           \\
-     & \code{\bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}                              \\
-     & \code{\bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr} \bnfvar{BinOp} \bnfvar{Expr}} \\
-     & \code{\bnfter{id} \bnfvar{\textbf{BinOp}} \bnfvar{Expr} \bnfvar{BinOp} \bnfvar{Expr}}   \\
-     & \code{\bnfter{id} \bnfter{+} \bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}       \\
-     & \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfvar{\textbf{BinOp}} \bnfvar{Expr}}     \\
-     & \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfvar{\textbf{Expr}}}         \\
-     & \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfter{id}}
+    \code{\bnfvar{\textbf{Expr}}}
+     & \Rightarrow
+    \code{\bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}                              \\
+     & \Rightarrow
+    \code{\bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr} \bnfvar{BinOp} \bnfvar{Expr}} \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfvar{\textbf{BinOp}} \bnfvar{Expr} \bnfvar{BinOp} \bnfvar{Expr}}   \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}       \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfvar{\textbf{BinOp}} \bnfvar{Expr}}     \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfvar{\textbf{Expr}}}         \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfter{id}}
   \end{aligned}
 \end{equation}
+thus, proving that the $s \in L$
 but, we could also have a second leftmost derivation
 \begin{equation}\label{eq:ambiouous_derivation2}
   \begin{aligned}
-     & \code{\bnfvar{\textbf{Expr}}}                                                       \\
-     & \code{\bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}                          \\
-     & \code{\bnfter{id} \bnfvar{\textbf{BinOp}} \bnfvar{Expr}}                            \\
-     & \code{\bnfter{id} \bnfter{+} \bnfvar{\textbf{Expr}}}                                \\
-     & \code{\bnfter{id} \bnfter{+} \bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}   \\
-     & \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfvar{\textbf{BinOp}} \bnfvar{Expr}} \\
-     & \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfvar{\textbf{Expr}}}     \\
-     & \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfter{id}}
+    \code{\bnfvar{\textbf{Expr}}}
+     & \Rightarrow
+    \code{\bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}                          \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfvar{\textbf{BinOp}} \bnfvar{Expr}}                            \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfvar{\textbf{Expr}}}                                \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfvar{\textbf{Expr}} \bnfvar{BinOp} \bnfvar{Expr}}   \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfvar{\textbf{BinOp}} \bnfvar{Expr}} \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfvar{\textbf{Expr}}}     \\
+     & \Rightarrow
+    \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfter{id}}
   \end{aligned}
 \end{equation}
 thus, having two leftmost derivations that shows the sentence belongs to the grammar's described language.
@@ -1079,7 +1140,7 @@ where the first two rules restate the first clause in~\eqref{eq:example_clause1}
 Each rule means that if we found the statements in the premises listed above the line, then we may derive the conclusion below the line.
 When given as inference rules, the fact that $T$ is the smallest possible set is not stated explicitly.
 Also, the rules with no premise are called \textit{axioms} and are written with no bar, since there is nothing to put above it.
-Furthermore, \textcite{pierce2002types} points out that what we are calling \textit{inference rules} are actually \textit{rule schemas} which represents the infinite set of \textit{concrete rules} that can be obtained by substituting each variable by all possible sentences of the syntactic category, e.g.\ substituting each variable $\bnfvar{t}$ by every possible term in the inference rules above.
+Furthermore, \textcite{pierce2002types} points out that what we are calling \textit{inference rules} are actually \textit{rule schemas} which represents the infinite set of \textit{concrete rules} that can be obtained by substituting each variable by all possible sentences of the syntactic category, e.g., substituting each variable $\bnfvar{t}$ by every possible term in the inference rules above.
 
 We can than derive a prof for \codett{(b + 5) * c} as
 \begin{equation*}
@@ -1224,7 +1285,7 @@ It allows programmers to constrain existing types by using predicates to assert 
 Refinement types offer the option to add information to the type system about the invariants and correctness properties a programmer may care about~\cite{jhala2020tutorial}.
 It is done in such a way that, if the programmer desires, no refinement needs to be added and can be thought like a typical type system~\cite{jhala2020tutorial}.
 On the other hand, programmers can incrementally add refinements to ensure important properties about the source program~\cite{jhala2020tutorial}.
-They could begin with basic safety requirements, e.g.\ eliminating division by zero and buffer overflow, or guarantee that a function does not receive a empty collection, and then incrementally add to the specification invariants of custom data types~\cite{jhala2020tutorial}.
+They could begin with basic safety requirements, e.g., eliminating division by zero and buffer overflow, or guarantee that a function does not receive a empty collection, and then incrementally add to the specification invariants of custom data types~\cite{jhala2020tutorial}.
 Ultimately going all the way to specifying and verifying the correctness of different procedures at compile-time~\cite{jhala2020tutorial}.
 By enabling verification on the same language as the programming language, refinement types bridge implementation and prof together~\cite{jhala2020tutorial}.
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof~\cite{jhala2020tutorial}.
