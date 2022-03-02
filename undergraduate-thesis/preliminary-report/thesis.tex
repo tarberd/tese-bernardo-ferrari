@@ -476,9 +476,16 @@ Next, we perform the inductive construction
 \end{align*}
 This construction shows that $\Sigma^*$ is composed of all strings of finite size for all permutations of the alphabet~\cite{HopcroftMotwaniUllman07}.
 
-After the definition of the set of all strings over an alphabet, we can broadly define a language $L$ as a proper subset of $\Sigma^*$, written $L \subseteq \Sigma^*$.
+After the definition of the set of all strings over an alphabet, we can broadly define a language $L$ as a proper subset of $\Sigma^*$, written $L \subseteq \Sigma^*$, and, define the operations on languages as such: given two languages $L$ and $K$ we have that
+\begin{align*}
+  L \cup K & = \{ s\ |\ s \in L\ \text{or}\ s \in K \}   \\
+  L K      & = \{ uv\ |\ u \in L\ \text{and}\ v \in K \} \\
+  L^*      & = \bigcup_{i \geq 0} L^{i}                  \\
+  L^+      & = \bigcup_{i \geq 1} L^{i}                  \\
+\end{align*}
 Although having a simple definition, proving that a string $s$ belongs to a language $L$ turns out to be rather challenging.
-Furthermore, we end up using different languages with different symbols for lexical, syntax and semantic analysis in order to verify the source program.
+
+We end up using different languages with different symbols for lexical, syntax and semantic analysis in order to verify the source program.
 Although, for example, the lexer may take as its symbols the characters present in the encoding of its input file (e.g., UTF-8 and ASCII), the parser may take the token names outputted by the lexer as its symbols.
 In the next sections~\ref{chapter:background:sec:lexical},~\ref{chapter:background:sec:syntax}, and~\ref{chapter:background:sec:semantic}, we explore the different formal tools the different analysis steps use to prove that a string of their respective symbols is a valid source program and how they produce an output for the next step in compilation.
 
@@ -512,18 +519,67 @@ When no metadata is needed it can be omitted from the token notation (e.g., \tok
 
 In order to classify a lexeme to be of a given token name we employ the use of \textit{patterns}, and one of the important notations for the description of token patterns are regular expressions~\cite{Aho:2006:CPT:1177220}.
 Regular expressions are very effective in specifying the type of patterns usually needed to classify lexemes into tokens and can be used for automatic generation of a lexical analyzer~\cite{Aho:2006:CPT:1177220}.
-A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form $\textit{token name} \rightarrow \textit{regular expression}$ as follows:
+A simple description of the patterns for the tokens used in the example above can be given by regular expressions with rules of the form $\textit{pattern name} \rightarrow \textit{regular expression}$ as follows:
+\begin{equation}\label{eq:regular_definitions}
+  \begin{aligned}
+    \code{id}     & \rightarrow \ {[\code{A-Za-z}]}^+ \\
+    \code{number} & \rightarrow \ {[\code{0-9}]}^+    \\
+    \code{let}    & \rightarrow \ \code{let}          \\
+    \code{=}      & \rightarrow \ \code{=}            \\
+    \code{/}      & \rightarrow \ \code{/}            \\
+    \code{+}      & \rightarrow \ \code{+}            \\
+  \end{aligned}
+\end{equation}
+
+Regular expressions are built recursively out of smaller regular expressions, and each regular expression $r$ describes a language $L$, written $L(r)$, which is also defined recursively from $r$'s sub-expressions~\cite{Aho:2006:CPT:1177220}.
+We can define regular expressions starting with the regular expression $\epsilon$, for describing the language $L(\epsilon) = \{ \epsilon \}$, then, defining a regular expression $a$ for all $s \in \Sigma$ where $L(a) = \{ s \}$~\cite{Aho:2006:CPT:1177220}.
+Then, building the induction supposing that $r$ and $s$ are regular expressions denoting languages $L(r)$ and $L(s)$, respectively, as
+\begin{align*}
+  r \mid s & = L(r) \cup L(s) \\
+  r s      & = L(r) L(s)      \\
+  r^*      & = {L{(r)}}^*     \\
+  r^+      & = {L{(r)}}^+
+\end{align*}
+Using these operations we can build all regular expressions~\cite{Aho:2006:CPT:1177220}.
+Furthermore, a group of unions $s_1 \mid s_2 \mid \dots \mid s_k$ can be abbreviated as $[s_1 s_2 \dots s_k]$~\cite{Aho:2006:CPT:1177220}.
+
+The notation presented in~\eqref{eq:regular_definitions} is defined by \textcite{Aho:2006:CPT:1177220} as \textit{regular definitions} where, if $\Sigma$ is an alphabet, then a regular definition is a sequence of definitions of the form:
 \begin{equation*}
   \begin{aligned}
-    \codett{identifier} & \rightarrow \ {[A-Za-z]}^+ \\
-    \codett{number}     & \rightarrow \ {[0-9]}^+    \\
-    \codett{let}        & \rightarrow \ let          \\
-    \codett{=}          & \rightarrow \ =            \\
-    \codett{/}          & \rightarrow \ /            \\
-    \codett{+}          & \rightarrow \ +            \\
+    d_1 & \rightarrow \ r_1 \\
+    d_2 & \rightarrow \ r_2 \\
+        & \dots             \\
+    d_n & \rightarrow \ r_n
   \end{aligned}
 \end{equation*}
-This rules can then, either be used by lexical analyzer generators to automatically generate a program for lexical analysis, or, be used as the formal specification for handwritten lexers to be based upon~\cite{Aho:2006:CPT:1177220}.
+where, each definition name $d_i$ is a new symbol not present in $\Sigma$ and unique from the other definition names.
+Also, each $r_i$ is a regular expression over the alphabet $\Sigma \cup \{ d_1, d_2, \dots, d_{i-1}\}$ such that $r_i$ can use the definitions above him as regular expressions~\cite{Aho:2006:CPT:1177220}.
+In order to facilitate the use of definition names in a regular expression, modern tools often write the definition name between the markers \code{[:} and \code{:]} as in
+\begin{equation}\label{eq:regular_definitions_with_variables}
+  \begin{aligned}
+    \code{digit}  & \rightarrow \ [\code{0-9}]                                      \\
+    \code{letter} & \rightarrow \ [\code{a-zA-Z}]                                   \\
+    \code{id}     & \rightarrow \ \code{[:letter:]}{[\code{[:letter:][:digit:]}]}^* \\
+    \code{number} & \rightarrow \ \code{[:digit:]}^+                                \\
+    \code{let}    & \rightarrow \ \code{let}                                        \\
+    \code{=}      & \rightarrow \ \code{=}                                          \\
+    \code{/}      & \rightarrow \ \code{/}                                          \\
+    \code{+}      & \rightarrow \ \code{+}                                          \\
+  \end{aligned}
+\end{equation}
+
+Formally, the lexer for a programming language is trying to prove that a given input string $s$ belongs to a language $L$.
+For example, a programming language could define the regular definitions \code{id}, \code{number}, \code{let}, \code{=}, \code{/}, and \code{+}, from~\eqref{eq:regular_definitions_with_variables}, as the patterns for its token names (\code{digit} and \code{letter} serve only as building blocks).
+Then, the language $L$ for the parser of such programming language is constructed by making the union of the languages described by all the token name's regular expressions and applying the Kleen closure to generate the set of all permutations getting
+\begin{equation*}
+  L = {(L(\code{id}) \cup L(\code{number}) \cup L(\code{let}) \cup L(\code{=}) \cup L(\code{/}) \cup L(\code{+}))}^*
+\end{equation*}
+
+During the lexer execution, every time the lexer identifies a lexeme from the input string for a given token name's regular expression, the lexer outputs a token for that lexeme and consumes the lexeme from the input string.
+If an input string does match a lexeme for any token name regular expression, the lexer should report the error to the compiler's user.
+
+The regular definition rules of token names can then, either be used by lexical analyzer generators to automatically generate a program for lexical analysis, or, be used as the formal specification for handwritten lexers to be based upon~\cite{Aho:2006:CPT:1177220}.
+In both cases the output will either be the list of tokens or the lexical error encountered during the reading of the input string.
 
 \section{Syntax Analysis}\label{chapter:background:sec:syntax}
 
@@ -614,7 +670,7 @@ This structure makes explicit that we must first evaluate the result of $\bnfvar
 \subsection{Precise definition of context-free grammars and ambiguity}
 Every programming language has precise rules that prescribe the correct syntactic structure of its programs~\cite{Aho:2006:CPT:1177220}.
 In order to formally describe the rules of such syntactic structure, we can use a context-free grammar~\cite{Aho:2006:CPT:1177220}.
-A context-free grammar is a finite set of constructs that allows us to build the set of all sentences of a given context-free Language~\cite{sipser2012introduction}.
+A context-free grammar is a finite set of constructs that allows us to build the set of all strings, usually called \textit{sentences}, of a given context-free Language~\cite{sipser2012introduction}.
 They have four components:
 \begin{itemize}
   \item A finite set $\Sigma$ of \textit{terminal} symbols, usually called tokens, composed by the set of token names defined in the lexical aspects of the language~\cite{Aho:2006:CPT:1177220};
@@ -652,18 +708,18 @@ into
   \bnfprod{V}{$s^1$ \bnfor{$s^2$}} \nonumber
 \end{alignat}
 
-In order to show that a particular sentence is in the language formalized by a context-free grammar, we can perform a derivation~\cite{sipser2012introduction}.
+In order to show that a particular string of terminal symbols is in the language formalized by a context-free grammar, we can perform a derivation~\cite{sipser2012introduction}.
 A derivation starts with, first, writing the start variable~\cite{sipser2012introduction}.
-Then, second, we choose any variable from the sentence written so far and a production with the same variable as head replacing the chosen variable with the body of the chosen production~\cite{sipser2012introduction}.
-Then, we repeat the second step until there is no more variables and the sentence is formed only by terminals~\cite{sipser2012introduction}.
+Then, second, we choose any variable from the string written so far and a production with the same variable as head replacing the chosen variable with the body of the chosen production~\cite{sipser2012introduction}.
+Then, we repeat the second step until there is no more variables and the string is formed only by terminals~\cite{sipser2012introduction}.
 
-Formally, \textcite{sipser2012introduction} defines that, given sentences $u, v \in {(\Sigma \cup V)}^*$, $u$ \textit{derives} $v$, written $u \Rightarrow^* v$, if $u = v$ or if there exists sentences $s_1, s_2, s_3, \dots, s_k \in {(\Sigma \cup V)}^*$ for $k \geq 0$ where
+Formally, \textcite{sipser2012introduction} defines that, given the strings $u, v \in {(\Sigma \cup V)}^*$, $u$ \textit{derives} $v$, written $u \Rightarrow^* v$, if $u = v$ or if there exists strings $s_1, s_2, s_3, \dots, s_k \in {(\Sigma \cup V)}^*$ for $k \geq 0$ where
 \begin{equation*}
   u \Rightarrow s_1 \Rightarrow  s_2, \Rightarrow s_3, \Rightarrow \dots \Rightarrow s_k \Rightarrow v
 \end{equation*}
-we can define that the language $L$ of the grammar is the set $L = \{s \in \Sigma^* \mid S \Rightarrow^* s\}$, meaning $L$ is the set of all sentences $s$ composed only by terminal symbols that can be derived from the starting variable $S$.
+we can define that the language $L$ of the grammar is the set $L = \{s \in \Sigma^* \mid S \Rightarrow^* s\}$, meaning $L$ is the set of all strings $s$ composed only by terminal symbols that can be derived from the starting variable $S$.
 
-Take, for example, the sentence $s = \code{id + number * id}$ and the language $L$ specified by grammar~\eqref{eq:ambiguous_expr_grammar}. We can proof that $s \in L$ by showing that $\bnfvar{Expr} \Rightarrow^* s$, so we start by writing the start variable
+Take, for example, the string $s = \code{id + number * id}$ and the language $L$ specified by grammar~\eqref{eq:ambiguous_expr_grammar}. We can proof that $s \in L$ by showing that $\bnfvar{Expr} \Rightarrow^* s$, so we start by writing the start variable
 \begin{equation*}
   \bnfvar{Expr}
 \end{equation*}
@@ -672,7 +728,7 @@ then choose a production with \bnfvar{Expr} as head and substitute \bnfvar{Exrp}
   \bnfvar{Expr} \Rightarrow \code{\bnfvar{Expr} \bnfvar{BinOp} \bnfvar{Expr}}
 \end{equation*}
 For the next derivation step, we are open to choose what variable to derivate first.
-Although we could choose any variable from the sentence during derivation, we will stick to leftmost derivations, which mandates that we choose the leftmost variable, highlighted in \textbf{bold}, of the sentence to perform the derivation.
+Although we could choose any variable from the string during derivation, we will stick to leftmost derivations, which mandates that we choose the leftmost variable, highlighted in \textbf{bold}, of the string to perform the derivation.
 So, we could have the leftmost derivation
 \begin{equation}\label{eq:ambiouous_derivation1}
   \begin{aligned}
@@ -714,9 +770,9 @@ but, we could also have a second leftmost derivation
     \code{\bnfter{id} \bnfter{+} \bnfter{number} \bnfter{*} \bnfter{id}}
   \end{aligned}
 \end{equation}
-thus, having two leftmost derivations that shows the sentence belongs to the grammar's described language.
+thus, having two leftmost derivations that shows the string belongs to the grammar's described language.
 
-A grammar is said to be \textit{ambiguous} if it has a non-unique leftmost or rightmost derivation for any sentence of the language it describes~\cite{Aho:2006:CPT:1177220}.
+A grammar is said to be \textit{ambiguous} if it has a non-unique leftmost or rightmost derivation for any string of the language it describes~\cite{Aho:2006:CPT:1177220}.
 Therefore, grammar~\eqref{eq:ambiguous_expr_grammar} is clearly ambiguous given derivations~\eqref{eq:ambiouous_derivation1} and~\eqref{eq:ambiouous_derivation2}.
 From the parse trees in Figure~\ref{fig:ambiguous_parse_tree} we can visualize that the order of operations differ between the derivations of \code{id + number * id}.
 In Figure~\ref{fig:ambiguous_parse_tree_a} we have \code{(id + number) * id} and in Figure~\ref{fig:ambiguous_parse_tree_b} we have \code{id + (number * id)} which have different mathematical meanings.
@@ -956,7 +1012,7 @@ In order to enrich the capabilities of recursive descendant parsers, advances we
 \textcite{pratt1973operatorprecedence} proposed a \textit{top-down operator precedence} approach to parse arithmetic expressions by assigning a total order to tokens using a function for the left and right binding power of tokens in order to uniquely create parse trees of ambiguous left recursive expression grammars.
 An example Pratt parser for grammar~\eqref{eq:ambiguous_expr_grammar} is found at Figure~\ref{fig:pratt_parser_expr_grammar}.
 Pratt parsers work by combining recursion with iteration.
-If we try to parse the sentence \code{$\codett{id}_1$ + number * $\codett{id}_2$} it:
+If we try to parse the sentence \code{$\code{id}_1$ + number * $\code{id}_2$} it:
 \begin{itemize}
   \item parses $\codett{id}_1$ and name its node `left';
   \item enters the loop and parse \codett{+} which have a binding power to the left of $1$ and to the right of $2$;
