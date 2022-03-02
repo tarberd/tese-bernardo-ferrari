@@ -575,8 +575,8 @@ Then, the language $L$ for the parser of such programming language is constructe
   L = {(L(\code{id}) \cup L(\code{number}) \cup L(\code{let}) \cup L(\code{=}) \cup L(\code{/}) \cup L(\code{+}))}^*
 \end{equation*}
 
-During the lexer execution, every time the lexer identifies a lexeme from the input string for a given token name's regular expression, the lexer outputs a token for that lexeme and consumes the lexeme from the input string.
-If an input string does match a lexeme for any token name regular expression, the lexer should report the error to the compiler's user.
+During the lexer execution, every time the lexer identifies a lexeme from the input string for a given token name's regular expression, the lexer outputs a token for that lexeme and consumes the lexeme from the input string~\cite{Aho:2006:CPT:1177220}.
+If an input string does match a lexeme for any token name regular expression, the lexer should report the error to the compiler's user~\cite{Aho:2006:CPT:1177220}.
 
 The regular definition rules of token names can then, either be used by lexical analyzer generators to automatically generate a program for lexical analysis, or, be used as the formal specification for handwritten lexers to be based upon~\cite{Aho:2006:CPT:1177220}.
 In both cases the output will either be the list of tokens or the lexical error encountered during the reading of the input string.
@@ -700,12 +700,12 @@ nonterminals have the syntactic variables as normal words (e.g., $\bnfvar{Expr}$
 and, the designation of the starting variable is done by the variable at the head of the first production (e.g., in the example above the starting nonterminal is $\bnfvar{Expr}$).
 Furthermore, multiple productions can be abbreviated by using the \textit{or} operator denoted by `$\mid$' turning
 \begin{alignat}{2}
-  \bnfprod{V}{$s^1$} \nonumber \\
-  \bnfprod{V}{$s^2$} \nonumber
+  \bnfprod{V}{$s_1$} \nonumber \\
+  \bnfprod{V}{$s_2$} \nonumber
 \end{alignat}
 into
 \begin{alignat}{2}
-  \bnfprod{V}{$s^1$ \bnfor{$s^2$}} \nonumber
+  \bnfprod{V}{$s_1$ \bnfor{$s_2$}} \nonumber
 \end{alignat}
 
 In order to show that a particular string of terminal symbols is in the language formalized by a context-free grammar, we can perform a derivation~\cite{sipser2012introduction}.
@@ -713,11 +713,11 @@ A derivation starts with, first, writing the start variable~\cite{sipser2012intr
 Then, second, we choose any variable from the string written so far and a production with the same variable as head replacing the chosen variable with the body of the chosen production~\cite{sipser2012introduction}.
 Then, we repeat the second step until there is no more variables and the string is formed only by terminals~\cite{sipser2012introduction}.
 
-Formally, \textcite{sipser2012introduction} defines that, given the strings $u, v \in {(\Sigma \cup V)}^*$, $u$ \textit{derives} $v$, written $u \Rightarrow^* v$, if $u = v$ or if there exists strings $s_1, s_2, s_3, \dots, s_k \in {(\Sigma \cup V)}^*$ for $k \geq 0$ where
+Formally, \textcite{sipser2012introduction} defines that $u$ \textit{derives} $v$, written $u \Rightarrow^* v$ where $u, v \in {(\Sigma \cup V)}^*$, if $u = v$ or if there exists strings $s_1, s_2, s_3, \dots, s_k \in {(\Sigma \cup V)}^*$ for $k \geq 0$ where
 \begin{equation*}
   u \Rightarrow s_1 \Rightarrow  s_2, \Rightarrow s_3, \Rightarrow \dots \Rightarrow s_k \Rightarrow v
 \end{equation*}
-we can define that the language $L$ of the grammar is the set $L = \{s \in \Sigma^* \mid S \Rightarrow^* s\}$, meaning $L$ is the set of all strings $s$ composed only by terminal symbols that can be derived from the starting variable $S$.
+We can then define that the language $L$ of the grammar is the set $L = \{s \in \Sigma^* \mid S \Rightarrow^* s\}$, meaning $L$ is the set of all strings $s$ composed only by terminal symbols that can be derived from the starting variable $S$.
 
 Take, for example, the string $s = \code{id + number * id}$ and the language $L$ specified by grammar~\eqref{eq:ambiguous_expr_grammar}. We can proof that $s \in L$ by showing that $\bnfvar{Expr} \Rightarrow^* s$, so we start by writing the start variable
 \begin{equation*}
@@ -901,11 +901,11 @@ An example implementation of predictive parsers for the variables \bnfvar{Expr},
     \begin{minipage}{\textwidth}
       \begin{rustcode}
 fn parse_Expr(p: Parser) -> Parse {
-	let t = parse_Term(p);
-	let e2 = parse_Expr2(p);
-	Expr(t, e2)
+  let t = parse_Term(p);
+  let e2 = parse_Expr2(p);
+  Expr(t, e2)
 }
-			\end{rustcode}
+      \end{rustcode}
     \end{minipage}
     \caption{}\label{fig:predictive_parser_expr}
   \end{subfigure}
@@ -1019,7 +1019,7 @@ If we try to parse the sentence \code{$\code{id}_1$ + number * $\code{id}_2$} it
   \item checks if it binds to the left stronger than the minimum binding power, in this case it does not since the minimum starts at $0$, continuing on to recursively parse \bnfter{number} which its node becomes the new `left' in the new recursion step;
   \item the next operator is then \codett{*} with binding power $3$ and $4$, this time the left binding power still is not smaller than the minimum of $2$, and we recursively parse $\codett{id}_2$ which again its node becomes a new `left';
   \item now, upon trying to parse a new operator, we break from the loop and return the node for $\codett{id}_2$ and name it `right'; then, we construct a node \bnfvar{Expr} with `left', which is \codett{number} for this iteration, the operator \codett{*}, and `right', which is $\codett{id}_2$;
-  \item we then return again with another \bnfvar{Expr} node with `left', which now is $\codett{id}_1$, the operator \codett{+}, and the last returned expression as `right' finally forming the parse tree with correct precedence found at Figure~\ref{eq:ambiouous_derivation2}.
+  \item we then return again with another \bnfvar{Expr} node with `left', which now is $\codett{id}_1$, the operator \codett{+}, and the last returned expression as `right' finally forming the parse tree with correct precedence found at Figure~\ref{fig:ambiguous_parse_tree_b}.
 \end{itemize}
 The loop to keep checking if the next operation binds stronger than the minimum for the recursion guaranties both correct associativity and operator precedence~\cite{pratt1973operatorprecedence}.
 
@@ -1030,7 +1030,7 @@ Therefore, PEGs cannot be ambiguous because there is no choice involved in which
 Furthermore, \textcite{10.1145/1328408.1328424} extended Packrat to allow left-recursion by changing its memoization process.
 
 Bottom-up parsers have fewer context-free grammar constraints~\cite{Aho:2006:CPT:1177220}.
-They still have troubles with ambiguous grammars due to shift-reduce conflicts but no longer require a non-left recursive and left factored grammar~\cite{Aho:2006:CPT:1177220}.
+However, they still have troubles with ambiguous grammars due to shift-reduce conflicts but no longer require a non-left recursive and left factored grammar~\cite{Aho:2006:CPT:1177220}.
 Writing a bottom-up shift-reduce parser for an $LR$ class grammar is not an easy task, thankfully
 parser generators for $LR(1)$ and $LR(k)$ languages are capable of generating very efficient parsers for a large range of context-free grammars~\cite{Aho:2006:CPT:1177220}.
 Even allowing grammar designers to solve shifting-reduce conflicts by hand assigning whether to shift or to reduce for every conflict~\cite{Aho:2006:CPT:1177220}.
@@ -1048,7 +1048,7 @@ Take the following syntax-directed definition
   \bnfprod{Expr}{\bnfvar{Term} \bnfvar{Expr2} \{Expr.n = Expr(Term.n, Expr2.n)\}} \label{eq:sdd_example}
 \end{alignat}
 Note that the attribute \codett{n} for the variables \bnfvar{Expr}, \bnfvar{Term} and \bnfvar{Expr2}, can be thought of as the return node value of a parsing function for this production.
-If we give a closed look at the parser implemented in Figure~\ref{fig:predictive_parser_expr}, we can see this semantic action at line 4, after parsing \bnfvar{Term} and \bnfvar{Expr2}, returning the value of the attribute \codett{Expr.n}.
+If we give a closer look at the parser implemented in Figure~\ref{fig:predictive_parser_expr}, we can see this semantic action at line 4, after parsing \bnfvar{Term} and \bnfvar{Expr2}, returning the value of the attribute \codett{Expr.n}.
 Furthermore, the position of the semantic action in a production body determines when the semantic action executes during parsing.
 In this example it is positioned after the parser finishes parsing the production.
 
