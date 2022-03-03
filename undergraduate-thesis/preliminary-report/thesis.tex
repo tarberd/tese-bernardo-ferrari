@@ -139,9 +139,14 @@
 
 \newcommand{\token}[1]{$\langle\codett{#1}\rangle$}
 
+\newcommand{\astprod}[2]{\code{#1} & \ & \bnfdef{} & \ \code{#2}}
+\newcommand{\astmore}[1]{\bnfmore{#1}}
+
 \newcommand{\typer}[2]{\code{#1 \codett{:} #2}}
 \newcommand{\typecxr}[3]{\code{{$\Gamma$}#1 {$\vdash$} \typer{#2}{#3}}}
 \newcommand{\typecx}[2]{,\;\typer{#1}{#2}}
+
+\newcommand{\evalr}[2]{\code{#1 $\rightarrow$ #2}}
 
 \newcommand{\tokenstream}[4]{
   & \langle\text{#1,} && \text{\{\textit{lexeme}: #2,} && \text{\textit{begin}: #3,} && \text{\textit{end}: #4\}}\rangle%
@@ -1128,92 +1133,151 @@ If we feed a type checker with the abstract syntax tree for the program
 \begin{equation*}
   \codett{b + 60 * c}
 \end{equation*}
-it may make use of a \textit{context} containing the type information of the identifiers \codett{b} and \codett{c} to type check all nodes of the tree for consistency.
-Suppose a context that maps the identifier \codett{c} to the type \codett{Bool}, written \typer{c}{Bool}, which would compose of the values \codett{true} and \codett{false}.
-With this information, the type checker would be able to decide if the operation \codett{60 / c} is semantically sound to the language's type system.
+it may make use of a \textit{context} containing the type information of the identifiers \code{b} and \code{c} to type check all nodes of the tree for consistency.
+Suppose a context that maps the identifier \code{c} to the type \code{Bool}, written \typer{c}{Bool}, which would compose of the values \code{true} and \code{false}.
+With this information, the type checker would be able to decide if the operation \code{60 * c} is semantically sound to the language's type system.
 Does the language type system specifies as valid to divide a number by a boolean?
 If it does, what does it mean to divide the value \codett{60} by \codett{false}?
 
-Maybe, whoever designed the language decided that, if the dividend is a value of type number and the divisor is a value of type boolean, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
+Maybe, whoever designed the language decided that, if the dividend is a value of type \code{Int} and the divisor is a value of type \code{Bool}, it will use some rule to convert the divisor's type to number in order to keep the program semantically sound.
 Maybe, the language's type system forbids this behavior and will halt the compilation process with some error message.
 These are decisions made when building a language's type system.
 
 In order to star reasoning about the semantic aspects of a language suppose the following abstract syntax
 \begin{equation}~\label{eq:sample_term_ast}
   \begin{alignedat}{2}
-    \bnfprod{term}{\bnfvar{term}\ \bnfter{+}\ \bnfvar{term}} \\
-    \bnfmore{\bnfvar{term}\ \bnfter{-}\ \bnfvar{term}} \\
-    \bnfmore{\bnfvar{term}\ \bnfter{*}\ \bnfvar{term}} \\
-    \bnfmore{\bnfvar{term}\ \bnfter{/}\ \bnfvar{term}} \\
-    \bnfmore{\bnfter{number}} \\
-    \bnfmore{\bnfter{id}}
+    \astprod{term}{true} \\
+    \astmore{false} \\
+    \astmore{if term then term else term} \\
+    \astmore{0} \\
+    \astmore{succ term} \\
+    \astmore{pred term} \\
+    \astmore{iszero term}
   \end{alignedat}
 \end{equation}
-this set of productions defines a set of all possible terms, although compact and expressive it is only one of several ways of describing the syntax of a language~\cite{pierce2002types}.
+Note that the grammar for an abstract tree does not have different notations for its terminal and non-terminal symbols in order to not clutter the inference rules with notation symbols~\cite{pierce2002types}.
+The symbol \code{term} at the left of $\bnfdef$ defines the set of \textit{terms} and defines that we are going to use the symbol \code{term} to range over the set terms~\cite{pierce2002types}.
+The same symbol \code{term} when used at the right of $\bnfdef$ is called a \textit{metavariable} simply to differentiate from the variables of the programming language in question, and, we may substitute the \code{term} metavariables for any instance of terms~\cite{pierce2002types}.
+
+The set of productions~\eqref{eq:sample_term_ast} defines a set of all possible terms, although compact and expressive it is only one of several ways of describing the syntax of a language~\cite{pierce2002types}.
 According to \textcite{pierce2002types}, using the grammar to define the set of all terms is actually just a compact notation for the following inductive definition: The set of all terms is the smallest set $T$ such that
 \begin{align}
-   & \{\bnfter{nubmer},\ \bnfter{id}\} \subseteq T \label{eq:example_clause1}          \\
-   & \textrm{if } \bnfvar{t}_1 \in T \textrm{ and } \bnfvar{t}_2 \in T \textrm{ then }
-  \{
-  \bnfvar{t}_1 \bnfter{+} \bnfvar{t}_2,
-  \ \bnfvar{t}_1 \bnfter{-} \bnfvar{t}_2,
-  \ \bnfvar{t}_1 \bnfter{*} \bnfvar{t}_2,
-  \ \bnfvar{t}_1 \bnfter{/} \bnfvar{t}_2
-  \} \subseteq T\label{eq:example_clause2}
+   & \{\code{true},\ \code{false},\ \code{0}\} \subseteq T \label{eq:example_clause1} \\
+   & \text{if } \code{t} \in T \text{, then } \{
+  \code{succ t},
+  \ \code{pred t},
+  \ \code{iszero t}
+  \} \subseteq T \label{eq:example_clause2}                                           \\
+   & \text{if } \code{t}_1, \code{t}_2, \code{t}_3 \in T \text{, then }
+  \code{if $\code{t}_1$ then $\code{t}_2$ else $\code{t}_3$} \in T\label{eq:example_clause3}
 \end{align}
-Formally, this definition defines $T$ as a set of \textit{trees} and not a set of strings~\cite{pierce2002types}.
+Formally, this definition defines $T$ as a set of \textit{trees} and not a set of strings as we show in Section~\ref{chapter:background:sec:syntax} with derivations~\cite{pierce2002types}.
 A shorthand definition for the same inductive definition of terms can be given in \textit{inference rules}, as following:
 \begin{align*}
-  \bnfter{id} \in T &  & \bnfter{number} \in T
+  \code{true} \in T &  & \code{false} \in T &  & \code{0} \in T
 \end{align*}
 \begin{align*}
   \inferrule{
-  \bnfvar{t}_1 \in T \\ \bnfvar{t}_2 \in T
+    \code{t} \in T
   }{
-    \bnfvar{t}_1\ \bnfter{+}\ \bnfvar{t}_2 \in T
+    \code{succ t} \in T
   }
    &  &
   \inferrule{
-  \bnfvar{t}_1 \in T \\ \bnfvar{t}_2 \in T
+    \code{t} \in T
   }{
-    \bnfvar{t}_1\ \bnfter{-}\ \bnfvar{t}_2 \in T
+    \code{pred t} \in T
+  }
+   &  &
+  \inferrule{
+    \code{t} \in T
+  }{
+    \code{pred t} \in T
   }
 \end{align*}
 \begin{align*}
   \inferrule{
-  \bnfvar{t}_1 \in T \\ \bnfvar{t}_2 \in T
+  \code{t}_1 \in T \\ \code{t}_2 \in T \\ \code{t}_3 \in T
   }{
-    \bnfvar{t}_1\ \bnfter{*}\ \bnfvar{t}_2 \in T
-  }
-   &  &
-  \inferrule{
-  \bnfvar{t}_1 \in T \\ \bnfvar{t}_2 \in T
-  }{
-    \bnfvar{t}_1\ \bnfter{/}\ \bnfvar{t}_2 \in T
+    \code{if $\code{t}_1$ then $\code{t}_2$ else $\code{t}_3$} \in T
   }
 \end{align*}
-where the first two rules restate the first clause in~\eqref{eq:example_clause1} and the last 4 rules restate the second clause in~\eqref{eq:example_clause2}.
-Each rule means that if we found the statements in the premises listed above the line, then we may derive the conclusion below the line.
-When given as inference rules, the fact that $T$ is the smallest possible set is not stated explicitly.
-Also, the rules with no premise are called \textit{axioms} and are written with no bar, since there is nothing to put above it.
-Furthermore, \textcite{pierce2002types} points out that what we are calling \textit{inference rules} are actually \textit{rule schemas} which represents the infinite set of \textit{concrete rules} that can be obtained by substituting each variable by all possible sentences of the syntactic category, e.g., substituting each variable $\bnfvar{t}$ by every possible term in the inference rules above.
+where the first three rules restate the first clause in~\eqref{eq:example_clause1}, the middle three rules restate the second clause in~\eqref{eq:example_clause2}, and the last rule restate clause in~\eqref{eq:example_clause3}~\cite{pierce2002types}.
+Each rule means that if we found the statements in the premises listed above the line, then we may derive the conclusion below the line~\cite{pierce2002types}.
+When defining the syntax as inference rules, the fact that $T$ is the smallest possible set is not stated explicitly but implied, also, the rules with no premise are called \textit{axioms} and are written with no bar, since there is nothing to put above it~\cite{pierce2002types}.
+Furthermore, \textcite{pierce2002types} points out that what we are calling \textit{inference rules} are actually \textit{rule schemas} which represents the infinite set of \textit{concrete rules} that can be obtained by substituting each variable by all possible sentences of the syntactic category, e.g., substituting each metavariable for \code{term} by every possible term in the inference rules above.
 
-We can than derive a prof for \codett{(b + 5) * c} as
+We can than proof that \code{if true than succ 0 else pred succ 0} is a \code{term} as
 \begin{equation*}
   \inferrule{
-    \inferrule{
-      \bnfvar{b} \in T \\ \bnfvar{5} \in T
+    \code{true} \in T
+    \\ \inferrule{\code{0} \in T}{\code{succ 0} \in T}
+    \\ \inferrule{
+      \inferrule{\code{0} \in T}{\code{succ 0} \in T}
     }{
-      \bnfvar{b}\ \bnfter{+}\ \bnfvar{5} \in T
+      \code{pred succ 0} \in T
     }
-    \\ \bnfvar{c} \in T
   }{
-    \bnfvar{b}\ \bnfter{+}\ \bnfvar{5}\ \bnfter{*}\ \bnfvar{t} \in T
+    \code{if true than succ 0 else pred succ 0} \in T
   }
 \end{equation*}
 Here we see the concrete inference rules in play, and not the rules schemas.
-We constructed the inference rules in such a way that proving is no different from finding a derivation of the grammar.
-In the next section we will show how to enrich inference rules to prove more complex languages.
+We constructed the inference rules in such a way that proving a tree is part of $T$ is no different from finding a derivation for a string $s$ for the grammar.
+
+\subsection{Operational Semantics}
+
+The \textit{operational semantics} of a language allows for the precise definition of how terms are evaluated, that is, the precise definition of the \textit{semantics} of the language~\cite{pierce2002types}.
+It specifies the behavior of a programming language by defining an \textit{abstract machine} that uses the terms of the programming language as its instructions instead of a low-level processor's instruction set~\cite{pierce2002types}.
+Hence, the use of the term `abstract' it~\cite{Aho:2006:CPT:1177220}.
+
+For simple languages like~\eqref{eq:sample_term_ast} the state of the abstract machine can be defined by just a \code{term} and its behavior by a \textit{transition function} that for each \code{term} either performs an evaluation step, or halts and announces the evaluation has ended~\cite{pierce2002types}.
+In order to define operational semantics for~\eqref{eq:sample_term_ast} we first extend the abstract syntax with a new metavariable \code{value} for the possible end results of evaluation as
+\begin{equation}
+  \begin{aligned}
+    \astprod{value}{true} \\
+    \astmore{false}       \\
+    \astmore{0}           \\
+    \astmore{succ value}
+  \end{aligned}
+\end{equation}
+and second, we define and \textit{evaluation relation} on terms, written \evalr{term}{$\code{term}_1$} meaning \code{term} evaluates to $\code{term}_1$ in on step, as
+\begin{align*}
+   & \evalr{if true then $\code{t}_1$ else $\code{t}_2$}{$\code{t}_1$} \tag{Eval-IfTrue} \\
+   & \evalr{if false then $\code{t}_1$ else $\code{t}_2$}{$\code{t}_2$} \tag{Eval-IfFalse}
+\end{align*}
+\begin{equation*}
+  \inferrule{
+    \evalr{$\code{t}_1$}{$\code{t}_4$}
+  } {
+    \evalr{
+      if $\code{t}_1$ then $\code{t}_2$ else $\code{t}_3$
+    }{
+      if $\code{t}_4$ then $\code{t}_2$ else $\code{t}_3$
+    }
+  }\tag{Eval-If}
+\end{equation*}
+\begin{equation*}
+  \inferrule{
+    \evalr{$\code{t}_1$}{$\code{t}_2$}
+  } {
+    \evalr{
+      succ $\code{t}_1$
+    }{
+      succ $\code{t}_2$
+    }
+  }\tag{Eval-Succ}
+\end{equation*}
+\begin{equation*}
+  \inferrule{
+    \evalr{$\code{t}_1$}{$\code{t}_2$}
+  } {
+    \evalr{
+      succ $\code{t}_1$
+    }{
+      succ $\code{t}_2$
+    }
+  }\tag{Eval-Succ}
+\end{equation*}
 
 \subsection{Boolean and Integer terms}
 
