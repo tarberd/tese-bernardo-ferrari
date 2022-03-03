@@ -1633,18 +1633,76 @@ In this chapter we will present prior work related to refinement types and the L
 
 \section{Refinement types with predicates}
 
-A type system can be extended to further \textit{refine} its types with logic predicates~\cite{jhala2020tutorial}.
-In \textcite{jhala2020tutorial}, the authors call this technique \textit{Refinement types with predicates}.
-It allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020tutorial}.
-Refinement types offer the option to add information to the type system about the invariants and correctness properties a programmer may care about~\cite{jhala2020tutorial}.
-It is done in such a way that, if the programmer desires, no refinement needs to be added and can be thought like a typical type system~\cite{jhala2020tutorial}.
-On the other hand, programmers can incrementally add refinements to ensure important properties about the source program~\cite{jhala2020tutorial}.
-They could begin with basic safety requirements, e.g., eliminating division by zero and buffer overflow, or guarantee that a function does not receive a empty collection, and then incrementally add to the specification invariants of custom data types~\cite{jhala2020tutorial}.
+In order to explore refinement types, we will be discussing the works by \textcite{jhala2020tutorial} which was written in order to collect in a single place the authors previous efforts in \textcite{vazou2014liquidhaskell} building the LiquidHaskell extension  which opened the way for many implementations of refinement types on top of existing languages.
+Notable implementation include the work of \textcite{vekris2016refinementtypescript} adding refinement types for the TypeScript language, the work of \textcite{vazou2018refinementruby} adding refinement types for the Ruby language, and the work of \textcite{sammler2021refinedc} integrating refinement types for the C language.
+
+In \textcite{jhala2020tutorial}, the authors elaborate that the type systems of common high level programming languages can allow types to be \textit{refined} with logic predicates.
+The authors call this technique \textit{Refinement types with predicates}~\cite{jhala2020tutorial}.
+
+Refinement types with predicates allows programmers to constrain existing types by using predicates to assert desired properties of the values they want to describe~\cite{jhala2020tutorial}.
+They are particularly advantageous because they offer the option to add information to the type system about the invariants and correctness properties a programmer may care about, and, it is done in such a way that, if the programmer desires, no refinement needs to be added and type system can be thought like a typical type system of common higher level languages~\cite{jhala2020tutorial}.
+
+Furthermore, programmers can start with no refinements and incrementally add refinements to ensure important properties about the source program~\cite{jhala2020tutorial}.
+They could begin with basic safety requirements, e.g., eliminating division by zero and buffer overflow, or guarantee that a function does not receive an empty collection, and then incrementally add to the specification invariants of custom data types~\cite{jhala2020tutorial}.
 Ultimately going all the way to specifying and verifying the correctness of different procedures at compile-time~\cite{jhala2020tutorial}.
-By enabling verification on the same language as the programming language, refinement types bridge implementation and prof together~\cite{jhala2020tutorial}.
+
+By enabling verification on the same language as the programming language, refinement types bridge implementation and proof together~\cite{jhala2020tutorial}.
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof~\cite{jhala2020tutorial}.
 
-To do. Work in progress.
+Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in Section~\ref{chapter:background:sec:semantic}.
+The authors propose a method to start with a very basic simply typed lambda calculus with refinements and incrementally adds new terms to the language and explaining how to build the type inference rules for each newly added term.
+
+The authors start the construction by defining the abstract syntax for the predicates and constraints syntactical categories as seen in Figure~\ref{fig:refinement_predicates}.
+\begin{figure}[ht]
+  \begin{minipage}{\textwidth}
+    \begin{alignat*}{4}
+      \astprod{p}{x $\mid$ y $\mid$ z $\mid\ \dots$} & \quad & \textit{Variables}              \\
+      \astmore{true $\mid$ false}                    & \quad & \textit{Booleans}               \\
+      \astmore{0 $\mid$ -1 $\mid$ 1 $\mid\ \dots$ }  & \quad & \textit{Numbers}                \\
+      \astmore{
+        $\code{p}_1$ + $\code{p}_2$
+        $\mid$ $\code{p}_1$ - $\code{p}_2$
+        $\mid$ $\code{p}_1$ * $\code{p}_2$
+        $\mid\ \dots$
+      }                                              & \quad & \textit{Arithmetic Operations}  \\
+      \astmore{$\code{p}_1$ \&\& $\code{p}_2$}       & \quad & \textit{Conjunction}            \\
+      \astmore{$\code{p}_1$ || $\code{p}_2$}         & \quad & \textit{Disjunction}            \\
+      \astmore{!$\code{p}_1$}                        & \quad & \textit{Negation}               \\
+      \astmore{if $\code{p}_1$ then $\code{p}_2$ else $\code{p}_3$}
+                                                     & \quad & \textit{Conditional}            \\
+      \astmore{$\code{p}_1\bowtie\code{p}_2$}        & \quad & \textit{Interpreted Operations} \\
+      \astmore{$f{(\code{p})}$}                      & \quad & \textit{Uninterpreted Function} \\
+      \\
+      \astprod{c}{p}                                 & \quad & \textit{Predicate}              \\
+      \astmore{$\code{c}_1\land\code{c}_2$}          & \quad & \textit{Conjunction}            \\
+      \astmore{$\forall\code{\typer{x}{T}.p}\implies\code{c}$ }
+                                                     & \quad & \textit{Implication}            \\
+    \end{alignat*}
+  \end{minipage}
+  \caption{
+    Abstract syntax for refinement predicates and constraints.
+    Adapted from~\cite{jhala2020tutorial}.
+  }\label{fig:refinement_predicates}
+\end{figure}
+The syntax used by the authors is a taken from the \textit{quatifier-free} fragments of linear arithmetic and uninterpreted functions~\cite{jhala2020tutorial}.
+The definition of predicates \code{p} includes boolean literals, integer literals, variables ranging boolean and integer values, linear arithmetic operations, and boolean operations.
+Also, the ternary operator
+\begin{equation*}
+  \code{if $\code{p}_1$ then $\code{p}_2$ else $\code{p}_3$}
+\end{equation*}
+was added as an abbreviation to
+\begin{equation*}
+  (\code{p}_1 \implies x = \code{p}_2)\land(\lnot \code{p}_1 \implies x = \code{p}_3)
+\end{equation*}
+and the operation $\code{p}_1\bowtie\code{p}_2$ was added to represent all interpreted operators the logic of predicates can be extended with in order to use features from other STM decidable logics (e.g., set operations)~\cite{jhala2020tutorial}.
+All the other operations are mapped to uninterpreted functions, were the only thing the SMT solver knows about them is the axiom of congruence which says the for all variables $x$ and $y$, if $x = y$ then $f(x) = f(y)$~\cite{jhala2020tutorial}.
+Examples of predicates include the ones we have discussed in the Introduction of this work, we can use \code{0 <= v} to denote the natural numbers and \code{0 <= v \&\& v = length(x)} to denote the values of valid indices of an array.
+
+A type checker with refinements produces what is called \textit{Verification Condition} (VC) constraints \code{c}, which are defined in Figure~\ref{fig:refinement_predicates}.
+Constrains are either a single quantifier-free predicate \code{p}, or a conjunction $\code{c}_1 \land \code{c}_2$, or an implication of the form $\forall\code{\typer{x}{T}.p}\implies\code{c}$~\cite{jhala2020tutorial}.
+The latter for of a constraint means that for all \code{x} of a given type \code{T}, if p holds then so must c.
+These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that if the verification condition is sated the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
+We will develop next the inference rules that create these constraints for a simply typed lambda calculus.
 
 \section{The LLVM intermediate representation}
 
