@@ -131,6 +131,7 @@
 \def\bnfdef{::=}
 \newcommand{\codett}[1]{\text{\scpfamily#1}}
 \newcommand{\code}[1]{\text{\scpfamily\setlength\spaceskip{0.35em}#1}}
+\newcommand{\codem}[1]{$\code{#1}$}
 \newcommand{\bnfvar}[1]{\codett{#1}}
 \newcommand{\bnfter}[1]{\textrm{`}\codett{#1}\textrm{'}}
 \newcommand{\bnfor}[1]{{$\mid$} #1}
@@ -1163,13 +1164,13 @@ The set of productions~\eqref{eq:sample_term_ast} defines a set of all possible 
 According to \textcite{pierce2002types}, using the grammar to define the set of all terms is actually just a compact notation for the following inductive definition: The set of all terms is the smallest set $T$ such that
 \begin{align}
    & \{\code{true},\ \code{false},\ \code{0}\} \subseteq T \label{eq:example_clause1} \\
-   & \text{if } \code{t} \in T \text{, then } \{
-  \code{succ t},
-  \ \code{pred t},
-  \ \code{iszero t}
+   & \text{if } \code{term} \in T \text{, then } \{
+  \code{succ \code{term}},
+  \ \code{pred \code{term}},
+  \ \code{iszero \code{term}}
   \} \subseteq T \label{eq:example_clause2}                                           \\
-   & \text{if } \code{t}_1, \code{t}_2, \code{t}_3 \in T \text{, then }
-  \code{if $\code{t}_1$ then $\code{t}_2$ else $\code{t}_3$} \in T\label{eq:example_clause3}
+   & \text{if } \code{term}_1, \code{term}_2, \code{term}_3 \in T \text{, then }
+  \code{if $\code{term}_1$ then $\code{term}_2$ else $\code{term}_3$} \in T\label{eq:example_clause3}
 \end{align}
 Formally, this definition defines $T$ as a set of \textit{trees} and not a set of strings as we show in Section~\ref{chapter:background:sec:syntax} with derivations~\cite{pierce2002types}.
 A shorthand definition for the same inductive definition of terms can be given in \textit{inference rules}, as following:
@@ -1178,28 +1179,28 @@ A shorthand definition for the same inductive definition of terms can be given i
 \end{align*}
 \begin{align*}
   \inferrule{
-    \code{t} \in T
+    \code{term} \in T
   }{
-    \code{succ t} \in T
+    \code{succ term} \in T
   }
    &  &
   \inferrule{
-    \code{t} \in T
+    \code{term} \in T
   }{
-    \code{pred t} \in T
+    \code{pred \code{term}} \in T
   }
    &  &
   \inferrule{
-    \code{t} \in T
+    \code{term} \in T
   }{
-    \code{pred t} \in T
+    \code{pred \code{term}} \in T
   }
 \end{align*}
 \begin{align*}
   \inferrule{
-  \code{t}_1 \in T \\ \code{t}_2 \in T \\ \code{t}_3 \in T
+  \code{term}_1 \in T \\ \code{term}_2 \in T \\ \code{term}_3 \in T
   }{
-    \code{if $\code{t}_1$ then $\code{t}_2$ else $\code{t}_3$} \in T
+    \code{if $\code{term}_1$ then $\code{term}_2$ else $\code{term}_3$} \in T
   }
 \end{align*}
 where the first three rules restate the first clause in~\eqref{eq:example_clause1}, the middle three rules restate the second clause in~\eqref{eq:example_clause2}, and the last rule restate clause in~\eqref{eq:example_clause3}~\cite{pierce2002types}.
@@ -1232,52 +1233,152 @@ Hence, the use of the term `abstract' it~\cite{Aho:2006:CPT:1177220}.
 
 For simple languages like~\eqref{eq:sample_term_ast} the state of the abstract machine can be defined by just a \code{term} and its behavior by a \textit{transition function} that for each \code{term} either performs an evaluation step, or halts and announces the evaluation has ended~\cite{pierce2002types}.
 In order to define operational semantics for~\eqref{eq:sample_term_ast} we first extend the abstract syntax with a new metavariable \code{value} for the possible end results of evaluation as
-\begin{equation}
+\begin{equation}\label{eq:sample_ast_values}
   \begin{aligned}
     \astprod{value}{true} \\
     \astmore{false}       \\
-    \astmore{0}           \\
-    \astmore{succ value}
+    \astmore{nvalue}      \\
+    \astprod{nvalue}{0}   \\
+    \astmore{succ nvalue}
   \end{aligned}
 \end{equation}
-and second, we define and \textit{evaluation relation} on terms, written \evalr{term}{$\code{term}_1$} meaning \code{term} evaluates to $\code{term}_1$ in on step, as
-\begin{align*}
-   & \evalr{if true then $\code{t}_1$ else $\code{t}_2$}{$\code{t}_1$} \tag{Eval-IfTrue} \\
-   & \evalr{if false then $\code{t}_1$ else $\code{t}_2$}{$\code{t}_2$} \tag{Eval-IfFalse}
-\end{align*}
+and second, we define and \textit{evaluation relation} on terms, written \evalr{term}{$\code{term}_1$} meaning \code{term} evaluates to $\code{term}_1$ in on step, as defined in Figure~\ref{fig:sample_term_ast_opsem}.
+
+\begin{figure}[ht]
+  \begin{minipage}{\textwidth}
+    \begin{align*}
+       & \evalr{if true then $\code{term}_1$ else $\code{term}_2$}{$\code{term}_1$} \tag{Eval-IfTrue}   \\
+       & \evalr{if false then $\code{term}_1$ else $\code{term}_2$}{$\code{term}_2$} \tag{Eval-IfFalse}
+    \end{align*}
+    \begin{equation*}
+      \inferrule{
+        \evalr{$\code{term}_1$}{$\code{term}_4$}
+      } {
+        \evalr{
+          if $\code{term}_1$ then $\code{term}_2$ else $\code{term}_3$
+        }{
+          if $\code{term}_4$ then $\code{term}_2$ else $\code{term}_3$
+        }
+      }\tag{Eval-If}
+    \end{equation*}
+    \begin{equation*}
+      \inferrule{
+        \evalr{$\code{term}_1$}{$\code{term}_2$}
+      } {
+        \evalr{
+          succ $\code{term}_1$
+        }{
+          succ $\code{term}_2$
+        }
+      }\tag{Eval-Succ}
+    \end{equation*}
+    \begin{equation*}
+      \evalr{pred succ nvalue}{nvalue} \tag{Eval-PredSucc}
+    \end{equation*}
+    \begin{equation*}
+      \inferrule{
+        \evalr{$\code{term}_1$}{$\code{term}_2$}
+      } {
+        \evalr{
+          pred $\code{term}_1$
+        }{
+          pred $\code{term}_2$
+        }
+      }\tag{Eval-Pred}
+    \end{equation*}
+    \begin{equation*}
+      \evalr{iszero 0}{true} \tag{Eval-IszeroZero}
+    \end{equation*}
+    \begin{equation*}
+      \inferrule{
+        \evalr{$\code{term}_1$}{$\code{term}_2$}
+      } {
+        \evalr{
+          iszero $\code{term}_1$
+        }{
+          iszero $\code{term}_2$
+        }
+      }\tag{Eval-Iszero}
+    \end{equation*}
+  \end{minipage}
+  \caption{
+    The evaluation relations for the operational semantics of the abstract syntax~\eqref{eq:sample_term_ast} with values defined by~\eqref{eq:sample_ast_values}. Adapted from \textcite{sipser2012introduction}.
+  }\label{fig:sample_term_ast_opsem}
+\end{figure}
+
+Using the evaluation relations from Figure~\ref{fig:sample_term_ast_opsem} we can evaluate the for example
+\begin{equation}\label{eq:eval_step1}
+  \code{if iszero 0 then succ 0 else false}
+\end{equation}
+looking at Figure~\ref{fig:sample_term_ast_opsem}, we see that the only inference rule we can apply is Eval-If, applying this rule to~\eqref{eq:eval_step1} we get
 \begin{equation*}
-  \inferrule{
-    \evalr{$\code{t}_1$}{$\code{t}_4$}
+  \inferrule*[right=Eval-If]{
+    \inferrule*[right=Eval-IszeroZero]{ }{
+      \evalr{iszero 0}{true}
+    }
   } {
     \evalr{
-      if $\code{t}_1$ then $\code{t}_2$ else $\code{t}_3$
+      if iszero 0 then succ 0 else false
     }{
-      if $\code{t}_4$ then $\code{t}_2$ else $\code{t}_3$
+      if true then succ 0 else false
     }
-  }\tag{Eval-If}
+  }
 \end{equation*}
+proving that
 \begin{equation*}
-  \inferrule{
-    \evalr{$\code{t}_1$}{$\code{t}_2$}
+  \evalr{\code{if iszero 0 then succ 0 else false}}{\code{if true then succ 0 else false}}
+\end{equation*}
+by first applying rule Eval-If, then applying the axiom Eval-IszeroZero.
+We can continue the evaluation by applying rule Eval-IfTrue as in
+\begin{equation}\label{eq:eval_step2}
+  \inferrule*[right=Eval-IfTrue]{ } {
+    \evalr{
+      if true then succ 0 else false
+    }{
+      succ 0
+    }
+  }
+\end{equation}
+thus proving that
+\begin{equation*}
+  \evalr{\code{if true then succ 0 else false}}{succ 0}
+\end{equation*}
+Now the only evaluation rule that fits \code{succ 0} is Eval-Succ, but if we try to apply it like in
+\begin{equation*}
+  \inferrule*[right=Eval-IfTrue]{
+    \inferrule*[right=?]{ }
+    {
+      \evalr{0}{$?$}
+    }
   } {
     \evalr{
-      succ $\code{t}_1$
+      succ 0
     }{
-      succ $\code{t}_2$
+      ?
     }
-  }\tag{Eval-Succ}
+  }
+\end{equation*}
+we quickly find that there is no rule to evaluate \code{0}, so the abstract machine halts and checks if the last evaluated result is a value~\cite{pierce2002types}.
+In this case \code{succ 0} does belong in \code{values}, so the abstract machine successfully evaluated
+\begin{equation*}
+ \evalr{\code{if iszero 0 then succ 0 else false}}{\code{succ 0}}
 \end{equation*}
 \begin{equation*}
-  \inferrule{
-    \evalr{$\code{t}_1$}{$\code{t}_2$}
-  } {
-    \evalr{
-      succ $\code{t}_1$
-    }{
-      succ $\code{t}_2$
-    }
-  }\tag{Eval-Succ}
 \end{equation*}
+Note that if the \code{if} condition evaluated to \code{false} instead of \code{true}, we would have applied rule Eval-IfFalse instead of Eval-IfTrue at evaluation step~\eqref{eq:eval_step2}. Thus, evaluating the input term to \code{false} instead of \code{succ 0} which are values of different \textit{kinds}, but this behavior was intentionally described by the evaluation relation rules.
+
+If, for example, the programmer of this language wrote a program that at some point evaluated to
+\begin{equation*}
+  \code{if 0 then true else false}
+\end{equation*}
+or
+\begin{equation*}
+  \code{succ true}
+\end{equation*}
+we quickly find out that there is no evaluation rule that can be applied, and, given that those terms are not present in \code{value}, the abstract machine not only halts, but we say it is \textit{stuck}~\cite{pierce2002types}.
+In this case we would either have to define what it means for \code{0} to be used as a condition and what it means for constructing the successor of \code{true}, or halt the execution and return a runtime error to the user of the program being executed~\cite{pierce2002types}.
+
+
 
 \subsection{Boolean and Integer terms}
 
