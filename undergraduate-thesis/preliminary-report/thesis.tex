@@ -145,9 +145,14 @@
 
 \newcommand{\typer}[2]{\code{#1 \codett{:} #2}}
 \newcommand{\typecxr}[3]{\code{{$\Gamma$}#1 {$\vdash$} \typer{#2}{#3}}}
+\newcommand{\typecxre}[3]{\code{#1 {$\vdash$} \typer{#2}{#3}}}
 \newcommand{\typecx}[2]{,\;\typer{#1}{#2}}
 
 \newcommand{\evalr}[2]{\code{#1 $\rightarrow$ #2}}
+
+\newcommand{\fnty}[2]{\code{#1 $\rightarrow$ #2}}
+\newcommand{\fnabs}[3]{\code{$\lambda$\typer{#1}{#2}.#3}}
+\newcommand{\astlet}[3]{\code{let #1 = #2 in #3}}
 
 \newcommand{\tokenstream}[4]{
   & \langle\text{#1,} && \text{\{\textit{lexeme}: #2,} && \text{\textit{begin}: #3,} && \text{\textit{end}: #4\}}\rangle%
@@ -1493,8 +1498,8 @@ To bring our discussion to the simply typed lambda calculus, we resume all const
     \astmore{pred term} \\
     \astmore{iszero term} \\
     \astmore{var} \\
-    \astmore{let var = term in term} \\
-    \astmore{$\lambda$var:Type.term} \\
+    \astmore{\astlet{var}{term}{term}} \\
+    \astmore{\fnabs{var}{Type}{term}} \\
     \astmore{term term} \\
     \astprod{var}{ a $\mid$ b $\mid$ c $\mid$ $\dots$ $\mid$ x $\mid$ y $\mid$ z $\mid$ aa $\mid$ ab $\mid$ $\dots$} \\
     \astprod{Type}{Bool} \\
@@ -1517,7 +1522,104 @@ It is described by the syntactic form
 \end{equation}
 $\Gamma$ is essentially a list of typing relations that grows to the right by applying the \code{,} operator, and we can also take away a typing relation from the context clever use of this notation during the design of inference rules~\cite{pierce2002types}.
 
-The new three-place typing relation is written \typecxr{}{term}{Type}.
+The new three-place typing relation is written \typecxr{}{term}{Type}, and it means that \code{term} has type \code{Type} under the context $\Gamma$~\cite{pierce2002types}.
+If the context is empty we write \typecxre{$\emptyset$}{term}{Type}, but the $\emptyset$ is usually omitted as in \typecxre{}{term}{Type}.
+
+\textcite{pierce2002types} defines the three-place typing relation inference rules as show in Figure~\ref{fig:simpli_typed_type_rel}.
+\begin{figure}[ht]
+  \begin{minipage}{\textwidth}
+    \begin{align*}
+      \inferrule*[right=Ty-Var]{
+        \typer{var}{Type} \in \Gamma
+      }{
+        \typecxr{}{var}{Type}
+      }
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Ty-Let]{
+        \typecxr{}{$\code{term}_1$}{$\code{Type}_1$}
+      \\ \typecxr{\typecx{var}{$\code{Type}_1$}}{$\code{term}_2$}{$\code{Type}_2$}
+      }{
+        \typecxr{}{\astlet{var}{$\code{term}_1$}{$\code{term}_2$}}{$\code{Type}_2$}
+      }
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Ty-FnAbs]{
+        \typecxr{\typecx{var}{$\code{Type}_1$}}{term}{$\code{Type}_2$}
+      }{
+        \typecxr{}{\fnabs{var}{$\code{Type}_1$}{term}}{\fnty{$\code{Type}_1$}{$\code{Type}_2$}}
+      }
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Ty-FnApp]{
+        \typecxr{}{$\code{term}_1$}{\fnty{$\code{Type}_1$}{$\code{Type}_2$}}
+      \\ \typecxr{}{$\code{term}_2$}{$\code{Type}_1$}
+      }{
+        \typecxr{}{$\code{term}_1$ $\code{term}_2$}{$\code{Type}_2$}
+      }
+    \end{align*}
+  \end{minipage}
+  \caption{
+    The inference rules for the three-place typing relation of the abstract syntax~\eqref{eq:simply_typed_lc}.
+    Adapted from \textcite{pierce2002types}.
+  }\label{fig:simpli_typed_type_rel}
+\end{figure}
+Supposing all typing relation rules from Figure~\ref{fig:sample_term_ast_tyrel} were updated to the newer three-part type relation, In order to exemplify the workings of rules Ty-Var, Ty-Le, Ty-FnAbs, and Ty-FnApp, we will build the inference tree for the term
+\begin{equation*}
+  \astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}
+\end{equation*}
+as presented in the following inference trees
+\begin{align*}
+  \inferrule*[right=Ty-FnAbs]{
+    \inferrule*[right=Ty-Iszero]{
+      \inferrule*[right=Ty-Var]{
+        \typer{x}{Nat} \in \Gamma
+      } {
+        \typecxr{\typecx{x}{Nat}}{x}{Nat}
+      }
+    }{
+      \typecxr{\typecx{x}{Nat}}{iszero x}{Bool}
+    }
+  }{
+    \typecxr{}{
+      \fnabs{x}{Nat}{iszero x}
+    }{\fnty{Nat}{Bool}}
+  }
+\end{align*}
+\begin{align*}
+  \inferrule*[right=Ty-Var]{
+    \typer{fun}{\fnty{Nat}{Nat}} \in \Gamma
+  } {
+    \typecxr{\typecx{fun}{\fnty{Nat}{Nat}}}{fun}{\fnty{Nat}{Nat}}
+  }
+\end{align*}
+\begin{align*}
+  \inferrule*[right=Ty-Succ]{
+    \inferrule*[right=Ty-Zero]{ }{
+      \typecxr{\typecx{fun}{\fnty{Nat}{Nat}}}{0}{Nat} \in \Gamma
+    }
+  } {
+    \typecxr{\typecx{fun}{\fnty{Nat}{Nat}}}{succ 0}{Nat}
+  }
+\end{align*}
+\begin{align*}
+  \inferrule*[right=Ty-FnApp]{
+    \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun}{\fnty{Nat}{Bool}}
+  \\\\ \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{succ 0}{Nat}
+  }{
+    \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun succ 0}{Bool}
+  }
+\end{align*}
+\begin{align*}
+  \inferrule*[right=Ty-Let]{
+    \typecxr{}{
+      \fnabs{x}{Nat}{iszero x}
+    }{\fnty{Nat}{Bool}}
+  \\\\ \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun succ 0}{Bool}
+  }{
+    \typecxr{}{\astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}}{Bool}
+  }
+\end{align*}
 
 \section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
