@@ -1714,24 +1714,156 @@ In this chapter we will describe the design of the \textit{Ekitai} programming a
 
 \section{The Ekitai's lexer}
 
+The lexical aspects of the Ekitai programming language are defined by Figures~\ref{fig:ekitai_tokens_helper} and~\ref{fig:ekitai_tokens}.
+We decided to use an automatic lexer generator since we found no advantage in building one by hand and the automatic parser generator used was capable of lexing all token patterns in the specification.
+
+\begin{figure}[ht]
+  \small
+  \begin{align*}
+    \code{digit} & \rightarrow \ [\code{0-9}]                  \\
+    \code{alpha} & \rightarrow \ [\code{a-zA-Z}]               \\
+    \code{word}  & \rightarrow \ [\code{[:digit:][:alpha:]\_}]
+  \end{align*}
+  \caption{
+    Building block regular definitions for token patterns of Figure~\ref{fig:ekitai_tokens}.
+  }\label{fig:ekitai_tokens_helper}
+\end{figure}
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \small
+    \begin{minipage}{\textwidth}
+      \begin{align*}
+        \code{Comma}            & \rightarrow \ \code{,}  \\
+        \code{Collon}           & \rightarrow \ \code{:}  \\
+        \code{SemiColon}        & \rightarrow \ \code{;}  \\
+        \code{OpenParenthesis}  & \rightarrow \ \code{(}  \\
+        \code{CloseParenthesis} & \rightarrow \ \code{)}  \\
+        \code{OpenBraces}       & \rightarrow \ \code{\{} \\
+        \code{CloseBraces}      & \rightarrow \ \code{\}} \\
+        \code{Equals}           & \rightarrow \ \code{=}  \\
+        \code{Plus}             & \rightarrow \ \code{+}  \\
+        \code{Minus}            & \rightarrow \ \code{-}  \\
+        \code{Asterisk}         & \rightarrow \ \code{*}  \\
+        \code{Ampersand}        & \rightarrow \ \code{\&}
+      \end{align*}
+    \end{minipage}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \begin{minipage}{\textwidth}
+      \small
+      \begin{align*}
+        \code{Slash}             & \rightarrow \ \code{/}    \\
+        \code{Percent}           & \rightarrow \ \code{\%}   \\
+        \code{Greater}           & \rightarrow \ \code{>}    \\
+        \code{Less}              & \rightarrow \ \code{<}    \\
+        \code{Exclamation}       & \rightarrow \ \code{!}    \\
+        \code{DoubleCollon}      & \rightarrow \ \code{::}   \\
+        \code{DoubleEquals}      & \rightarrow \ \code{==}   \\
+        \code{ExclamationEquals} & \rightarrow \ \code{!=}   \\
+        \code{GreaterEquals}     & \rightarrow \ \code{>=}   \\
+        \code{LessEquals}        & \rightarrow \ \code{<=}   \\
+        \code{DoublePipe}        & \rightarrow \ \code{||}   \\
+        \code{DoubleAmpersand}   & \rightarrow \ \code{\&\&}
+      \end{align*}
+    \end{minipage}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \small
+    \begin{minipage}{\textwidth}
+      \begin{align*}
+        \code{ThinArow} & \rightarrow \ \code{->}    \\
+        \code{FatArow}  & \rightarrow \ \code{=>}    \\
+        \code{FnKw}     & \rightarrow \ \code{fn}    \\
+        \code{LetKw}    & \rightarrow \ \code{let}   \\
+        \code{IfKw}     & \rightarrow \ \code{if}    \\
+        \code{ElseKw}   & \rightarrow \ \code{else}  \\
+        \code{TrueKw}   & \rightarrow \ \code{true}  \\
+        \code{FalseKw}  & \rightarrow \ \code{false} \\
+        \code{TypeKw}   & \rightarrow \ \code{type}  \\
+        \code{MatchKw}  & \rightarrow \ \code{match} \\
+        \code{NewKw}    & \rightarrow \ \code{new}
+      \end{align*}
+    \end{minipage}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \small
+    \begin{minipage}{\textwidth}
+      \begin{align*}
+        \code{Identifier} & \rightarrow \ [\code{[:alpha:]\_}]{[\code{[:word:]}]}^* \\
+        \code{Integer}    & \rightarrow \
+        \code{[:digit:]}{[\code{[:digit:]\_}]}^*[\code{[:Identifier:]}\epsilon]
+      \end{align*}
+    \end{minipage}
+  \end{subfigure}
+  \caption{
+    Token names and patterns for the Ekitai lexer.
+  }\label{fig:ekitai_tokens}
+\end{figure}
+
 \section{The Ekitai's parser}
 
-In order to implement the Ekitai's parser the following
-% \begin{bnf}
-%     \bnfprod{Source File}{\bnfes{} \bnfor{} \bnfpn{Module Items}}\\
-%     \bnfprod{Module Items}{\bnfpn{Module Item} \bnfsp{} \bnfpn{Module Items} \bnfor{}}\\
-%     \bnfmore{\bnfpn{Module Item}}\\
-%     \bnfprod{Module Item}{\bnfpn{Function Definition} \bnfor{}}\\
-%     \bnfmore{\bnfpn{Type Definition}}\\
-%     \bnfprod{Type Definition}{\bnfpn{Name} \bnfsp{} \bnfpn{Value Constructor List}}\\
-%     \bnfprod{Value Constructor List}{\bnfts{\{} \bnfsp{} \bnfpn{Value Constuctors} \bnfsp{} \bnfts{\}}}\\
-%     \bnfprod{Value Constructors}{\bnfpn{Value Constructor} \bnfsp{} \bnfts{,} \bnfsp{} \bnfpn{Value Constructors} \bnfor{}}\\
-%     \bnfmore{\bnfpn{Value Constructor} \bnfts{,} \bnfor{}}\\
-%     \bnfmore{\bnfpn{Value Constructor}}\\
-%     \bnfprod{Value Constructor}{\bnfpn{Name} \bnfsp{} \bnfpn{Constructor Parameter List}}\\
-%     \bnfprod{Constructor Parameter List}{\bnfts{(} \bnfpn{Constructor Parameters} \bnfts{)}}\\
-%     \bnfprod{Constructor Parameters}{\bnfpn{Type}}
-% \end{bnf}
+The Ekitai's grammar was built with a handwritten Pratt parser in mind.
+In order to keep the grammar out of clutter, we will present the grammar using simplified token names.
+Instead of writing \code{LetKw} or \code{DoubleAmpersand} we will stick to writing \code{let} and \code{\&\&} respectively.
+Furthermore, we will use \code{Id} for short of \code{Identifier} and \code{Int} for short of \code{Integer}.
+First we present the top level grammar productions in Figure~\ref{fig:ekitai_syntax_toplevel}.
+\begin{figure}[ht]
+  \begin{alignat*}{2}
+    \bnfprod{SourceFile}{
+      \bnfvar{FnDef}
+      \bnfor{\bnfvar{TypeDef}}
+    } \\
+    \bnfprod{TypeDef}{
+      \bnfter{type}
+      \bnfvar{Name}
+      \bnfter{\{}
+      \bnfvar{ValueConsList}
+      \bnfter{\}}
+    } \\
+    \bnfprod{ValueConsList}{
+      \bnfvar{ValueCons}
+      \bnfter{,}
+      \bnfvar{ValueConsList}
+    } \\
+    \bnfmore{
+      \bnfvar{ValueCons} \bnfter{,}
+      \bnfor{\bnfvar{ValueCons}}
+    } \\
+    \bnfprod{ValueCons}{
+      \bnfvar{Name} \bnfter{(} \bnfvar{TypeList} \bnfter{)}
+    } \\
+    \bnfprod{TypeList}{
+      \bnfvar{Type} \bnfter{,} \bnfvar{TypeList}
+    } \\
+    \bnfmore{
+      \bnfvar{Type} \bnfter{,} \bnfor{\bnfvar{Type}}
+    } \\
+    \bnfprod{FnDef}{
+      \bnfter{fn}
+      \bnfvar{Name}
+      \bnfter{(}
+      \bnfvar{ParamList}
+      \bnfter{)}
+      \bnfter{->}
+      \bnfvar{BlockExpr}
+    } \\
+    \bnfprod{ParamList}{
+      \bnfvar{Param} \bnfter{,} \bnfvar{ParamList}
+    } \\
+    \bnfmore{
+      \bnfvar{Param} \bnfter{,} \bnfor{\bnfvar{Param}}
+    } \\
+    \bnfprod{Param}{
+      \bnfvar{Name}
+      \bnfter{:}
+      \bnfvar{TypeRef}
+    }
+  \end{alignat*}
+  \caption{
+    Top level grammar productions for the Ekitai's parser grammar.
+  }\label{fig:ekitai_syntax_toplevel}
+\end{figure}
 
 To do. Work in progress.
 
