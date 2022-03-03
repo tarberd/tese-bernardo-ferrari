@@ -1478,23 +1478,46 @@ Furthermore, if we try to prove and infer the type of the example~\ref{eq:eval_s
 \end{equation*}
 when trying to inductively define the typing relation for example~\ref{eq:eval_step1}, we can not properly use the induction rule Ty-If because the terms in both branches of the \code{if} evaluate to different types, and the rule Ty-If mandates that both branches evaluate to the same type for the rule to be sated.
 
-\subsection{Let bindings and function applications}
+\subsection{Pure simply typed lambda calculus}
 
-But what happens if we try to prove \typer{a + 5}{\bnfter{Num}} for example?
-We currently have no rules that allow us to know infer the type of the identifier \codett{a}.
-Nor do we have the capabilities with the current presented theory.
-In order to for us to be capable of expressing the types of variables we need to extend the typing relation from a two-place relation into a three-place relation adding a context $\Gamma$~\cite{pierce2002types}.
+In this section we continue expanding the abstract syntax in discussion in order to accommodate the use of variables, let expressions, function abstractions, and function applications. In doing so we will be discussing a variation of what \textcite{pierce2002types} calls \textit{Pure simply typed lambda-calculus}.
 
-The context $\Gamma$, also called \textit{typing context}, is a set of assumptions of the form \typer{\bnfter{id}}{\bnfvar{Type}}~\cite{pierce2002types}.
-It is described by the syntactic form
-\begin{equation}~\label{eq:sample_term_ast_bool_g}
+To bring our discussion to the simply typed lambda calculus, we resume all constructs we discussed so far relevant to type checking, together with the newly added ones as the following abstract syntax
+\begin{equation}~\label{eq:simply_typed_lc}
   \begin{alignedat}{2}
-    \bnfprod{$\Gamma$}{\bnfvar{$\Gamma$} \bnfter{,} \typer{\bnfter{id}}{\bnfvar{Type}}} \\
-    \bnfmore{\bnfter{$\emptyset$}}
+    \astprod{term}{true} \\
+    \astmore{false} \\
+    \astmore{if term then term else term} \\
+    \astmore{0} \\
+    \astmore{succ term} \\
+    \astmore{pred term} \\
+    \astmore{iszero term} \\
+    \astmore{var} \\
+    \astmore{let var = term in term} \\
+    \astmore{$\lambda$var:Type.term} \\
+    \astmore{term term} \\
+    \astprod{var}{ a $\mid$ b $\mid$ c $\mid$ $\dots$ $\mid$ x $\mid$ y $\mid$ z $\mid$ aa $\mid$ ab $\mid$ $\dots$} \\
+    \astprod{Type}{Bool} \\
+    \astmore{Nat}
   \end{alignedat}
 \end{equation}
 
-The new three-place typing relation is written \typecxr{}{\bnfvar{term}}{\bnfvar{Type}}.
+But what happens if we try to prove \typer{succ a}{Nat} for example?
+We currently have no rules that allow us to infer the type of the variable \codett{a}.
+Nor do we have the capabilities with the current presented theory.
+In order to for us to be capable of expressing the types of variables we need to extend the typing relation from a two-place relation into a three-place relation adding a context $\Gamma$~\cite{pierce2002types}.
+
+The context $\Gamma$, also called \textit{typing context}, is a set of assumptions of the form \typer{var}{Type}~\cite{pierce2002types}.
+It is described by the syntactic form
+\begin{equation}~\label{eq:sample_term_ast_bool_g}
+  \begin{alignedat}{2}
+    \astprod{$\Gamma$}{\bnfvar{$\Gamma$}, \typer{var}{Type}} \\
+    \bnfmore{$\emptyset$}
+  \end{alignedat}
+\end{equation}
+$\Gamma$ is essentially a list of typing relations that grows to the right by applying the \code{,} operator, and we can also take away a typing relation from the context clever use of this notation during the design of inference rules~\cite{pierce2002types}.
+
+The new three-place typing relation is written \typecxr{}{term}{Type}.
 
 \section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
