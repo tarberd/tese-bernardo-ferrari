@@ -1247,11 +1247,13 @@ and second, we define and \textit{evaluation relation} on terms, written \evalr{
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
     \begin{align*}
-       & \evalr{if true then $\code{term}_1$ else $\code{term}_2$}{$\code{term}_1$} \tag{Eval-IfTrue}   \\
-       & \evalr{if false then $\code{term}_1$ else $\code{term}_2$}{$\code{term}_2$} \tag{Eval-IfFalse}
+      \inferrule*[right=Eval-IfTrue]{ }{\evalr{if true then $\code{term}_1$ else $\code{term}_2$}{$\code{term}_1$}}
     \end{align*}
-    \begin{equation*}
-      \inferrule{
+    \begin{align*}
+      \inferrule*[right=Eval-IfFalse]{ }{\evalr{if false then $\code{term}_1$ else $\code{term}_2$}{$\code{term}_2$}}
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Eval-If]{
         \evalr{$\code{term}_1$}{$\code{term}_4$}
       } {
         \evalr{
@@ -1259,10 +1261,10 @@ and second, we define and \textit{evaluation relation} on terms, written \evalr{
         }{
           if $\code{term}_4$ then $\code{term}_2$ else $\code{term}_3$
         }
-      }\tag{Eval-If}
-    \end{equation*}
-    \begin{equation*}
-      \inferrule{
+      }
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Eval-Succ]{
         \evalr{$\code{term}_1$}{$\code{term}_2$}
       } {
         \evalr{
@@ -1270,13 +1272,13 @@ and second, we define and \textit{evaluation relation} on terms, written \evalr{
         }{
           succ $\code{term}_2$
         }
-      }\tag{Eval-Succ}
-    \end{equation*}
-    \begin{equation*}
-      \evalr{pred succ nvalue}{nvalue} \tag{Eval-PredSucc}
-    \end{equation*}
-    \begin{equation*}
-      \inferrule{
+      }
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Eval-PredSucc]{ }{\evalr{pred succ nvalue}{nvalue}}
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Eval-Pred]{
         \evalr{$\code{term}_1$}{$\code{term}_2$}
       } {
         \evalr{
@@ -1284,13 +1286,13 @@ and second, we define and \textit{evaluation relation} on terms, written \evalr{
         }{
           pred $\code{term}_2$
         }
-      }\tag{Eval-Pred}
-    \end{equation*}
-    \begin{equation*}
-      \evalr{iszero 0}{true} \tag{Eval-IszeroZero}
-    \end{equation*}
-    \begin{equation*}
-      \inferrule{
+      }
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Eval-IszeroZero]{ }{\evalr{iszero 0}{true}}
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Eval-Iszero]{
         \evalr{$\code{term}_1$}{$\code{term}_2$}
       } {
         \evalr{
@@ -1298,11 +1300,12 @@ and second, we define and \textit{evaluation relation} on terms, written \evalr{
         }{
           iszero $\code{term}_2$
         }
-      }\tag{Eval-Iszero}
-    \end{equation*}
+      }
+    \end{align*}
   \end{minipage}
   \caption{
-    The evaluation relations for the operational semantics of the abstract syntax~\eqref{eq:sample_term_ast} with values defined by~\eqref{eq:sample_ast_values}. Adapted from \textcite{sipser2012introduction}.
+    The evaluation relations for the operational semantics of the abstract syntax~\eqref{eq:sample_term_ast} with values defined by~\eqref{eq:sample_ast_values}.
+    Adapted from \textcite{pierce2002types}.
   }\label{fig:sample_term_ast_opsem}
 \end{figure}
 
@@ -1345,7 +1348,7 @@ thus proving that
 \end{equation*}
 Now the only evaluation rule that fits \code{succ 0} is Eval-Succ, but if we try to apply it like in
 \begin{equation*}
-  \inferrule*[right=Eval-IfTrue]{
+  \inferrule*[right=Eval-Succ]{
     \inferrule*[right=?]{ }
     {
       \evalr{0}{$?$}
@@ -1361,7 +1364,7 @@ Now the only evaluation rule that fits \code{succ 0} is Eval-Succ, but if we try
 we quickly find that there is no rule to evaluate \code{0}, so the abstract machine halts and checks if the last evaluated result is a value~\cite{pierce2002types}.
 In this case \code{succ 0} does belong in \code{values}, so the abstract machine successfully evaluated
 \begin{equation*}
- \evalr{\code{if iszero 0 then succ 0 else false}}{\code{succ 0}}
+  \evalr{\code{if iszero 0 then succ 0 else false}}{\code{succ 0}}
 \end{equation*}
 \begin{equation*}
 \end{equation*}
@@ -1378,99 +1381,104 @@ or
 we quickly find out that there is no evaluation rule that can be applied, and, given that those terms are not present in \code{value}, the abstract machine not only halts, but we say it is \textit{stuck}~\cite{pierce2002types}.
 In this case we would either have to define what it means for \code{0} to be used as a condition and what it means for constructing the successor of \code{true}, or halt the execution and return a runtime error to the user of the program being executed~\cite{pierce2002types}.
 
+Terms that get stuck during evaluation correspond to meaningless or erroneous programs~\cite{pierce2002types}.
+We would rather be able to tell, without evaluating the program, that its evaluation will \textit{not} get stuck~\cite{pierce2002types}.
+For that, we would need to be able to differentiate between the different kinds of values computed by terms~\cite{pierce2002types}.
+In the next section we introduce to the language~\eqref{eq:sample_term_ast} the \code{Nat} and \code{Bool} types in order to make sure every program evaluated does not get stuck.
 
+\subsection{The typing relation}
 
-\subsection{Boolean and Integer terms}
+In order to ensure that programs will correctly evaluate to a value we will introduce a new relation called the \textit{typing relation}.
 
-Consider following extension of~\eqref{eq:sample_term_ast} with boolean types and a couple new terms:
-\begin{equation}~\label{eq:sample_term_ast_bool}
-  \begin{alignedat}{2}
-    \bnfprod{term}{\bnfvar{term}\ \bnfvar{op}\ \bnfvar{term}} \\
-    \bnfmore{\bnfter{if}\ \bnfvar{term}\ \bnfter{then}\ \bnfvar{term}\ \bnfter{else}\ \bnfvar{term}} \\
-    \bnfmore{\bnfter{number}} \\
-    \bnfmore{\bnfter{true}} \\
-    \bnfmore{\bnfter{false}} \\
-    \bnfmore{\bnfter{id}} \\
-    \bnfprod{op}{\bnfvar{oparit}} \\
-    \bnfmore{\bnfvar{opbool}} \\
-    \bnfmore{\bnfvar{opcomp}} \\
-    \bnfprod{oparit}{\bnfter{+} \bnfor{\bnfter{-}} \bnfor{\bnfter{*}} \bnfor{\bnfter{/}}} \\
-    \bnfprod{opcomp}{\bnfter{<} \bnfor{\bnfter{<=}} \bnfor{\bnfter{==}} \bnfor{\bnfter{!=}}} \\
-    \bnfprod{opbool}{\bnfter{\&\&} \bnfor{\bnfter{||}}}
-  \end{alignedat}
-\end{equation}
-Before the new abstract syntax constructs, in~\eqref{eq:sample_term_ast}, all terms were numbers or variables to numbers, and we did not need to verify if in \code{$\bnfvar{t}_1$ \bnfter{+} $\bnfvar{t}_2$} the sum operation was well-defined for $\bnfvar{t}_1$ and $\bnfvar{t}_2$.
-We need a system so we can prove that both $\bnfvar{t}_1$ and $\bnfvar{t}_2$ are numbers in \code{$\bnfvar{t}_1$ \bnfter{+} $\bnfvar{t}_2$}, for accomplishing the goal we introduce the formal notion of types.
+The typing relation for arithmetic expressions is written as \typer{term}{Type}, and means that \code{term} is of type \code{Type} where \code{Type} is a new syntactic form for the types of the language~\cite{pierce2002types}. Also, the relation is defined by a set of inference rules assigning types to terms~\cite{pierce2002types}.
 
-The typing relation for arithmetic expressions is written as \typer{\bnfvar{term}}{\bnfvar{Type}}, and means that \bnfvar{term} is of type \bnfvar{Type} where \bnfvar{Type} is a new syntactic form for the types of the language~\cite{pierce2002types}. Also, the relation is defined by a set of inference rules assigning types to terms~\cite{pierce2002types}.
-
-We introduce the syntactic form for $\bnfvar{T}$ as
+We introduce the syntactic form for the metavariable \code{Type} to the syntax~\eqref{eq:sample_term_ast} as
 \begin{equation}~\label{eq:sample_term_ast_bool_t}
   \begin{alignedat}{2}
-    \bnfprod{T}{\bnfter{Nat}} \\
-    \bnfmore{\bnfter{Bool}}
+    \astprod{Type}{Nat} \\
+    \astmore{Bool}
   \end{alignedat}
 \end{equation}
-and the inference rules that define the typing relation for~\eqref{eq:sample_term_ast_bool} as
-\begin{align*}
-  \typer{\bnfter{true}}{\bnfter{Bool}}
-   &  & \typer{\bnfter{false}}{\bnfter{Bool}}
-   &  & \typer{\bnfter{number}}{\bnfter{Nat}}
-\end{align*}
-\begin{align*}
-  \inferrule*[right=num-arith]{
-    \typer{$\bnfvar{t}_1$}{\bnfter{Num}}
-  \\ \typer{$\bnfvar{t}_2$}{\bnfter{Num}}
-  \\ \bnfvar{op} \in \bnfvar{oparit}
-  }{
-    \typer{$\bnfvar{t}_1$ \bnfvar{op} $\bnfvar{t}_2$}{\bnfter{Num}}
-  }
-\end{align*}
-\begin{align*}
-  \inferrule*[right=num-compare]{
-    \typer{$\bnfvar{t}_1$}{\bnfter{Num}}
-  \\ \typer{$\bnfvar{t}_2$}{\bnfter{Num}}
-  \\ \bnfvar{op} \in \bnfvar{opcomp}
-  }{
-    \typer{$\bnfvar{t}_1$ \bnfvar{op} $\bnfvar{t}_2$}{\bnfter{Bool}}
-  }
-\end{align*}
-\begin{align*}
-  \inferrule*[right=bool-arith]{
-    \typer{$\bnfvar{t}_1$}{\bnfter{Bool}}
-  \\ \typer{$\bnfvar{t}_2$}{\bnfter{Bool}}
-  \\ \bnfvar{op} \in \bnfvar{opbool}
-  }{
-    \typer{$\bnfvar{t}_1$ \bnfvar{op} $\bnfvar{t}_2$}{\bnfter{Bool}}
-  }
-\end{align*}
-\begin{align*}
-  \inferrule*[right=if]{
-    \typer{$\bnfvar{t}_1$}{\bnfter{Bool}}
-  \\ \typer{$\bnfvar{t}_2$}{\bnfvar{T}}
-  \\ \typer{$\bnfvar{t}_3$}{\bnfvar{T}}
-  }{
-    \typer{\bnfter{if} $\bnfvar{t}_1$ \bnfter{then} $\bnfvar{t}_2$ \bnfter{else} $\bnfvar{t}_3$}{\bnfvar{T}}
-  }
-\end{align*}
-now we can prove if \typer{2 * 3 == 42}{\bnfter{Bool}} by the following sequence of inferences
+and define the inference rules for the typing relation of the abstract syntax~\eqref{eq:sample_term_ast} as show in Figure~\ref{fig:sample_term_ast_tyrel}.
+\begin{figure}[ht]
+  \begin{minipage}{\textwidth}
+    \begin{align*}
+      \inferrule*[right=Ty-True]{ }{\typer{true}{Bool}} &  & \inferrule*[right=Ty-False]{ }{\typer{false}{Bool}}
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Ty-If]{
+        \typer{$\code{term}_1$}{Bool}
+      \\ \typer{$\code{term}_2$}{Type}
+      \\ \typer{$\code{term}_3$}{Type}
+      }{
+        \typer{if $\code{term}_1$ then $\code{term}_2$ else $\code{term}_3$}{Type}
+      }
+    \end{align*}
+    \begin{align*}
+      \inferrule*[right=Ty-Succ]{
+        \typer{$\code{t}_1$}{Nat}
+      }{
+        \typer{succ $\code{t}_1$}{Nat}
+      }
+       &  &
+      \inferrule*[right=Ty-Pred]{
+        \typer{$\code{t}_1$}{Nat}
+      }{
+        \typer{pred $\code{t}_1$}{Nat}
+      }
+       &  &
+      \inferrule*[right=Ty-Iszero]{
+        \typer{$\code{t}_1$}{Nat}
+      }{
+        \typer{iszero $\code{t}_1$}{Bool}
+      }
+    \end{align*}
+  \end{minipage}
+  \caption{
+    The inference rules for the typing relation of the abstract syntax~\eqref{eq:sample_term_ast} with types defined by~\eqref{eq:sample_term_ast_bool_t}.
+    Adapted from \textcite{pierce2002types}.
+  }\label{fig:sample_term_ast_tyrel}
+\end{figure}
+
+Now we can use the inference rules from~\ref{fig:sample_term_ast_tyrel} to prove if the term
 \begin{equation*}
-  \inferrule{
-    \inferrule
+  \typer{iszero succ 0}{Bool}
+\end{equation*}
+by applying the following sequence of inferences
+\begin{equation*}
+  \inferrule*[right=Ty-IsZero]{
+    \inferrule*[right=Ty-Succ]
     {
-      \typer{\bnfvar{2}}{\bnfter{Num}}
-      \\ \typer{\bnfvar{3}}{\bnfter{Num}}
-      \\ \bnfter{*} \in \bnfvar{oparit}
+      \inferrule*[right=Ty-Zero]{ }{\typer{0}{Nat}}
     }{
-      \typer{\bnfvar{2} \bnfter{*} \bnfvar{3}}{\bnfter{Num}}
+      \typer{succ 0}{Nat}
     }
-    \\ \typer{\bnfvar{42}}{\bnfter{Num}}
-    \\ \bnfter{==} \in \bnfvar{opcomp}
   }{
-    \\ \typer{\bnfvar{2} \bnfter{*} \bnfvar{3} \bnfter{==} \bnfvar{42}}{\bnfter{Bool}}
+    \typer{iszero succ 0}{Bool}
   }
 \end{equation*}
-but if we try to prove something wrong like \typer{2 * true}{\bnfter{Num}} we will quickly find that there are no rules that allow us to reach the type relation axioms.
+but, if we try to prove something wrong like
+\begin{equation*}
+  \typer{succ true}{Num} \quad \text{or} \quad \typer{if 0 then true else false}{Bool}
+\end{equation*}
+we will quickly find that there are no rules that allow us to reach the type relation axioms.
+Furthermore, if we try to prove and infer the type of the example~\ref{eq:eval_step1} we end up with the following rule applications
+\begin{equation*}
+  \inferrule*[right=Ty-If]{
+    \typer{iszero 0}{Bool}
+    \\ \inferrule*[right=Ty-Succ]{
+      \inferrule*[right=Ty-Zero]{ }{\typer{0}{Nat}}
+    }{
+      \typer{succ 0}{Nat}
+    }
+    \\ \typer{false}{Bool}
+  }{
+    \typer{if iszero 0 the succ 0 else false}{$?$}
+  }
+\end{equation*}
+when trying to inductively define the typing relation for example~\ref{eq:eval_step1}, we can not properly use the induction rule Ty-If because the terms in both branches of the \code{if} evaluate to different types, and the rule Ty-If mandates that both branches evaluate to the same type for the rule to be sated.
+
+\subsection{Let bindings and function applications}
 
 But what happens if we try to prove \typer{a + 5}{\bnfter{Num}} for example?
 We currently have no rules that allow us to know infer the type of the identifier \codett{a}.
