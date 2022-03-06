@@ -137,6 +137,7 @@
 \newcommand{\bnfor}[1]{{$\mid$} #1}
 \newcommand{\bnfprod}[2]{\bnfvar{#1} & \ & \bnfdef{} & \ \code{#2}}
 \newcommand{\bnfmore}[1]{            & \ & \mid{}    & \ \code{#1}}
+\newcommand{\bnfcont}[1]{            & \ &           & \ \code{#1}}
 
 \newcommand{\token}[1]{$\langle\codett{#1}\rangle$}
 
@@ -1704,6 +1705,8 @@ The latter for of a constraint means that for all \code{x} of a given type \code
 These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that if the verification condition is sated the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
 We will develop next the inference rules that create these constraints for a simply typed lambda calculus.
 
+Todo: inference rules
+
 \section{The LLVM intermediate representation}
 
 To do. Work in progress.
@@ -1715,7 +1718,7 @@ In this chapter we will describe the design of the \textit{Ekitai} programming a
 \section{The Ekitai's lexer}
 
 The lexical aspects of the Ekitai programming language are defined by Figures~\ref{fig:ekitai_tokens_helper} and~\ref{fig:ekitai_tokens}.
-We decided to use an automatic lexer generator since we found no advantage in building one by hand and the automatic parser generator used was capable of lexing all token patterns in the specification.
+We decided to use an automatic lexer generator since we found no advantage in building one by hand and the automatic parser generator used was capable of lexing all token patterns in the specification.\footnote{The automatic lexer generator used in this work is Logos~\cite{logos2020}.}
 
 \begin{figure}[ht]
   \small
@@ -1758,6 +1761,7 @@ We decided to use an automatic lexer generator since we found no advantage in bu
         \code{Greater}           & \rightarrow \ \code{>}    \\
         \code{Less}              & \rightarrow \ \code{<}    \\
         \code{Exclamation}       & \rightarrow \ \code{!}    \\
+        \code{Pipe}              & \rightarrow \ \code{|}    \\
         \code{DoubleCollon}      & \rightarrow \ \code{::}   \\
         \code{DoubleEquals}      & \rightarrow \ \code{==}   \\
         \code{ExclamationEquals} & \rightarrow \ \code{!=}   \\
@@ -1801,16 +1805,33 @@ We decided to use an automatic lexer generator since we found no advantage in bu
   }\label{fig:ekitai_tokens}
 \end{figure}
 
+Note in Figure~\ref{fig:ekitai_tokens} that the token name \code{Identifier} has, in its described language, common strings with token names for keywords, i.e., token names ending in \code{Kw}. The automatic lexer algorithm solves this problem by applying two disambiguation rules:
+\begin{itemize}
+  \item Longer matching lexemes have priority over shorter matching lexemes, i.e., \code{>=} has higher priority than \code{>} for token names \code{GreaterEquals} and \code{Greater}.
+  \item Groups have lower priority that singular regular expressions, i.e., $[\code{ab}]$ has less priority than \code{a} and \code{b}, and, permutations have the lowest priority, i.e, $a^*$.
+\end{itemize}
+Furthermore, the token name \code{Integer} must start with a digit and is followed by any number of digits and underscores, allowing to separate long numbers (i.e., \code{100\_000}), with an optional identifier at the end, allowing for the use of suffixes (i.e., \code{42i64}).
+
+
 \section{The Ekitai's parser}
 
 The Ekitai's grammar was built with a handwritten Pratt parser in mind.
 In order to keep the grammar out of clutter, we will present the grammar using simplified token names.
 Instead of writing \code{LetKw} or \code{DoubleAmpersand} we will stick to writing \code{let} and \code{\&\&} respectively.
 Furthermore, we will use \code{Id} for short of \code{Identifier} and \code{Int} for short of \code{Integer}.
+
 First we present the top level grammar productions in Figure~\ref{fig:ekitai_syntax_toplevel}.
 \begin{figure}[ht]
   \begin{alignat*}{2}
     \bnfprod{SourceFile}{
+      \bnfvar{ItemList}
+    } \\
+    \bnfprod{ItemList}{
+      \bnfvar{Item}
+      \bnfvar{ItemList}
+      \bnfor{$\epsilon$}
+    } \\
+    \bnfprod{Item}{
       \bnfvar{FnDef}
       \bnfor{\bnfvar{TypeDef}}
     } \\
@@ -1837,7 +1858,8 @@ First we present the top level grammar productions in Figure~\ref{fig:ekitai_syn
       \bnfvar{Type} \bnfter{,} \bnfvar{TypeList}
     } \\
     \bnfmore{
-      \bnfvar{Type} \bnfter{,} \bnfor{\bnfvar{Type}}
+      \bnfvar{Type}
+      \bnfor{$\epsilon$}
     } \\
     \bnfprod{FnDef}{
       \bnfter{fn}
@@ -1852,17 +1874,178 @@ First we present the top level grammar productions in Figure~\ref{fig:ekitai_syn
       \bnfvar{Param} \bnfter{,} \bnfvar{ParamList}
     } \\
     \bnfmore{
-      \bnfvar{Param} \bnfter{,} \bnfor{\bnfvar{Param}}
+      \bnfvar{Param}
+      \bnfor{$\epsilon$}
     } \\
     \bnfprod{Param}{
       \bnfvar{Name}
       \bnfter{:}
-      \bnfvar{TypeRef}
+      \bnfvar{Type}
+    } \\
+    \bnfprod{Name}{
+      \bnfter{Id}
     }
   \end{alignat*}
   \caption{
     Top level grammar productions for the Ekitai's parser grammar.
   }\label{fig:ekitai_syntax_toplevel}
+\end{figure}
+Here we define the syntax structure for the source program's top level items.
+We have the variable \bnfvar{SourceFile} as start symbol of the Ekytai grammar.
+It generates a list of Items \bnfvar{FnDef} and \bnfvar{TypeDef} for function definitions and type definitions respectively.
+
+From the grammar in~\ref{fig:ekitai_syntax_toplevel}, we are able to see the structure of the top level constructs. For example, the following program illustrates a \bnfvar{SourceFile} with two \bnfvar{Item} in the \bnfvar{ItemList}:
+\begin{center}
+  \begin{minipage}{0.8\textwidth}
+    \begin{rustcode}
+type SomeTypeName {
+  SomeConstructorName(Type1, Type2, ... ),
+  ...
+}
+fn some_fn_name(arg_name1: Type1, arg_name_2: Type2, ...) -> {
+  ...
+}
+\end{rustcode}
+  \end{minipage}
+\end{center}
+
+Beyond the top level items, we still have to define the variables for \bnfvar{Type} and for \bnfvar{BlockExpr}.
+We then can continue by exploring the syntax for \bnfvar{Expr}, which defines the terms of the Ekitai language, including \bnfvar{BlockExpr}.
+
+\begin{figure}[ht]
+  \centering
+  \small
+  \begin{subfigure}[b]{0.4\textwidth}
+    \begin{alignat*}{2}
+      \bnfprod{Expr}{
+        \bnfvar{Literal}
+      } \\
+      \bnfmore{
+        \bnfvar{Path}
+      } \\
+      \bnfmore{
+        \bnfter{(}
+        \bnfvar{Expr}
+        \bnfter{)}
+      } \\
+      \bnfmore{
+        \bnfvar{Expr}
+        \bnfvar{InfixOp}
+        \bnfvar{Expr}
+      } \\
+      \bnfmore{
+        \bnfvar{PrefixOp}
+        \bnfvar{Expr}
+      } \\
+      \bnfmore{
+        \bnfvar{BlockExpr}
+      } \\
+      \bnfmore{
+        \bnfter{if}
+        \bnfvar{Expr}
+        \bnfvar{BlockExpr}
+      } \\
+      \bnfcont{
+        \bnfter{else}
+        \bnfvar{BlockExpr}
+      } \\
+      \bnfmore{
+        \bnfvar{MatchExpr}
+      } \\
+      \bnfmore{
+        \bnfter{new}
+        \bnfvar{Expr}
+      }
+    \end{alignat*}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.4\textwidth}
+    \begin{alignat*}{2}
+      \bnfprod{InfixOp}{
+        \bnfter{+}
+        \bnfor{\bnfter{-}}
+        \bnfor{\bnfter{*}}
+        \bnfor{\bnfter{/}}
+        \bnfor{\bnfter{\%}}
+      } \\
+      \bnfmore{
+        \bnfter{>}
+        \bnfor{\bnfter{>=}}
+        \bnfor{\bnfter{<}}
+        \bnfor{\bnfter{<=}}
+      } \\
+      \bnfmore{
+        \bnfter{==}
+        \bnfor{\bnfter{!=}}
+        \bnfor{\bnfter{\&\&}}
+        \bnfor{\bnfter{||}}
+      } \\
+      \bnfprod{PrefixOp}{
+        \bnfter{-}
+        \bnfor{\bnfter{!}}
+        \bnfor{\bnfter{*}}
+        \bnfor{\bnfter{\&}}
+      } \\
+      \bnfprod{BlockExpr}{
+        \bnfter{\{}
+        \bnfvar{StatementList}
+        \bnfvar{Expr}
+        \bnfter{\}}
+      } \\
+      \bnfprod{StatementList}{
+        \bnfvar{Statement} \bnfter{;} \bnfvar{StatementList}
+      } \\
+      \bnfmore{
+        $\epsilon$
+      } \\
+      \bnfprod{MatchExpr}{
+        \bnfter{match}
+        \bnfvar{Expr}
+        \bnfter{\{}
+        \bnfvar{CaseList}
+        \bnfter{\}}
+      } \\
+      \bnfprod{CaseList}{
+        \bnfvar{Pattern} \bnfter{=>} \bnfvar{Expr} \bnfter{,} \bnfvar{CaseList}
+      } \\
+      \bnfmore{
+        $\epsilon$
+      }
+    \end{alignat*}
+  \end{subfigure}
+  \begin{subfigure}[b]{\textwidth}
+    \begin{alignat*}{2}
+      \bnfprod{Statement}{
+        \bnfter{let}
+        \bnfvar{Name}
+        \bnfter{=}
+        \bnfvar{Expr}
+      } \\
+      \bnfprod{Pattern}{
+        \bnfvar{Path}
+        \bnfter{(}
+        \bnfvar{NameList}
+        \bnfter{)}
+      } \\
+      \bnfprod{NameList}{
+        \bnfvar{Name} \bnfter{,} \bnfvar{NameList}
+      } \\
+      \bnfmore{
+        \bnfvar{Name}
+        \bnfor{$\epsilon$}
+      } \\
+      \bnfprod{Path}{
+        \bnfvar{Name}
+        \bnfter{::}
+        \bnfvar{Path}
+      } \\
+      \bnfmore{
+        \bnfvar{Name}
+      }
+    \end{alignat*}
+  \end{subfigure}
+  \caption{
+    Top level grammar productions for the Ekitai's parser grammar.
+  }\label{fig:ekitai_syntax_toplevel2}
 \end{figure}
 
 To do. Work in progress.
