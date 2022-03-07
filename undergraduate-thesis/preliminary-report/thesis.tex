@@ -1355,7 +1355,7 @@ thus proving that
 Now the only evaluation rule that fits \code{succ 0} is Eval-Succ, but if we try to apply it like in
 \begin{equation*}
   \inferrule*[right=Eval-Succ]{
-    \inferrule*[right=?]{ }
+    \inferrule*[right=$?$]{ }
     {
       \evalr{0}{$?$}
     }
@@ -1363,7 +1363,7 @@ Now the only evaluation rule that fits \code{succ 0} is Eval-Succ, but if we try
     \evalr{
       succ 0
     }{
-      ?
+      $?$
     }
   }
 \end{equation*}
@@ -1703,7 +1703,25 @@ A type checker with refinements produces what is called \textit{Verification Con
 Constrains are either a single quantifier-free predicate \code{p}, or a conjunction $\code{c}_1 \land \code{c}_2$, or an implication of the form $\forall\code{\typer{x}{T}.p}\implies\code{c}$~\cite{jhala2020tutorial}.
 The latter for of a constraint means that for all \code{x} of a given type \code{T}, if p holds then so must c.
 These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that if the verification condition is sated the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
-We will develop next the inference rules that create these constraints for a simply typed lambda calculus.
+
+The abstract syntax for terms and types presented by the authors is summarized
+
+\begin{figure}[ht]
+  \begin{minipage}{\textwidth}
+    \begin{alignat*}{4}
+      \astprod{term}{c}              & \quad & \textit{Constants}    \\
+      \astmore{var}                    & \quad & \textit{Variables}    \\
+      \astmore{let var = term in term} & \quad & \textit{Let Bindings} \\
+      \astmore{$\lambda$x.term}      & \quad & \textit{Functions}    \\
+      \astmore{term var}               & \quad & \textit{Applications} \\
+      \astmore{term:type}            & \quad & \textit{Applications} \\
+    \end{alignat*}
+  \end{minipage}
+  \caption{
+    Abstract syntax for refinement predicates and constraints.
+    Adapted from~\cite{jhala2020tutorial}.
+  }\label{fig:refinement_terms}
+\end{figure}
 
 Todo: inference rules
 
@@ -1820,7 +1838,8 @@ In order to keep the grammar out of clutter, we will present the grammar using s
 Instead of writing \code{LetKw} or \code{DoubleAmpersand} we will stick to writing \code{let} and \code{\&\&} respectively.
 Furthermore, we will use \code{Id} for short of \code{Identifier} and \code{Int} for short of \code{Integer}.
 
-First we present the top level grammar productions in Figure~\ref{fig:ekitai_syntax_toplevel}.
+First we define the syntax structure for the source program's top level items by presenting the grammar productions in Figure~\ref{fig:ekitai_syntax_toplevel}.
+
 \begin{figure}[ht]
   \begin{alignat*}{2}
     \bnfprod{SourceFile}{
@@ -1890,8 +1909,7 @@ First we present the top level grammar productions in Figure~\ref{fig:ekitai_syn
     Top level grammar productions for the Ekitai's parser grammar.
   }\label{fig:ekitai_syntax_toplevel}
 \end{figure}
-Here we define the syntax structure for the source program's top level items.
-We have the variable \bnfvar{SourceFile} as start symbol of the Ekytai grammar.
+The variable \bnfvar{SourceFile} is the start symbol of the Ekytai's syntax grammar.
 It generates a list of Items \bnfvar{FnDef} and \bnfvar{TypeDef} for function definitions and type definitions respectively.
 
 From the grammar in~\ref{fig:ekitai_syntax_toplevel}, we are able to see the structure of the top level constructs. For example, the following program illustrates a \bnfvar{SourceFile} with two \bnfvar{Item} in the \bnfvar{ItemList}:
@@ -1908,9 +1926,23 @@ fn some_fn_name(arg_name1: Type1, arg_name_2: Type2, ...) -> {
 \end{rustcode}
   \end{minipage}
 \end{center}
+Further, when defining the induction rules for semantic analysis we will use the \bnfvar{Path} variable to index the constructors inside the \code{type} definition, for example the path
+\begin{equation*}
+  \code{SomeTypeName::SomeConstructorName}
+\end{equation*}
+will index the constructor
+\begin{equation*}
+  \code{SomeConstructorName}
+\end{equation*}
+inside the type definition for
+\begin{equation*}
+  \code{SomeTypeName}
+\end{equation*}
+The \bnfvar{Path} variable is defined on Figure~\ref{fig:ekitai_syntax_terms} as part of Ekitais's grammar for terms.
 
 Beyond the top level items, we still have to define the variables for \bnfvar{Type} and for \bnfvar{BlockExpr}.
-We then can continue by exploring the syntax for \bnfvar{Expr}, which defines the terms of the Ekitai language, including \bnfvar{BlockExpr}.
+The \bnfvar{BlockExpr} variable is part of the grammar for Ekitai's terms as shown in Figure~\ref{fig:ekitai_syntax_terms}.
+While the \bnfvar{Type} variable is part of the grammar for Ekitai's types defined in Figure~\ref{fig:ekitai_syntax_types}.
 
 \begin{figure}[ht]
   \centering
@@ -1936,6 +1968,12 @@ We then can continue by exploring the syntax for \bnfvar{Expr}, which defines th
       \bnfmore{
         \bnfvar{PrefixOp}
         \bnfvar{Expr}
+      } \\
+      \bnfmore{
+        \bnfvar{Expr}
+        \bnfter{(}
+        \bnfvar{ArgList}
+        \bnfter{)}
       } \\
       \bnfmore{
         \bnfvar{BlockExpr}
@@ -1984,6 +2022,15 @@ We then can continue by exploring the syntax for \bnfvar{Expr}, which defines th
         \bnfor{\bnfter{!}}
         \bnfor{\bnfter{*}}
         \bnfor{\bnfter{\&}}
+      } \\
+      \bnfprod{ArgList}{
+        \bnfvar{Expr}
+        \bnfter{,}
+        \bnfvar{ArgList}
+      } \\
+      \bnfmore{
+        \bnfvar{Expr}
+        \bnfor{$\epsilon$}
       } \\
       \bnfprod{BlockExpr}{
         \bnfter{\{}
@@ -2036,18 +2083,47 @@ We then can continue by exploring the syntax for \bnfvar{Expr}, which defines th
       \bnfprod{Path}{
         \bnfvar{Name}
         \bnfter{::}
-        \bnfvar{Path}
+        \bnfvar{Name}
       } \\
       \bnfmore{
         \bnfvar{Name}
-      }
+      } \\
+      \bnfprod{Literal}{
+        \bnfter{Int}
+        \bnfor{\bnfter{true}}
+        \bnfor{\bnfter{false}}
+      } \\
     \end{alignat*}
   \end{subfigure}
   \caption{
-    Top level grammar productions for the Ekitai's parser grammar.
-  }\label{fig:ekitai_syntax_toplevel2}
+    Expression grammar productions for the Ekitai's parser grammar.
+  }\label{fig:ekitai_syntax_terms}
 \end{figure}
 
+\begin{figure}[ht]
+  \centering
+  \begin{alignat*}{2}
+    \bnfprod{Type}{
+      \bnfvar{Name}
+    } \\
+    \bnfmore{
+      \bnfter{*}
+      \bnfvar{Type}
+    } \\
+    \bnfmore{
+      \bnfter{\{}
+      \bnfvar{Name}
+      \bnfter{:}
+      \bnfvar{Type}
+      \bnfter{|}
+      \bnfvar{Expr}
+      \bnfter{\}}
+    }
+  \end{alignat*}
+  \caption{
+    Type grammar productions for the Ekitai's parser grammar.
+  }\label{fig:ekitai_syntax_types}
+\end{figure}
 To do. Work in progress.
 
 \section{The Ekitai's type system}
