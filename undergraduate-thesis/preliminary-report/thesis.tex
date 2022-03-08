@@ -1732,6 +1732,13 @@ The abstract syntax for terms and types presented by the authors is summarized i
 
 The terms presented by the authors are similar to the terms explores in Section~\ref{chapter:background:sec:semantic}.
 They differ only by the function application, which now must receive a variable as parameter, and by the introduction of type annotation terms.
+Furthermore, in the definition of types, we find:
+\begin{itemize}
+ \item The syntactic variable \code{b} for the languages primitive types (e.g., the set of all integers \code{int});
+ \item The refined types \code{t} composed of a base type \code{b} and the definition of a refinement \code{\{x|p\}}, which is a pair of a \textit{value variable} \code{x} and a logical predicate \code{p} from the SMT logic in Figure~\ref{fig:refinement_predicates}.
+ \item And, a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
+\end{itemize}
+
 
 Todo: inference rules
 
@@ -2134,7 +2141,9 @@ While the \bnfvar{Type} variable is part of the grammar for Ekitai's types defin
     Type grammar productions for the Ekitai's parser grammar.
   }\label{fig:ekitai_syntax_types}
 \end{figure}
-To do. Work in progress.
+
+The syntax for refinements defined in Figure~\ref{fig:ekitai_syntax_types} allows for any expression as the refinement predicate.
+We do that in order to reuse the parser for \bnfvar{Expr} and leave to the semantic analysis to restrict what sentences from \bnfvar{Expr} are allowed as refinement predicates.
 
 \section{The Ekitai's type system}
 
