@@ -1704,24 +1704,34 @@ Constrains are either a single quantifier-free predicate \code{p}, or a conjunct
 The latter for of a constraint means that for all \code{x} of a given type \code{T}, if p holds then so must c.
 These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that if the verification condition is sated the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
 
-The abstract syntax for terms and types presented by the authors is summarized
+The abstract syntax for terms and types presented by the authors is summarized in Figure~\ref{fig:refinement_terms}.
 
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
     \begin{alignat*}{4}
-      \astprod{term}{c}              & \quad & \textit{Constants}    \\
-      \astmore{var}                    & \quad & \textit{Variables}    \\
-      \astmore{let var = term in term} & \quad & \textit{Let Bindings} \\
-      \astmore{$\lambda$x.term}      & \quad & \textit{Functions}    \\
-      \astmore{term var}               & \quad & \textit{Applications} \\
-      \astmore{term:type}            & \quad & \textit{Applications} \\
+      \astprod{e}{c}                   & \quad & \textit{Constants}          \\
+      \astmore{x}                      & \quad & \textit{Variables}          \\
+      \astmore{let x = e in e}         & \quad & \textit{Let Binding}        \\
+      \astmore{$\lambda$x.e}           & \quad & \textit{Function}           \\
+      \astmore{e x}                    & \quad & \textit{Application}        \\
+      \astmore{e:t}                    & \quad & \textit{Type Annotation}     \\
+      \\
+      \astprod{t}{b\{x|p\}}            & \quad & \textit{Refined Base}       \\
+      \astmore{\fnty{x:t}{t}}          & \quad & \textit{Dependent Function} \\
+      \astprod{b}{int}                 & \quad & \textit{Base Types}         \\
+      \\
+      \astprod{$\Gamma$}{$\emptyset$}  & \quad & \textit{Empty Context}      \\
+      \astmore{$\Gamma$, \typer{x}{t}} & \quad & \textit{Variable Binding}   \\
     \end{alignat*}
   \end{minipage}
   \caption{
-    Abstract syntax for refinement predicates and constraints.
+    Abstract syntax for terms, types, and context of a simply typed lambda calculus with refinements.
     Adapted from~\cite{jhala2020tutorial}.
   }\label{fig:refinement_terms}
 \end{figure}
+
+The terms presented by the authors are similar to the terms explores in Section~\ref{chapter:background:sec:semantic}.
+They differ only by the function application, which now must receive a variable as parameter, and by the introduction of type annotation terms.
 
 Todo: inference rules
 
