@@ -145,9 +145,19 @@
 \newcommand{\astmore}[1]{\bnfmore{#1}}
 
 \newcommand{\typer}[2]{\code{#1 \codett{:} #2}}
-\newcommand{\typecxr}[3]{\code{{$\Gamma$}#1 {$\vdash$} \typer{#2}{#3}}}
+\newcommand{\ctxtr}[2]{\code{{$\Gamma$}#1 {$\vdash$} #2}}
+\newcommand{\typecxr}[3]{\ctxtr{#1}{\typer{#2}{#3}}}
 \newcommand{\typecxre}[3]{\code{#1 {$\vdash$} \typer{#2}{#3}}}
 \newcommand{\typecx}[2]{,\;\typer{#1}{#2}}
+
+\newcommand{\subtyr}[2]{\code{#1 $\prec :$ #2}}
+\newcommand{\subtycxr}[3]{\ctxtr{#1}{\subtyr{#2}{#3}}}
+
+\newcommand{\synthr}[2]{\code{#1 $\Rightarrow$ #2}}
+\newcommand{\synthcxr}[3]{\ctxtr{#1}{\synthr{#2}{#3}}}
+
+\newcommand{\checkr}[2]{\code{#1 $\Leftarrow$ #2}}
+\newcommand{\checkcxr}[3]{\ctxtr{#1}{\checkr{#2}{#3}}}
 
 \newcommand{\evalr}[2]{\code{#1 $\rightarrow$ #2}}
 
@@ -1248,7 +1258,8 @@ In order to define operational semantics for~\eqref{eq:sample_term_ast} we first
     \astmore{succ nvalue}
   \end{aligned}
 \end{equation}
-and second, we define and \textit{evaluation relation} on terms, written \evalr{term}{$\code{term}_1$} meaning \code{term} evaluates to $\code{term}_1$ in on step, as defined in Figure~\ref{fig:sample_term_ast_opsem}.
+and second, we define and \textit{evaluation relation}, or \textit{judgments}, on terms, written \evalr{term}{$\code{term}_1$} meaning \code{term} evaluates to $\code{term}_1$ in on step~\cite{pierce2002types}.
+The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations defined by the inference rules in Figure~\ref{fig:sample_term_ast_opsem}.
 
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
@@ -1676,7 +1687,7 @@ The authors start the construction by defining the abstract syntax for the predi
       \\
       \astprod{c}{p}                                 & \quad & \textit{Predicate}              \\
       \astmore{$\code{c}_1\land\code{c}_2$}          & \quad & \textit{Conjunction}            \\
-      \astmore{$\forall\code{\typer{x}{T}.p}\implies\code{c}$ }
+      \astmore{$\forall\code{\typer{x}{b}.p}\implies\code{c}$ }
                                                      & \quad & \textit{Implication}            \\
     \end{alignat*}
   \end{minipage}
@@ -1701,8 +1712,8 @@ Examples of predicates include the ones we have discussed in the Introduction of
 
 A type checker with refinements produces what is called \textit{Verification Condition} (VC) constraints \code{c}, which are defined in Figure~\ref{fig:refinement_predicates}.
 Constrains are either a single quantifier-free predicate \code{p}, or a conjunction $\code{c}_1 \land \code{c}_2$, or an implication of the form $\forall\code{\typer{x}{T}.p}\implies\code{c}$~\cite{jhala2020tutorial}.
-The latter for of a constraint means that for all \code{x} of a given type \code{T}, if p holds then so must c.
-These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that if the verification condition is sated the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
+The latter form of a constraint means that for all \code{x} of a given base type \code{b}, if p holds then so must c.
+These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
 
 The abstract syntax for terms and types presented by the authors is summarized in Figure~\ref{fig:refinement_terms}.
 
@@ -1714,7 +1725,7 @@ The abstract syntax for terms and types presented by the authors is summarized i
       \astmore{let x = e in e}         & \quad & \textit{Let Binding}        \\
       \astmore{$\lambda$x.e}           & \quad & \textit{Function}           \\
       \astmore{e x}                    & \quad & \textit{Application}        \\
-      \astmore{e:t}                    & \quad & \textit{Type Annotation}     \\
+      \astmore{e:t}                    & \quad & \textit{Type Annotation}    \\
       \\
       \astprod{t}{b\{x|p\}}            & \quad & \textit{Refined Base}       \\
       \astmore{\fnty{x:t}{t}}          & \quad & \textit{Dependent Function} \\
@@ -1732,15 +1743,44 @@ The abstract syntax for terms and types presented by the authors is summarized i
 
 The terms presented by the authors are similar to the terms explores in Section~\ref{chapter:background:sec:semantic}.
 They differ only by the function application, which now must receive a variable as parameter, and by the introduction of type annotation terms.
+Also, the constants \code{c} includes primitives such as integers and primitive functions such as \code{sum} and \code{sub} for arithmetic operations.
 Furthermore, in the definition of types, we find:
 \begin{itemize}
- \item The syntactic variable \code{b} for the languages primitive types (e.g., the set of all integers \code{int});
- \item The refined types \code{t} composed of a base type \code{b} and the definition of a refinement \code{\{x|p\}}, which is a pair of a \textit{value variable} \code{x} and a logical predicate \code{p} from the SMT logic in Figure~\ref{fig:refinement_predicates}.
- \item And, a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
+  \item The syntactic variable \code{b} for the languages primitive types (e.g., the set of all integers \code{int});
+  \item The refined types \code{t} composed of a base type \code{b} and the definition of a refinement \code{\{x|p\}}, which is a pair of a \textit{value variable} \code{x} and a logical predicate \code{p} from the SMT logic in Figure~\ref{fig:refinement_predicates}.
+  \item And, a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
 \end{itemize}
 
+For statically ensuring that the simply typed lambda calculus with refinement types could be correctly evaluated, \textcite{jhala2020tutorial} make use of a few new judgments (i.e., relations):
+\begin{itemize}
+  \item The \textit{Well-sortedness} judgment \ctxtr{}{p} meaning that in the context $\Gamma$ the predicate \code{p} is \textit{well-sorted}, that it, \code{p} has boolean type under the context $\Gamma$ with all refinement types erased using the type relation of the unrefined simply typed lambda calculus~\cite{jhala2020tutorial}.
 
-Todo: inference rules
+  \item The \textit{Well-formedness} judgment \ctxtr{}{t} meaning that in the context $\Gamma$ the type \code{t} is \textit{well-formed}, that is, each $t$ refinement predicate is boolean-valued under the variables bound in the context or type~\cite{jhala2020tutorial}.
+
+  \item The \textit{Entailment} judgment \ctxtr{}{c} meaning that in the context $\Gamma$ the constraint \code{c} is \textit{valid}, that is, the constraint \code{c} `is true'~\cite{jhala2020tutorial}.
+
+  \item The \textit{Subtyping} judgment \subtycxr{}{$\code{t}_1$}{$\code{t}_2$} meaning that in the context $\Gamma$ the type $\code{t}_1$ is a subtype of $\code{t}_2$, that is, all values of $\code{t}_1$ are present in $\code{t}_2$ but the contrary may not be true~\cite{jhala2020tutorial}.
+
+  \item The \textit{Synthesis} judgment \synthcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} can be generated, or synthesized, for the term \code{e}~\cite{jhala2020tutorial}.
+        This judgment is relative to the typing relation for the unrefined simply typed lambda calculus in Section~\ref{chapter:background:sec:semantic}.
+
+  \item And, the \textit{Checking} judgment \checkcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} is a valid type for the term \code{e}, that is, constraining the term \code{e} to \textit{synthesize} a type \code{s} where \subtyr{s}{t}~\cite{jhala2020tutorial}.
+        This judgment is used to verify that a term is of given annotated type and to push the type annotation inside it's sub-terms to get localized type obligations for inner expressions~\cite{jhala2020tutorial}.
+\end{itemize}
+
+The inference rules that define the judgments presented by \textcite{jhala2020tutorial}
+\begin{figure}[!h]
+  \begin{align*}
+    \inferrule*[right=Ty-Let]{
+      \typecxr{}{
+        \fnabs{x}{Nat}{iszero x}
+      }{\fnty{Nat}{Bool}}
+    \\\\ \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun succ 0}{Bool}
+    }{
+      \typecxr{}{\astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}}{Bool}
+    }
+  \end{align*}
+\end{figure}
 
 \section{The LLVM intermediate representation}
 
