@@ -146,6 +146,7 @@
 
 \newcommand{\typer}[2]{\code{#1 \codett{:} #2}}
 \newcommand{\ctxtr}[2]{\code{{$\Gamma$}#1 {$\vdash$} #2}}
+\newcommand{\ctxtre}[2]{\code{#1 {$\vdash$} #2}}
 \newcommand{\typecxr}[3]{\ctxtr{#1}{\typer{#2}{#3}}}
 \newcommand{\typecxre}[3]{\code{#1 {$\vdash$} \typer{#2}{#3}}}
 \newcommand{\typecx}[2]{,\;\typer{#1}{#2}}
@@ -1273,10 +1274,10 @@ The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations
       \inferrule*[right=Eval-If]{
         \evalr{$\code{term}_1$}{$\code{term}_4$}
       } {
-        \evalr{
-          if $\code{term}_1$ then $\code{term}_2$ else $\code{term}_3$
-        }{
-          if $\code{term}_4$ then $\code{term}_2$ else $\code{term}_3$
+        \evalr{%
+          if $\code{term}_1$ then $\code{term}_2$ else $\code{term}_3$%
+        }{%
+          if $\code{term}_4$ then $\code{term}_2$ else $\code{term}_3$%
         }
       }
     \end{align*}
@@ -1284,10 +1285,10 @@ The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations
       \inferrule*[right=Eval-Succ]{
         \evalr{$\code{term}_1$}{$\code{term}_2$}
       } {
-        \evalr{
-          succ $\code{term}_1$
-        }{
-          succ $\code{term}_2$
+        \evalr{%
+          succ $\code{term}_1$%
+        }{%
+          succ $\code{term}_2$%
         }
       }
     \end{align*}
@@ -1298,10 +1299,10 @@ The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations
       \inferrule*[right=Eval-Pred]{
         \evalr{$\code{term}_1$}{$\code{term}_2$}
       } {
-        \evalr{
-          pred $\code{term}_1$
-        }{
-          pred $\code{term}_2$
+        \evalr{%
+          pred $\code{term}_1$%
+        }{%
+          pred $\code{term}_2$%
         }
       }
     \end{align*}
@@ -1312,10 +1313,10 @@ The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations
       \inferrule*[right=Eval-Iszero]{
         \evalr{$\code{term}_1$}{$\code{term}_2$}
       } {
-        \evalr{
-          iszero $\code{term}_1$
-        }{
-          iszero $\code{term}_2$
+        \evalr{%
+          iszero $\code{term}_1$%
+        }{%
+          iszero $\code{term}_2$%
         }
       }
     \end{align*}
@@ -1337,10 +1338,10 @@ looking at Figure~\ref{fig:sample_term_ast_opsem}, we see that the only inferenc
       \evalr{iszero 0}{true}
     }
   } {
-    \evalr{
-      if iszero 0 then succ 0 else false
-    }{
-      if true then succ 0 else false
+    \evalr{%
+      if iszero 0 then succ 0 else false%
+    }{%
+      if true then succ 0 else false%
     }
   }
 \end{equation*}
@@ -1352,10 +1353,10 @@ by first applying rule Eval-If, then applying the axiom Eval-IszeroZero.
 We can continue the evaluation by applying rule Eval-IfTrue as in
 \begin{equation}\label{eq:eval_step2}
   \inferrule*[right=Eval-IfTrue]{ } {
-    \evalr{
-      if true then succ 0 else false
-    }{
-      succ 0
+    \evalr{%
+      if true then succ 0 else false%
+    }{%
+      succ 0%
     }
   }
 \end{equation}
@@ -1371,10 +1372,10 @@ Now the only evaluation rule that fits \code{succ 0} is Eval-Succ, but if we try
       \evalr{0}{$?$}
     }
   } {
-    \evalr{
-      succ 0
-    }{
-      $?$
+    \evalr{%
+      succ 0%
+    }{%
+      $?$%
     }
   }
 \end{equation*}
@@ -1513,7 +1514,7 @@ To bring our discussion to the simply typed lambda calculus, we resume all const
     \astmore{\astlet{var}{term}{term}} \\
     \astmore{\fnabs{var}{Type}{term}} \\
     \astmore{term term} \\
-    \astprod{var}{ a $\mid$ b $\mid$ c $\mid$ $\dots$ $\mid$ x $\mid$ y $\mid$ z $\mid$ aa $\mid$ ab $\mid$ $\dots$} \\
+    \astprod{var}{a $\mid$ b $\mid$ c $\mid$ $\dots$ $\mid$ x $\mid$ y $\mid$ z $\mid$ aa $\mid$ ab $\mid$ $\dots$} \\
     \astprod{Type}{Bool} \\
     \astmore{Nat}
   \end{alignedat}
@@ -1593,8 +1594,8 @@ as presented in the following inference trees
       \typecxr{\typecx{x}{Nat}}{iszero x}{Bool}
     }
   }{
-    \typecxr{}{
-      \fnabs{x}{Nat}{iszero x}
+    \typecxr{}{%
+      \fnabs{x}{Nat}{iszero x}%
     }{\fnty{Nat}{Bool}}
   }
 \end{align*}
@@ -1617,19 +1618,24 @@ as presented in the following inference trees
 \begin{align*}
   \inferrule*[right=Ty-FnApp]{
     \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun}{\fnty{Nat}{Bool}}
-  \\\\ \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{succ 0}{Nat}
+  \\\\
+    \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{succ 0}{Nat}
   }{
     \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun succ 0}{Bool}
   }
 \end{align*}
 \begin{align*}
   \inferrule*[right=Ty-Let]{
-    \typecxr{}{
-      \fnabs{x}{Nat}{iszero x}
-    }{\fnty{Nat}{Bool}}
-  \\\\ \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun succ 0}{Bool}
-  }{
-    \typecxr{}{\astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}}{Bool}
+    \typecxr{}{%
+      \fnabs{x}{Nat}{iszero x}%
+    }{%
+      \fnty{Nat}{Bool}%
+    }
+  \\\\
+    \typecxr{%
+      \typecx{fun}{\fnty{Nat}{Bool}}}{fun succ 0}{Bool}%
+  }{%
+    \typecxr{}{\astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}}{Bool}%
   }
 \end{align*}
 
@@ -1661,6 +1667,9 @@ Ultimately going all the way to specifying and verifying the correctness of diff
 By enabling verification on the same language as the programming language, refinement types bridge implementation and proof together~\cite{jhala2020tutorial}.
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof~\cite{jhala2020tutorial}.
 
+
+\subsection{Extending the simply typed lambda calculus with refinements}
+
 Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in Section~\ref{chapter:background:sec:semantic}.
 The authors propose a method to start with a very basic simply typed lambda calculus with refinements and incrementally adds new terms to the language and explaining how to build the type inference rules for each newly added term.
 
@@ -1671,7 +1680,7 @@ The authors start the construction by defining the abstract syntax for the predi
       \astprod{p}{x $\mid$ y $\mid$ z $\mid\ \dots$} & \quad & \textit{Variables}              \\
       \astmore{true $\mid$ false}                    & \quad & \textit{Booleans}               \\
       \astmore{0 $\mid$ -1 $\mid$ 1 $\mid\ \dots$ }  & \quad & \textit{Numbers}                \\
-      \astmore{
+      \astmore{%
         $\code{p}_1$ + $\code{p}_2$
         $\mid$ $\code{p}_1$ - $\code{p}_2$
         $\mid$ $\code{p}_1$ * $\code{p}_2$
@@ -1687,7 +1696,7 @@ The authors start the construction by defining the abstract syntax for the predi
       \\
       \astprod{c}{p}                                 & \quad & \textit{Predicate}              \\
       \astmore{$\code{c}_1\land\code{c}_2$}          & \quad & \textit{Conjunction}            \\
-      \astmore{$\forall\code{\typer{x}{b}.p}\implies\code{c}$ }
+      \astmore{$\forall\code{\typer{x}{b}.\ p}\implies\code{c}$ }
                                                      & \quad & \textit{Implication}            \\
     \end{alignat*}
   \end{minipage}
@@ -1751,36 +1760,191 @@ Furthermore, in the definition of types, we find:
   \item And, a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
 \end{itemize}
 
+The authors use the notation \code{t[x := y]} to denote a type substitution where all free occurrences of \code{y} inside the type \code{t} are substituted by \code{x}.
+For the refined type, the substitution is defined as
+\begin{equation*}
+  \code{b\{x|p\}[x := y]} = \code{b\{x|p\}}
+\end{equation*}
+for when there is no free occurrences of x in the refined type, and, defined as
+\begin{equation*}
+  \code{b\{z|p\}[x := y]} = \code{b\{z|p[x := y]\}}
+\end{equation*}
+for when \code{x} is a free variable in the refinement type.
+Analogously, the substitution of the refined function type is defined as:
+\begin{align*}
+  \code{(\fnty{x:$\code{t}_1$}{$\code{t}_2$})[x := y]} & = \code{\fnty{x:$\code{t}_1$[x := y]}{$\code{t}_2$}}         \\
+  \code{(\fnty{z:$\code{t}_1$}{$\code{t}_2$})[x := y]} & = \code{\fnty{z:$\code{t}_1$[x := y]}{$\code{t}_2$[x := y]}}
+\end{align*}
+
 For statically ensuring that the simply typed lambda calculus with refinement types could be correctly evaluated, \textcite{jhala2020tutorial} make use of a few new judgments (i.e., relations):
 \begin{itemize}
   \item The \textit{Well-sortedness} judgment \ctxtr{}{p} meaning that in the context $\Gamma$ the predicate \code{p} is \textit{well-sorted}, that it, \code{p} has boolean type under the context $\Gamma$ with all refinement types erased using the type relation of the unrefined simply typed lambda calculus~\cite{jhala2020tutorial}.
 
   \item The \textit{Well-formedness} judgment \ctxtr{}{t} meaning that in the context $\Gamma$ the type \code{t} is \textit{well-formed}, that is, each $t$ refinement predicate is boolean-valued under the variables bound in the context or type~\cite{jhala2020tutorial}.
 
+        \begin{figure}[ht]
+          \begin{align*}
+            \inferrule*[right=Wf-Base]{
+              \ctxtr{\typecx{x}{b}}{p}
+            }{
+              \ctxtr{}{b\{x|p\}}
+            }
+             &  &
+            \inferrule*[right=Wf-Fun]{
+            \ctxtr{}{$\code{t}_1$} \\
+              \ctxtr{\typecx{x}{$\code{t}_1$}}{$\code{t}_2$}
+            }{
+              \ctxtr{}{\fnty{x:$\code{t}_1$}{$\code{t}_2$}}
+            }
+          \end{align*}
+          \caption{
+            Inference rules for the Well-formedness judgment. Adapted from \textcite{jhala2020tutorial}.
+          }\label{fig:tutorial_well_formedness}
+        \end{figure}
+
+        The inference rules in Figure~\ref{fig:tutorial_well_formedness} define the well-formedness judgment.
+        The rule Wf-Base defines that, for a refinement \code{b\{x|p\}} to be well-formed in a context $\Gamma$, the predicate \code{p} needs to be well-sorted in the context $\Gamma$ extended with the binding \typer{x}{b} (assuming the erasure of all refinements from $\Gamma$)~\cite{jhala2020tutorial}.
+        And, the rule Wf-Fun defines that, for a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} to be well-formed, the type $\code{t}_1$ needs to be well-formed, and, the type $\code{t}_2$ needs to be well-formed with the context extended with the parameter \typer{x}{$\code{t}_1$}~\cite{jhala2020tutorial}.
+
   \item The \textit{Entailment} judgment \ctxtr{}{c} meaning that in the context $\Gamma$ the constraint \code{c} is \textit{valid}, that is, the constraint \code{c} `is true'~\cite{jhala2020tutorial}.
 
+        \begin{figure}[ht]
+          \begin{align*}
+            \inferrule*[right=Ent-Empty]{
+              \code{SmtValid(c)}
+            }{
+              \ctxtre{$\emptyset$}{c}
+            }
+             &  &
+            \inferrule*[right=Ent-Reduce]{
+              \ctxtr{}{$\forall\code{\typer{x}{b}.\ p}\implies\code{c}$}
+            }{
+              \ctxtr{\typecx{x}{b\{x|p\}}}{c}
+            }
+          \end{align*}
+          \caption{
+            Inference rules for the entailment judgment. Adapted from \textcite{jhala2020tutorial}.
+          }\label{fig:tutorial_entailment}
+        \end{figure}
+
+        The inference rules in Figure~\ref{fig:tutorial_entailment} define the entailment judgment.
+        The rule Ent-Empty defines that the context $\Gamma$ entails the constraint \code{c} given that \code{c} is SMT solvable~\cite{jhala2020tutorial}.
+        Furthermore, the rule Ent-Reduce defines how to reduce the context into the verification condition by removing bindings from the context and translating them into constraints~\cite{jhala2020tutorial}.
+
   \item The \textit{Subtyping} judgment \subtycxr{}{$\code{t}_1$}{$\code{t}_2$} meaning that in the context $\Gamma$ the type $\code{t}_1$ is a subtype of $\code{t}_2$, that is, all values of $\code{t}_1$ are present in $\code{t}_2$ but the contrary may not be true~\cite{jhala2020tutorial}.
+
+        \begin{figure}[ht]
+          \begin{gather*}
+            \inferrule*[right=Sub-Base]{
+              \ctxtr{}{%
+                $\forall$%
+                \code{\typer{$\code{x}_1$}{b}.\ $\code{p}_1$}%
+                $\implies$%
+                \code{$\code{p}_2$[$\code{x}_2$ := $\code{x}_1$]}%
+              }
+            }{
+              \subtycxr{}{b\{$\code{x}_1$|$\code{p}_1$\}}{b\{$\code{x}_2$|$\code{p}_2$\}}
+            }
+            \\\\
+            \inferrule*[right=Sub-Fun]{
+              \subtycxr{}{$\code{t}_{2.1}$}{$\code{t}_{1.1}$}
+              \\
+              \subtycxr{\typecx{$\code{x}_2$}{$\code{t}_{2.1}$}}{$\code{t}_{1.2}$}{$\code{t}_{2.2}$}
+            }{
+              \subtycxr{}{%
+                \fnty{%
+                  $\code{x}_1$:$\code{t}_{1.1}$%
+                }{%
+                  $\code{t}_{1.2}$%
+                }%
+              }{%
+                \fnty{%
+                  $\code{x}_2$:$\code{t}_{2.1}$%
+                }{%
+                  $\code{t}_{2.2}$%
+                }%
+              }
+            }
+          \end{gather*}
+          \caption{
+            Inference rules for the Subtyping judgment. Adapted from \textcite{jhala2020tutorial}.
+          }\label{fig:tutorial_subtyping}
+        \end{figure}
+
+        The inference rules in Figure~\ref{fig:tutorial_subtyping} define the subtyping judgment.
+        The rule Sub-Base defines that, for a refined type \code{b\{$\code{x}_1$|$\code{p}_1$\}} to be a subtype of \code{b\{$\code{x}_2$|$\code{p}_2$\}}, the context has to entail the constraint \code{$\forall$\code{\typer{$\code{x}_1$}{b}.\ $\code{p}_1$}$\implies$\code{$\code{p}_2$[$\code{x}_2$ := $\code{x}_1$]}} which means that if $\code{p}_1$ holds then so must $\code{p}_2$ with all free occurrences of $\code{x}_2$ substituted by $\code{x}_1$~\cite{jhala2020tutorial}.
+        And, the rule Sub-Fun decomposes the subtype of function types into the contravariant subtype of the input types and the covariant subtype of the return types~\cite{jhala2020tutorial}.
 
   \item The \textit{Synthesis} judgment \synthcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} can be generated, or synthesized, for the term \code{e}~\cite{jhala2020tutorial}.
         This judgment is relative to the typing relation for the unrefined simply typed lambda calculus in Section~\ref{chapter:background:sec:semantic}.
 
+        \begin{figure}[ht]
+          \begin{align*}
+            \inferrule*[right=Syn-Var]{
+              \typer{x}{t} \in \Gamma
+            }{
+              \synthcxr{}{x}{t}
+            }
+            &&
+            \inferrule*[right=Syn-Const]{
+              \code{prim(c) $=$ t}
+            }{
+              \synthcxr{}{c}{t}
+            }
+            &&
+            \inferrule*[right=Syn-Ann]{
+              \ctxtr{}{t} \\
+              \checkcxr{}{e}{t}
+            }{
+              \synthcxr{}{e:t}{t}
+            }
+          \end{align*}
+          \begin{equation*}
+            \inferrule*[right=Syn-App]{
+              \synthcxr{}{e}{\fnty{y:$\code{t}_1$}{$\code{t}_2$}} \\
+              \checkcxr{}{x}{$\code{t}_1$}
+            }{
+              \synthcxr{}{e x}{$\code{t}_2$[y := x]}
+            }
+          \end{equation*}
+          \caption{
+            Inference rules for the Synthesis judgment. Adapted from \textcite{jhala2020tutorial}.
+          }\label{fig:tutorial_synthesis}
+        \end{figure}
+
   \item And, the \textit{Checking} judgment \checkcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} is a valid type for the term \code{e}, that is, constraining the term \code{e} to \textit{synthesize} a type \code{s} where \subtyr{s}{t}~\cite{jhala2020tutorial}.
         This judgment is used to verify that a term is of given annotated type and to push the type annotation inside it's sub-terms to get localized type obligations for inner expressions~\cite{jhala2020tutorial}.
+
+        \begin{figure}[ht]
+          \begin{align*}
+            \inferrule*[right=Chk-Syn]{
+              \synthcxr{}{x}{$\code{t}_1$} \\
+              \subtycxr{}{$\code{t}_1$}{$\code{t}_2$}
+            }{
+              \checkcxr{}{x}{$\code{t}_2$}
+            }
+            &&
+            \inferrule*[right=Chk-Fun]{
+              \checkcxr{\typecx{x}{$\code{t}_1$}}{e}{$\code{t}_2$}
+            }{
+              \checkcxr{}{$\lambda$x.e}{\fnty{x:$\code{t}_1$}{$\code{t}_2$}}
+            }
+          \end{align*}
+          \begin{equation*}
+            \inferrule*[right=Chk-Let]{
+              \synthcxr{}{$\code{e}_1$}{$\code{t}_1$} \\
+              \checkcxr{\typecx{x}{$\code{t}_1$}}{$\code{e}_2$}{$\code{t}_2$}
+            }{
+              \synthcxr{}{let x = $\code{e}_1$ in $\code{e}_2$}{$\code{t}_2$}
+            }
+          \end{equation*}
+          \caption{
+            Inference rules for the Checking judgment. Adapted from \textcite{jhala2020tutorial}.
+          }\label{fig:tutorial_checking}
+        \end{figure}
 \end{itemize}
 
-The inference rules that define the judgments presented by \textcite{jhala2020tutorial}
-\begin{figure}[!h]
-  \begin{align*}
-    \inferrule*[right=Ty-Let]{
-      \typecxr{}{
-        \fnabs{x}{Nat}{iszero x}
-      }{\fnty{Nat}{Bool}}
-    \\\\ \typecxr{\typecx{fun}{\fnty{Nat}{Bool}}}{fun succ 0}{Bool}
-    }{
-      \typecxr{}{\astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}}{Bool}
-    }
-  \end{align*}
-\end{figure}
+\subsection{Implementation}
 
 \section{The LLVM intermediate representation}
 
