@@ -1404,7 +1404,7 @@ We would rather be able to tell, without evaluating the program, that its evalua
 For that, we would need to be able to differentiate between the different kinds of values computed by terms~\cite{pierce2002types}.
 In the next section we introduce to the language~\eqref{eq:sample_term_ast} the \code{Nat} and \code{Bool} types in order to make sure every program evaluated does not get stuck.
 
-\subsection{The typing relation}
+\subsection{The typing relation}\label{ch:background:sec:typing_relation}
 
 In order to ensure that programs will correctly evaluate to a value we will introduce a new relation called the \textit{typing relation}.
 
@@ -1673,6 +1673,8 @@ This approach creates a development cycle were the implementation hits programme
 Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in Section~\ref{chapter:background:sec:semantic}.
 The authors propose a method to start with a very basic simply typed lambda calculus with refinements and incrementally adds new terms to the language and explaining how to build the type inference rules for each newly added term.
 
+\subsubsection{Abstract syntax of predicates and constraints}
+
 The authors start the construction by defining the abstract syntax for the predicates and constraints syntactical categories as seen in Figure~\ref{fig:refinement_predicates}.
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
@@ -1724,6 +1726,8 @@ Constrains are either a single quantifier-free predicate \code{p}, or a conjunct
 The latter form of a constraint means that for all \code{x} of a given base type \code{b}, if p holds then so must c.
 These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
 
+\subsubsection{Abstract syntax of terms and types}
+
 The abstract syntax for terms and types presented by the authors is summarized in Figure~\ref{fig:refinement_terms}.
 
 \begin{figure}[ht]
@@ -1760,6 +1764,8 @@ Furthermore, in the definition of types, we find:
   \item And, a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
 \end{itemize}
 
+\subsubsection{Variable substitution rules for refinement types}
+
 The authors use the notation \code{t[x := y]} to denote a type substitution where all free occurrences of \code{y} inside the type \code{t} are substituted by \code{x}.
 For the refined type, the substitution is defined as
 \begin{equation*}
@@ -1775,6 +1781,8 @@ Analogously, the substitution of the refined function type is defined as:
   \code{(\fnty{x:$\code{t}_1$}{$\code{t}_2$})[x := y]} & = \code{\fnty{x:$\code{t}_1$[x := y]}{$\code{t}_2$}}         \\
   \code{(\fnty{z:$\code{t}_1$}{$\code{t}_2$})[x := y]} & = \code{\fnty{z:$\code{t}_1$[x := y]}{$\code{t}_2$[x := y]}}
 \end{align*}
+
+\subsubsection{Judgments}
 
 For statically ensuring that the simply typed lambda calculus with refinement types could be correctly evaluated, \textcite{jhala2020tutorial} make use of a few new judgments (i.e., relations):
 \begin{itemize}
@@ -1878,71 +1886,92 @@ For statically ensuring that the simply typed lambda calculus with refinement ty
   \item The \textit{Synthesis} judgment \synthcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} can be generated, or synthesized, for the term \code{e}~\cite{jhala2020tutorial}.
         This judgment is relative to the typing relation for the unrefined simply typed lambda calculus in Section~\ref{chapter:background:sec:semantic}.
 
-        \begin{figure}[ht]
-          \begin{align*}
-            \inferrule*[right=Syn-Var]{
-              \typer{x}{t} \in \Gamma
-            }{
-              \synthcxr{}{x}{t}
-            }
-            &&
-            \inferrule*[right=Syn-Const]{
-              \code{prim(c) $=$ t}
-            }{
-              \synthcxr{}{c}{t}
-            }
-            &&
-            \inferrule*[right=Syn-Ann]{
-              \ctxtr{}{t} \\
-              \checkcxr{}{e}{t}
-            }{
-              \synthcxr{}{e:t}{t}
-            }
-          \end{align*}
-          \begin{equation*}
-            \inferrule*[right=Syn-App]{
-              \synthcxr{}{e}{\fnty{y:$\code{t}_1$}{$\code{t}_2$}} \\
-              \checkcxr{}{x}{$\code{t}_1$}
-            }{
-              \synthcxr{}{e x}{$\code{t}_2$[y := x]}
-            }
-          \end{equation*}
-          \caption{
-            Inference rules for the Synthesis judgment. Adapted from \textcite{jhala2020tutorial}.
-          }\label{fig:tutorial_synthesis}
-        \end{figure}
+        The inference rules in Figure~\ref{fig:tutorial_synthesis} define the synthesis judgment.
+        They work together with the \textit{checking} judgment inference rules to build the \textit{bidirectional typing} system described in Section~\ref{subsub:bidirectional_typing}.
 
   \item And, the \textit{Checking} judgment \checkcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} is a valid type for the term \code{e}, that is, constraining the term \code{e} to \textit{synthesize} a type \code{s} where \subtyr{s}{t}~\cite{jhala2020tutorial}.
         This judgment is used to verify that a term is of given annotated type and to push the type annotation inside it's sub-terms to get localized type obligations for inner expressions~\cite{jhala2020tutorial}.
 
-        \begin{figure}[ht]
-          \begin{align*}
-            \inferrule*[right=Chk-Syn]{
-              \synthcxr{}{x}{$\code{t}_1$} \\
-              \subtycxr{}{$\code{t}_1$}{$\code{t}_2$}
-            }{
-              \checkcxr{}{x}{$\code{t}_2$}
-            }
-            &&
-            \inferrule*[right=Chk-Fun]{
-              \checkcxr{\typecx{x}{$\code{t}_1$}}{e}{$\code{t}_2$}
-            }{
-              \checkcxr{}{$\lambda$x.e}{\fnty{x:$\code{t}_1$}{$\code{t}_2$}}
-            }
-          \end{align*}
-          \begin{equation*}
-            \inferrule*[right=Chk-Let]{
-              \synthcxr{}{$\code{e}_1$}{$\code{t}_1$} \\
-              \checkcxr{\typecx{x}{$\code{t}_1$}}{$\code{e}_2$}{$\code{t}_2$}
-            }{
-              \synthcxr{}{let x = $\code{e}_1$ in $\code{e}_2$}{$\code{t}_2$}
-            }
-          \end{equation*}
-          \caption{
-            Inference rules for the Checking judgment. Adapted from \textcite{jhala2020tutorial}.
-          }\label{fig:tutorial_checking}
-        \end{figure}
+        The inference rules in Figure~\ref{fig:tutorial_checking} define the checking judgment, complementing the inference rules for the synthesis judgment.
 \end{itemize}
+
+\subsubsection{Bidirectional typing}\label{subsub:bidirectional_typing}
+
+The typing relation \typecxr{}{x}{T} presented in Section~\ref{ch:background:sec:typing_relation} for the simply typed lambda calculus proves that the program is sound by synthesizing a type for each leaf term on the abstract tree and then subsequently synthesizing the types for the intermediate terms until we synthesize the type for the root term thus proving the program's soundness traversing the abstract tree in a single direction, i.e., from the leaves to the root.
+
+The bidirectional typing rules proposed by \textcite{jhala2020tutorial} levers the type synthesis of terms by combining the synthesis with checking judgments. We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesis} and Figure~\ref{fig:tutorial_checking} by exploring how they prove the types for each term \code{e} described in Figure~\ref{fig:refinement_terms}. The terms and their respective inference rules are:
+
+\begin{figure}[ht]
+  \begin{align*}
+    \inferrule*[right=Syn-Var]{
+      \typer{x}{t} \in \Gamma
+    }{
+      \synthcxr{}{x}{t}
+    }
+     &  &
+    \inferrule*[right=Syn-Const]{
+      \code{prim(c) $=$ t}
+    }{
+      \synthcxr{}{c}{t}
+    }
+     &  &
+    \inferrule*[right=Syn-Ann]{
+    \ctxtr{}{t} \\
+      \checkcxr{}{e}{t}
+    }{
+      \synthcxr{}{e:t}{t}
+    }
+  \end{align*}
+  \begin{equation*}
+    \inferrule*[right=Syn-App]{
+      \synthcxr{}{e}{\fnty{y:$\code{t}_1$}{$\code{t}_2$}} \\
+      \checkcxr{}{x}{$\code{t}_1$}
+    }{
+      \synthcxr{}{e x}{$\code{t}_2$[y := x]}
+    }
+  \end{equation*}
+  \caption{
+    Inference rules for the Synthesis judgment. Adapted from \textcite{jhala2020tutorial}.
+  }\label{fig:tutorial_synthesis}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{align*}
+    \inferrule*[right=Chk-Syn]{
+    \synthcxr{}{x}{$\code{t}_1$} \\
+      \subtycxr{}{$\code{t}_1$}{$\code{t}_2$}
+    }{
+      \checkcxr{}{x}{$\code{t}_2$}
+    }
+     &  &
+    \inferrule*[right=Chk-Fun]{
+      \checkcxr{\typecx{x}{$\code{t}_1$}}{e}{$\code{t}_2$}
+    }{
+      \checkcxr{}{$\lambda$x.e}{\fnty{x:$\code{t}_1$}{$\code{t}_2$}}
+    }
+  \end{align*}
+  \begin{equation*}
+    \inferrule*[right=Chk-Let]{
+      \synthcxr{}{$\code{e}_1$}{$\code{t}_1$} \\
+      \checkcxr{\typecx{x}{$\code{t}_1$}}{$\code{e}_2$}{$\code{t}_2$}
+    }{
+      \synthcxr{}{let x = $\code{e}_1$ in $\code{e}_2$}{$\code{t}_2$}
+    }
+  \end{equation*}
+  \caption{
+    Inference rules for the Checking judgment. Adapted from \textcite{jhala2020tutorial}.
+  }\label{fig:tutorial_checking}
+\end{figure}
+
+\begin{itemize}
+  \item Constants \code{c}:
+  \item Variables \code{x}:
+  \item Applications \code{e x}:
+  \item Annotations \code{e:t}:
+  \item Functions \code{$\lambda$x.e}:
+  \item Let Bindings \code{let x = $\code{e}_1$ in $\code{e}_2$}:
+\end{itemize}
+
 
 \subsection{Implementation}
 
