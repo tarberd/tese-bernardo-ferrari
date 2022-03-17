@@ -1899,7 +1899,9 @@ For statically ensuring that the simply typed lambda calculus with refinement ty
 
 The typing relation \typecxr{}{x}{T} presented in Section~\ref{ch:background:sec:typing_relation} for the simply typed lambda calculus proves that the program is sound by synthesizing a type for each leaf term on the abstract tree and then subsequently synthesizing the types for the intermediate terms until we synthesize the type for the root term thus proving the program's soundness traversing the abstract tree in a single direction, i.e., from the leaves to the root.
 
-The bidirectional typing rules proposed by \textcite{jhala2020tutorial} levers the type synthesis of terms by combining the synthesis with checking judgments. We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesis} and Figure~\ref{fig:tutorial_checking} by exploring how they prove the types for each term \code{e} described in Figure~\ref{fig:refinement_terms}. The terms and their respective inference rules are:
+The bidirectional typing rules proposed by \textcite{jhala2020tutorial} levers the type synthesis of terms by combining the synthesis with checking judgments.
+We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesis} and Figure~\ref{fig:tutorial_checking} by exploring how they prove the types for each term \code{e} described in Figure~\ref{fig:refinement_terms}.
+The terms and their respective inference rules are:
 
 \begin{figure}[ht]
   \begin{align*}
@@ -1938,10 +1940,10 @@ The bidirectional typing rules proposed by \textcite{jhala2020tutorial} levers t
 \begin{figure}[ht]
   \begin{align*}
     \inferrule*[right=Chk-Syn]{
-    \synthcxr{}{x}{$\code{t}_1$} \\
+    \synthcxr{}{e}{$\code{t}_1$} \\
       \subtycxr{}{$\code{t}_1$}{$\code{t}_2$}
     }{
-      \checkcxr{}{x}{$\code{t}_2$}
+      \checkcxr{}{e}{$\code{t}_2$}
     }
      &  &
     \inferrule*[right=Chk-Fun]{
@@ -1964,10 +1966,50 @@ The bidirectional typing rules proposed by \textcite{jhala2020tutorial} levers t
 \end{figure}
 
 \begin{itemize}
-  \item Constants \code{c}:
-  \item Variables \code{x}:
-  \item Applications \code{e x}:
-  \item Annotations \code{e:t}:
+  \item Constants \code{c} synthesize their primitive type denoted by \code{prim(c)} as formalized by the rule Syn-Const.
+        For example, the literals \code{0} and \code{1} for the unrefined type \code{int} are mapped to singleton types as in
+        \begin{gather*}
+          \code{prim(0)} = \code{int\{x|x == 0\}} \\
+          \code{prim(1)} = \code{int\{x|x == 1\}}
+        \end{gather*}
+        Also, primitive functions as arithmetic operations are assigned to types that reflect their semantics as in
+        \begin{gather*}
+          \code{prim(add)} = \fnty{x:int}{\fnty{y:int}{\code{int\{z|z == x + y\}}}} \\
+          \code{prim(sub)} = \fnty{x:int}{\fnty{y:int}{\code{int\{z|z == x - y\}}}} \\
+        \end{gather*}
+
+  \item Variables \code{x} synthesize the type \code{t} if $\typer{x}{t} \in \Gamma$ through the use of the rule Syn-Var.
+
+  \item Applications \code{e x} synthesize the output type of the function type synthesized for the term \code{e} with its input binder substituted by the real argument variable \code{x} through rule Syn-App.
+        Also, the variable \code{x} is constrained by the input type by the checking judgment \checkcxr{}{x}{$\code{t}_1$} in the premises of Syn-App.
+        For example, given the context
+        \begin{equation*}
+          \Gamma = \emptyset\typecx{nat}{int\{x|x > 0\}}\typecx{one}{int\{x| x == 1\}}
+        \end{equation*}
+        the term \code{add nat one} would synthesize
+        \begin{equation*}
+          \synthcxr{}{add nat one}{int\{z|z == nat + one\}}
+        \end{equation*}
+
+        The only inference rule from the checking judgment definition that can check the premises
+        \begin{equation*}
+         \checkcxr{}{nat}{int} \quad \textrm{and} \quad \checkcxr{}{one}{int}
+        \end{equation*}
+        is the rule Chk-Syn, which, will make sure that the variables \code{nat} and \code{one} synthesize types that are subtypes of the respective arguments type for the function \code{add}.
+
+        Furthermore, \textcite{jhala2020tutorial} explain that the function application must receive variables as its arguments in order to properly substitute the input binders in the function's output type.
+        The authors explain how to expand the type syntax to include existential types $\exists\code{x:s.t}$ in order to bypass this constraint but, in order to ease exposition and implementation, \textcite{jhala2020tutorial} opt by keeping the constraint because a program can be easily modified to follow the constraint during analysis.
+        For example, the program
+        \begin{equation*}
+          \code{add (add 5 5) one}
+        \end{equation*}
+        can be easily translated into
+        \begin{equation*}
+          \code{let aux = add 5 5 in add aux one}
+        \end{equation*}
+        instead of further complicating the set of inference rules for allowing non-variable terms as arguments.
+
+  \item Annotations \code{e:t}
   \item Functions \code{$\lambda$x.e}:
   \item Let Bindings \code{let x = $\code{e}_1$ in $\code{e}_2$}:
 \end{itemize}
