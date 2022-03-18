@@ -166,6 +166,8 @@
 \newcommand{\fnabs}[3]{\code{$\lambda$\typer{#1}{#2}.#3}}
 \newcommand{\astlet}[3]{\code{let #1 = #2 in #3}}
 
+\newcommand{\implcons}[3]{\code{$($\code{#1} $::$ #2$)$ $\implies$ #3}}
+
 \newcommand{\tokenstream}[4]{
   & \langle\text{#1,} && \text{\{\textit{lexeme}: #2,} && \text{\textit{begin}: #3,} && \text{\textit{end}: #4\}}\rangle%
 }
@@ -1901,7 +1903,6 @@ The typing relation \typecxr{}{x}{T} presented in Section~\ref{ch:background:sec
 
 The bidirectional typing rules proposed by \textcite{jhala2020tutorial} levers the type synthesis of terms by combining the synthesis with checking judgments.
 We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesis} and Figure~\ref{fig:tutorial_checking} by exploring how they prove the types for each term \code{e} described in Figure~\ref{fig:refinement_terms}.
-The terms and their respective inference rules are:
 
 \begin{figure}[ht]
   \begin{align*}
@@ -1957,7 +1958,7 @@ The terms and their respective inference rules are:
       \synthcxr{}{$\code{e}_1$}{$\code{t}_1$} \\
       \checkcxr{\typecx{x}{$\code{t}_1$}}{$\code{e}_2$}{$\code{t}_2$}
     }{
-      \synthcxr{}{let x = $\code{e}_1$ in $\code{e}_2$}{$\code{t}_2$}
+      \checkcxr{}{let x = $\code{e}_1$ in $\code{e}_2$}{$\code{t}_2$}
     }
   \end{equation*}
   \caption{
@@ -1965,8 +1966,9 @@ The terms and their respective inference rules are:
   }\label{fig:tutorial_checking}
 \end{figure}
 
+The terms that can be synthesized and their respective inference rules for their synthesis definition are:
 \begin{itemize}
-  \item Constants \code{c} synthesize their primitive type denoted by \code{prim(c)} as formalized by the rule Syn-Const.
+  \item Constant terms \code{c} synthesize their primitive type denoted by \code{prim(c)} as formalized by the rule Syn-Const.
         For example, the literals \code{0} and \code{1} for the unrefined type \code{int} are mapped to singleton types as in
         \begin{gather*}
           \code{prim(0)} = \code{int\{x|x == 0\}} \\
@@ -1978,9 +1980,9 @@ The terms and their respective inference rules are:
           \code{prim(sub)} = \fnty{x:int}{\fnty{y:int}{\code{int\{z|z == x - y\}}}} \\
         \end{gather*}
 
-  \item Variables \code{x} synthesize the type \code{t} if $\typer{x}{t} \in \Gamma$ through the use of the rule Syn-Var.
+  \item Variable terms \code{x} synthesize the type \code{t} if $\typer{x}{t} \in \Gamma$ through the use of the rule Syn-Var.
 
-  \item Applications \code{e x} synthesize the output type of the function type synthesized for the term \code{e} with its input binder substituted by the real argument variable \code{x} through rule Syn-App.
+  \item Application terms \code{e x} synthesize the output type of the function type synthesized for the term \code{e} with its input binder substituted by the real argument variable \code{x} through rule Syn-App.
         Also, the variable \code{x} is constrained by the input type by the checking judgment \checkcxr{}{x}{$\code{t}_1$} in the premises of Syn-App.
         For example, given the context
         \begin{equation*}
@@ -1993,7 +1995,7 @@ The terms and their respective inference rules are:
 
         The only inference rule from the checking judgment definition that can check the premises
         \begin{equation*}
-         \checkcxr{}{nat}{int} \quad \textrm{and} \quad \checkcxr{}{one}{int}
+          \checkcxr{}{nat}{int} \quad \textrm{and} \quad \checkcxr{}{one}{int}
         \end{equation*}
         is the rule Chk-Syn, which, will make sure that the variables \code{nat} and \code{one} synthesize types that are subtypes of the respective arguments type for the function \code{add}.
 
@@ -2009,13 +2011,33 @@ The terms and their respective inference rules are:
         \end{equation*}
         instead of further complicating the set of inference rules for allowing non-variable terms as arguments.
 
-  \item Annotations \code{e:t}
-  \item Functions \code{$\lambda$x.e}:
-  \item Let Bindings \code{let x = $\code{e}_1$ in $\code{e}_2$}:
+  \item Annotation terms \code{e:t} synthesize its annotated type \code{t} if the annotated term \code{e} can be checked against the type \code{t} and the type \code{t} is well-formed as defined by rule Syn-Ann.
 \end{itemize}
 
+In order to complete the discussion of the bidirectional typing rules, we discuss the terms that can be checked and their checking definition rules:
+\begin{itemize}
+  \item Function terms \code{$\lambda$x.e} do not directly synthesize a type, those can only be checked against a type through the Chk-Fun rule.
+        A function can be checked against the type \fnty{x:$\code{t}_1$}{$\code{t}_2$} if its body \code{e} can be checked against $\code{t}_2$ with the context extended with the argument binding \typer{x}{$\code{t}_1$} as defined by the rule Chk-Fun.
 
-\subsection{Implementation}
+  \item Let Binding terms \code{let x = $\code{e}_1$ in $\code{e}_2$} also do not directly synthesize a type requiring to be checked through the Chk-Let.
+        A let binding can be checked against the type $\code{t}_2$ if $\code{e}_2$ can be checked against $\code{t}_2$ with the context extended with the binding \typer{x}{$\code{t}_1$} which has to be synthesized for $\code{e}_1$.
+\end{itemize}
+Last, the terms for constants, variables, applications, and, annotations, can be checked by the use of the Chk-Syn inference rule.
+The subsumpiton rule Chk-Syn connects the checking and synthesis judgments by defining that if a term \code{e} synthesized a type $\code{t}_1$ and the type $\code{t}_1$ is subsumed by type $\code{t}_2$ (i.e., $\code{t}_1$ is subtype of $\code{t}_2$) then we can check \code{e} against $\code{t}_2$.
+
+\subsubsection{An implementation of a verification condition generator}
+
+In order to verify the soundness of a program for the proposed simply typed lambda calculus with refinements, \textcite{jhala2020tutorial} describes an implementation of a verification condition (VC) generator.
+The proposed generator takes as input the program's abstract syntax and outputs a VC constraint \code{c} which can be validated by an SMT solver and implies the program's soundness~\cite{jhala2020tutorial}.
+More specifically, the authors describe an algorithm implementation for the subtyping, synthesis and checking judgments.
+
+The algorithms make use of an implication constraint written \implcons{x}{t}{c} defined as
+\begin{equation*}
+  \implcons{x}{t}{c} = \begin{cases}
+    \forall\code{x:b. p[y := x]} \implies \code{c} & \textrm{if \code{t}} = \code{b\{y|p\}} \\
+    \code{c}                                       & \textrm{otherwise}
+  \end{cases}
+\end{equation*}
 
 \section{The LLVM intermediate representation}
 
