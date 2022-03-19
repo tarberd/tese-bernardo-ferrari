@@ -2039,6 +2039,87 @@ The algorithms make use of an implication constraint written \implcons{x}{t}{c} 
   \end{cases}
 \end{equation*}
 
+The subtyping relation can be implemented as a function \code{sub} that takes two types $\code{t}_1$ and $\code{t}_2$ as input and outputs a constraint \code{c} which the validity of \code{c} implies the subtyping relation \subtyr{$\code{t}_1$}{$\code{t}_2$} formalized by \textcite{jhala2020tutorial} as the following proposition:
+\begin{equation*}
+  \textrm{if \code{sub($\code{t}_1$, $\code{t}_2$)} = \code{c} and \ctxtr{}{c} then \subtycxr{}{$\code{t}_1$}{$\code{t}_2$}}
+\end{equation*}
+The function \code{sub} is implemented as shown in Figure~\ref{fig:subtyping_function_impl} where each definition is relative to the inference rules Sub-Base and Sub-Fun from Figure~\ref{fig:tutorial_subtyping}.
+
+\begin{figure}[ht]
+  \begin{align*}
+    \code{sub(b\{$\code{x}_1$, $\code{p}_1$\}, b\{$\code{x}_2$, $\code{p}_2$\})}
+     & = \forall\code{x:b. $\code{p}_1$} \implies \code{$\code{p}_2$[$\code{x}_2$ := $\code{x}_1$]} \\
+    \code{sub(\fnty{$\code{x}_1$:$\code{t}_{1.1}$}{$\code{t}_{1.2}$}, \fnty{$\code{x}_2$:$\code{t}_{2.1}$}{$\code{t}_{2.2}$})}
+     & = c_1 \land \implcons{$\code{x}_2$}{$\code{t}_{2.1}$}{$c_2$}                                 \\
+     & \textrm{where:}                                                                              \\
+     & \quad c_1 = \code{sub($\code{t}_{1.1}$, $\code{t}_{2.1}$)}                                   \\
+     & \quad c_2 = \code{sub($\code{t}_{1.2}$[$\code{x}_1$ := $\code{x}_2$], $\code{t}_{2.2}$)}
+  \end{align*}
+  \caption{
+    Subtyping function for the subtyping relation.
+    Adapted from \textcite{jhala2020tutorial}.
+  }\label{fig:subtyping_function_impl}
+\end{figure}
+
+The synthesis relation can be implemented as a function \code{synth} that takes as input the context $\Gamma$ and a term \code{e} and outputs the tuple \code{(c, t)} where \code{t} is the type of \code{e} in $\Gamma$ and the constraint \code{c}'s validity implies the synthesis relation as formalized by \textcite{jhala2020tutorial} in the proposition:
+\begin{equation*}
+  \textrm{if \code{synth($\Gamma$, e)} = \code{(c, t)} and \ctxtr{}{c} then \synthcxr{}{\code{e}}{\code{t}}}
+\end{equation*}
+The function \code{synth} is implemented as shown in Figure~\ref{fig:synth_function_impl} where each definition is relative to the inference rules Syn-Var, Syn-Const, Syn-Ann, and Syn-App from Figure~\ref{fig:tutorial_synthesis}.
+
+\begin{figure}[ht]
+  \begin{align*}
+    \code{synth($\Gamma$, x)}
+     & = \code{(true, t)}                                                                    \\
+     & \textrm{where:}                                                                       \\
+     & \quad \typer{x}{t} \in \Gamma                                                         \\
+    \code{synth($\Gamma$, c)}
+     & = \code{(true, prim(c))}                                                              \\
+    \code{synth($\Gamma$, e y)}
+     & = \code{($c_1 \land c_2$, $\code{t}_2$[x := y])}                                      \\
+     & \textrm{where:}                                                                       \\
+     & \quad \code{($c_1$, \fnty{x:$\code{t}_1$}{$\code{t}_2$})} = \code{synth($\Gamma$, e)} \\
+     & \quad c_2 = \code{check($\Gamma$, y, $\code{t}_1$)}                                   \\
+    \code{synth($\Gamma$, e:t)}
+     & = \code{($c$, t)}                                                                     \\
+     & \textrm{where:}                                                                       \\
+     & \quad c = \code{check($\Gamma$, e, t)}
+  \end{align*}
+  \caption{
+    Synthesis function for the synthesis relation.
+    Adapted from \textcite{jhala2020tutorial}.
+  }\label{fig:synth_function_impl}
+\end{figure}
+
+Last, the checking relation can be implemented as a function \code{check} that takes as input the context $\Gamma$, a term \code{e}, and, an expected type \code{t}, and output a constraint \code{c} which validity implies the synthesis relation as formalized by \textcite{jhala2020tutorial} in the proposition:
+\begin{equation*}
+  \textrm{if \code{check($\Gamma$, e, t)} = \code{c} and \ctxtr{}{c} then \checkcxr{}{\code{e}}{\code{t}}}
+\end{equation*}
+The function \code{check} is implemented as shown in Figure~\ref{fig:check_function_impl} where each definition is relative to the inference rules Chk-Fun, Chk-Let, and Chk-Syn, present in Figure~\ref{fig:tutorial_checking}.
+
+\begin{figure}[ht]
+  \begin{align*}
+    \code{check($\Gamma$, $\lambda$x.e, \fnty{x:$\code{t}_1$}{$\code{t}_2$})}
+     & = \implcons{x}{$\code{t}_1$}{$c$}                                                        \\
+     & \textrm{where:}                                                                          \\
+     & \quad c = \code{check(($\Gamma$\typecx{x}{$\code{t}_1$}), e, t)}                         \\
+    \code{check($\Gamma$, let x = $\code{e}_1$ in $\code{e}_2$, $\code{t}_2$)}
+     & = c_1 \land \implcons{x}{$\code{t}_1$}{$c_2$}                                            \\
+     & \textrm{where:}                                                                          \\
+     & \quad (c_1, t_1) = \code{synth($\Gamma$, $\code{e}_1$)}                                  \\
+     & \quad c_2 = \code{check(($\Gamma$\typecx{x}{$\code{t}_1$}), $\code{e}_2$, $\code{t}_2$)} \\
+    \code{check($\Gamma$, e, $\code{t}_2$)}
+     & = c_1 \land c_2                                                                          \\
+     & \textrm{where:}                                                                          \\
+     & \quad (c_1, t_1) = \code{synth($\Gamma$, e)}                                             \\
+     & \quad c_2 = \code{sub($\code{t}_1$, $\code{t}_2$)}                                       \\
+  \end{align*}
+  \caption{
+    Synthesis function for the synthesis relation.
+    Adapted from \textcite{jhala2020tutorial}.
+  }\label{fig:check_function_impl}
+\end{figure}
+
 \section{The LLVM intermediate representation}
 
 To do. Work in progress.
