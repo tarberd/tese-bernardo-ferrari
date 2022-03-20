@@ -460,7 +460,10 @@ Whereas in the implementation of \textit{Ekitai's} front end we will develop a f
 
 \section{Structure of the work}
 
-In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to design a higher level language's front end. Furthermore, in Chapter~\ref{chapter:related_work}, we explore other pieces of work from articles and industry that are tangent to our goal. Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
+In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to design a higher level language's front end.
+Furthermore, in Chapter~\ref{ch:refinement_types}, we explore how to add refinements to a lambda calculus language.
+In Chapter~\ref{ch:llvm}, we explore how to use the LLVM intermediate representation.
+Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
 
 \chapter{A review on front end design and implementation}\label{chapter:background}
 
@@ -1647,11 +1650,7 @@ As the last phase of a compiler's front end we have the intermediate code genera
 
 To do. Here goes an introduction of Single Static Assignment intermediate representations.
 
-\chapter{State of the art in front end design}\label{chapter:related_work}
-
-In this chapter we will present prior work related to refinement types and the LLVM intermediate representation.
-
-\section{Refinement types with predicates}
+\chapter{Refinement types with predicates}\label{ch:refinement_types}
 
 In order to explore refinement types, we will be discussing the works by \textcite{jhala2020tutorial} which was written in order to collect in a single place the authors previous efforts in \textcite{vazou2014liquidhaskell} building the LiquidHaskell extension  which opened the way for many implementations of refinement types on top of existing languages.
 Notable implementation include the work of \textcite{vekris2016refinementtypescript} adding refinement types for the TypeScript language, the work of \textcite{vazou2018refinementruby} adding refinement types for the Ruby language, and the work of \textcite{sammler2021refinedc} integrating refinement types for the C language.
@@ -1670,12 +1669,11 @@ By enabling verification on the same language as the programming language, refin
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof~\cite{jhala2020tutorial}.
 
 
-\subsection{Extending the simply typed lambda calculus with refinements}
+\section{Extending the simply typed lambda calculus with refinements}
 
-Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in Section~\ref{chapter:background:sec:semantic}.
-The authors propose a method to start with a very basic simply typed lambda calculus with refinements and incrementally adds new terms to the language and explaining how to build the type inference rules for each newly added term.
+Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in Section~\ref{chapter:background:sec:semantic} together with the respective inference rules and the newly added typing relations.
 
-\subsubsection{Abstract syntax of predicates and constraints}
+\subsection{Abstract syntax of predicates and constraints}
 
 The authors start the construction by defining the abstract syntax for the predicates and constraints syntactical categories as seen in Figure~\ref{fig:refinement_predicates}.
 \begin{figure}[ht]
@@ -1728,7 +1726,7 @@ Constrains are either a single quantifier-free predicate \code{p}, or a conjunct
 The latter form of a constraint means that for all \code{x} of a given base type \code{b}, if p holds then so must c.
 These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
 
-\subsubsection{Abstract syntax of terms and types}
+\subsection{Abstract syntax of terms and types}
 
 The abstract syntax for terms and types presented by the authors is summarized in Figure~\ref{fig:refinement_terms}.
 
@@ -1737,14 +1735,17 @@ The abstract syntax for terms and types presented by the authors is summarized i
     \begin{alignat*}{4}
       \astprod{e}{c}                   & \quad & \textit{Constants}          \\
       \astmore{x}                      & \quad & \textit{Variables}          \\
+      \astmore{if x then e else e}     & \quad & \textit{If Expression}      \\
       \astmore{let x = e in e}         & \quad & \textit{Let Binding}        \\
+      \astmore{rec x = e:t in e}       & \quad & \textit{Recursive Binding}  \\
       \astmore{$\lambda$x.e}           & \quad & \textit{Function}           \\
       \astmore{e x}                    & \quad & \textit{Application}        \\
       \astmore{e:t}                    & \quad & \textit{Type Annotation}    \\
       \\
       \astprod{t}{b\{x|p\}}            & \quad & \textit{Refined Base}       \\
       \astmore{\fnty{x:t}{t}}          & \quad & \textit{Dependent Function} \\
-      \astprod{b}{int}                 & \quad & \textit{Base Types}         \\
+      \astprod{b}{int}                 & \quad & \textit{Base Integer Type}  \\
+      \astmore{bool}                   & \quad & \textit{Base Boolean Type}  \\
       \\
       \astprod{$\Gamma$}{$\emptyset$}  & \quad & \textit{Empty Context}      \\
       \astmore{$\Gamma$, \typer{x}{t}} & \quad & \textit{Variable Binding}   \\
@@ -1757,16 +1758,16 @@ The abstract syntax for terms and types presented by the authors is summarized i
 \end{figure}
 
 The terms presented by the authors are similar to the terms explores in Section~\ref{chapter:background:sec:semantic}.
-They differ only by the function application, which now must receive a variable as parameter, and by the introduction of type annotation terms.
+They differ only by the function application, which now must receive a variable as parameter, by the introduction of type annotation terms, and, by the introduction of a recursive binding that allows the use of recursive functions.
 Also, the constants \code{c} includes primitives such as integers and primitive functions such as \code{sum} and \code{sub} for arithmetic operations.
 Furthermore, in the definition of types, we find:
 \begin{itemize}
   \item The syntactic variable \code{b} for the languages primitive types (e.g., the set of all integers \code{int});
   \item The refined types \code{t} composed of a base type \code{b} and the definition of a refinement \code{\{x|p\}}, which is a pair of a \textit{value variable} \code{x} and a logical predicate \code{p} from the SMT logic in Figure~\ref{fig:refinement_predicates}.
-  \item And, a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
+  \item And, a dependent function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
 \end{itemize}
 
-\subsubsection{Variable substitution rules for refinement types}
+\subsection{Variable substitution rules for refinement types}
 
 The authors use the notation \code{t[x := y]} to denote a type substitution where all free occurrences of \code{y} inside the type \code{t} are substituted by \code{x}.
 For the refined type, the substitution is defined as
@@ -1784,7 +1785,7 @@ Analogously, the substitution of the refined function type is defined as:
   \code{(\fnty{z:$\code{t}_1$}{$\code{t}_2$})[x := y]} & = \code{\fnty{z:$\code{t}_1$[x := y]}{$\code{t}_2$[x := y]}}
 \end{align*}
 
-\subsubsection{Judgments}
+\subsection{Judgments}
 
 For statically ensuring that the simply typed lambda calculus with refinement types could be correctly evaluated, \textcite{jhala2020tutorial} make use of a few new judgments (i.e., relations):
 \begin{itemize}
@@ -1889,7 +1890,7 @@ For statically ensuring that the simply typed lambda calculus with refinement ty
         This judgment is relative to the typing relation for the unrefined simply typed lambda calculus in Section~\ref{chapter:background:sec:semantic}.
 
         The inference rules in Figure~\ref{fig:tutorial_synthesis} define the synthesis judgment.
-        They work together with the \textit{checking} judgment inference rules to build the \textit{bidirectional typing} system described in Section~\ref{subsub:bidirectional_typing}.
+        They work together with the \textit{checking} judgment inference rules to build the \textit{bidirectional typing} system described in Section~\ref{sub:bidirectional_typing}.
 
   \item And, the \textit{Checking} judgment \checkcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} is a valid type for the term \code{e}, that is, constraining the term \code{e} to \textit{synthesize} a type \code{s} where \subtyr{s}{t}~\cite{jhala2020tutorial}.
         This judgment is used to verify that a term is of given annotated type and to push the type annotation inside it's sub-terms to get localized type obligations for inner expressions~\cite{jhala2020tutorial}.
@@ -1897,7 +1898,7 @@ For statically ensuring that the simply typed lambda calculus with refinement ty
         The inference rules in Figure~\ref{fig:tutorial_checking} define the checking judgment, complementing the inference rules for the synthesis judgment.
 \end{itemize}
 
-\subsubsection{Bidirectional typing}\label{subsub:bidirectional_typing}
+\subsection{Bidirectional typing}\label{sub:bidirectional_typing}
 
 The typing relation \typecxr{}{x}{T} presented in Section~\ref{ch:background:sec:typing_relation} for the simply typed lambda calculus proves that the program is sound by synthesizing a type for each leaf term on the abstract tree and then subsequently synthesizing the types for the intermediate terms until we synthesize the type for the root term thus proving the program's soundness traversing the abstract tree in a single direction, i.e., from the leaves to the root.
 
@@ -1953,6 +1954,7 @@ We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesi
       \checkcxr{}{$\lambda$x.e}{\fnty{x:$\code{t}_1$}{$\code{t}_2$}}
     }
   \end{align*}
+
   \begin{equation*}
     \inferrule*[right=Chk-Let]{
       \synthcxr{}{$\code{e}_1$}{$\code{t}_1$} \\
@@ -1961,6 +1963,28 @@ We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesi
       \checkcxr{}{let x = $\code{e}_1$ in $\code{e}_2$}{$\code{t}_2$}
     }
   \end{equation*}
+
+  \begin{equation*}
+    \inferrule*[right=Chk-Rec]{
+      \ctxtr{}{$\code{t}_1$} \\
+      \checkcxr{\typecx{x}{$\code{t}_1$}}{$\code{e}_1$}{$\code{t}_1$} \\
+      \checkcxr{\typecx{x}{$\code{t}_1$}}{$\code{e}_2$}{$\code{t}_2$}
+    }{
+      \checkcxr{}{rec x = $\code{e}_1$:$\code{t}_1$ in $\code{e}_2$}{$\code{t}_2$}
+    }
+  \end{equation*}
+
+  \begin{equation*}
+    \inferrule*[right=Chk-If]{
+      \qquad \qquad \qquad \quad \ \ \code{y} \notin \Gamma \\
+      \checkcxr{}{x}{bool\{x|true\}} \\\\
+      \checkcxr{\typecx{y}{int\{y|x\}}}{$\code{e}_1$}{t} \\
+      \checkcxr{\typecx{y}{int\{y|!x\}}}{$\code{e}_2$}{t}
+    }{
+      \checkcxr{}{if x then $\code{e}_1$ else $\code{e}_2$}{t}
+    }
+  \end{equation*}
+
   \caption{
     Inference rules for the Checking judgment. Adapted from \textcite{jhala2020tutorial}.
   }\label{fig:tutorial_checking}
@@ -1970,15 +1994,22 @@ The terms that can be synthesized and their respective inference rules for their
 \begin{itemize}
   \item Constant terms \code{c} synthesize their primitive type denoted by \code{prim(c)} as formalized by the rule Syn-Const.
         For example, the literals \code{0} and \code{1} for the unrefined type \code{int} are mapped to singleton types as in
-        \begin{gather*}
-          \code{prim(0)} = \code{int\{x|x == 0\}} \\
-          \code{prim(1)} = \code{int\{x|x == 1\}}
-        \end{gather*}
+        \begin{align*}
+          \code{prim(0)}     & = \code{int\{x|x == 0\}} \\
+          \code{prim(1)}     & = \code{int\{x|x == 1\}} \\
+          \code{prim(true)}  & = \code{bool\{x|x\}}     \\
+          \code{prim(false)} & = \code{bool\{x|!x\}}    \\
+        \end{align*}
         Also, primitive functions as arithmetic operations are assigned to types that reflect their semantics as in
         \begin{gather*}
           \code{prim(add)} = \fnty{x:int}{\fnty{y:int}{\code{int\{z|z == x + y\}}}} \\
           \code{prim(sub)} = \fnty{x:int}{\fnty{y:int}{\code{int\{z|z == x - y\}}}} \\
         \end{gather*}
+        and comparison operations as in
+        \begin{align*}
+          \code{prim(let)} & = \fnty{x:int}{\fnty{y:int}{\code{bool\{z|z == x <= y\}}}} \\
+          \code{prim(geq)} & = \fnty{x:int}{\fnty{y:int}{\code{bool\{z|z == x > y\}}}}  \\
+        \end{align*}
 
   \item Variable terms \code{x} synthesize the type \code{t} if $\typer{x}{t} \in \Gamma$ through the use of the rule Syn-Var.
 
@@ -2016,16 +2047,29 @@ The terms that can be synthesized and their respective inference rules for their
 
 In order to complete the discussion of the bidirectional typing rules, we discuss the terms that can be checked and their checking definition rules:
 \begin{itemize}
-  \item Function terms \code{$\lambda$x.e} do not directly synthesize a type, those can only be checked against a type through the Chk-Fun rule.
+  \item Function terms \code{$\lambda$x.e} do not directly synthesize a type, those can only be checked against a type through the Chk-Fun inference rule.
         A function can be checked against the type \fnty{x:$\code{t}_1$}{$\code{t}_2$} if its body \code{e} can be checked against $\code{t}_2$ with the context extended with the argument binding \typer{x}{$\code{t}_1$} as defined by the rule Chk-Fun.
 
-  \item Let Binding terms \code{let x = $\code{e}_1$ in $\code{e}_2$} also do not directly synthesize a type requiring to be checked through the Chk-Let.
+  \item Let Binding terms \code{let x = $\code{e}_1$ in $\code{e}_2$} also do not directly synthesize a type requiring to be checked through the Chk-Let inference rule.
         A let binding can be checked against the type $\code{t}_2$ if $\code{e}_2$ can be checked against $\code{t}_2$ with the context extended with the binding \typer{x}{$\code{t}_1$} which has to be synthesized for $\code{e}_1$.
+
+  \item Recursive Binding terms \code{rec x = $\code{e}_1$:$\code{t}_1$ in $\code{e}_2$} is a similar case to let bindings and can be checked through the Chk-Rec inference rule.
+        A recursive binding differs from the let binding by requiring a type annotation in the expression $\code{e}_1$, and by pushing the type binding \typer{x}{$\code{t}_1$} into the checking of $\code{e}_1$ instead of synthesizing its type.
+
+  \item If Expression terms \code{if x then $\code{e}_1$ else $\code{e}_2$} also do not directly synthesize a type requiring to be checked through the Chk-If inference rule.
+        An if expression can be checked to have type \code{t} in a context $\Gamma$ if both $\code{e}_1$ and $\code{e}_2$ can be checked to have type \code{t}.
+        Furthermore, the inference rule Chk-If differs from a classic definition of an if expression term by adding into the context a \textit{fresh} \code{y} variable (i.e., not present in the context) bound to a refinement that captures the exact value of the condition \code{x} when checking the terms $\code{e}_1$ and $\code{e}_2$~\cite{jhala2020tutorial}.
+        If this binding was not present in the context, the checking relation
+        \begin{gather*}
+          \code{not} = \lambda\code{x.if x then false else true} \\
+          \checkcxr{}{not}{\fnty{x:bool}{bool\{b|b == !x\}}}
+        \end{gather*}
+        would not be able to prove that the output type of the \code{not} function is the inverse of the condition value receive as input~\cite{jhala2020tutorial}.
 \end{itemize}
 Last, the terms for constants, variables, applications, and, annotations, can be checked by the use of the Chk-Syn inference rule.
 The subsumpiton rule Chk-Syn connects the checking and synthesis judgments by defining that if a term \code{e} synthesized a type $\code{t}_1$ and the type $\code{t}_1$ is subsumed by type $\code{t}_2$ (i.e., $\code{t}_1$ is subtype of $\code{t}_2$) then we can check \code{e} against $\code{t}_2$.
 
-\subsubsection{An implementation of a verification condition generator}
+\subsection{An implementation of a verification condition generator}
 
 In order to verify the soundness of a program for the proposed simply typed lambda calculus with refinements, \textcite{jhala2020tutorial} describes an implementation of a verification condition (VC) generator.
 The proposed generator takes as input the program's abstract syntax and outputs a VC constraint \code{c} which can be validated by an SMT solver and implies the program's soundness~\cite{jhala2020tutorial}.
@@ -2095,24 +2139,37 @@ Last, the checking relation can be implemented as a function \code{check} that t
 \begin{equation*}
   \textrm{if \code{check($\Gamma$, e, t)} = \code{c} and \ctxtr{}{c} then \checkcxr{}{\code{e}}{\code{t}}}
 \end{equation*}
-The function \code{check} is implemented as shown in Figure~\ref{fig:check_function_impl} where each definition is relative to the inference rules Chk-Fun, Chk-Let, and Chk-Syn, present in Figure~\ref{fig:tutorial_checking}.
+The function \code{check} is implemented as shown in Figure~\ref{fig:check_function_impl} where each definition is relative to the inference rules Chk-Fun, Chk-Let, Chk-Rec, Chk-If, and Chk-Syn, present in Figure~\ref{fig:tutorial_checking}.
 
 \begin{figure}[ht]
   \begin{align*}
-    \code{check($\Gamma$, $\lambda$x.e, \fnty{x:$\code{t}_1$}{$\code{t}_2$})}
-     & = \implcons{x}{$\code{t}_1$}{$c$}                                                        \\
-     & \textrm{where:}                                                                          \\
-     & \quad c = \code{check(($\Gamma$\typecx{x}{$\code{t}_1$}), e, t)}                         \\
-    \code{check($\Gamma$, let x = $\code{e}_1$ in $\code{e}_2$, $\code{t}_2$)}
-     & = c_1 \land \implcons{x}{$\code{t}_1$}{$c_2$}                                            \\
-     & \textrm{where:}                                                                          \\
-     & \quad (c_1, t_1) = \code{synth($\Gamma$, $\code{e}_1$)}                                  \\
-     & \quad c_2 = \code{check(($\Gamma$\typecx{x}{$\code{t}_1$}), $\code{e}_2$, $\code{t}_2$)} \\
     \code{check($\Gamma$, e, $\code{t}_2$)}
-     & = c_1 \land c_2                                                                          \\
-     & \textrm{where:}                                                                          \\
-     & \quad (c_1, t_1) = \code{synth($\Gamma$, e)}                                             \\
-     & \quad c_2 = \code{sub($\code{t}_1$, $\code{t}_2$)}                                       \\
+     & = c_1 \land c_2                                                         \\
+     & \textrm{where:}                                                         \\
+     & \quad (c_1,\ \code{t}_1) = \code{synth($\Gamma$, e)}                    \\
+     & \quad c_2 = \code{sub($\code{t}_1$, $\code{t}_2$)}                      \\
+    \code{check($\Gamma$, $\lambda$x.e, \fnty{x:$\code{t}_1$}{$\code{t}_2$})}
+     & = \implcons{x}{$\code{t}_1$}{$c$}                                       \\
+     & \textrm{where:}                                                         \\
+     & \quad c = \code{check($\Gamma_1$, e, t)}                                \\
+     & \quad \Gamma_1 = \Gamma\typecx{x}{$\code{t}_1$}                         \\
+    \code{check($\Gamma$, let x = $\code{e}_1$ in $\code{e}_2$, $\code{t}_2$)}
+     & = c_1 \land \implcons{x}{$\code{t}_1$}{$c_2$}                           \\
+     & \textrm{where:}                                                         \\
+     & \quad (c_1,\ \code{t}_1) = \code{synth($\Gamma$, $\code{e}_1$)}         \\
+     & \quad c_2 = \code{check($\Gamma_1$, $\code{e}_2$, $\code{t}_2$)}        \\
+     & \quad \Gamma_1 = \Gamma\typecx{x}{$\code{t}_1$}                         \\
+    \code{check($\Gamma$, rec x = $\code{e}_1$:$\code{t}_1$ in $\code{e}_2$, $\code{t}_2$)}
+     & = c_1 \land c_2                                                         \\
+     & \textrm{where:}                                                         \\
+     & \quad c_1 = \code{check($\Gamma_1$, $\code{e}_1$, $\code{t}_1$)}        \\
+     & \quad c_2 = \code{check($\Gamma_1$, $\code{e}_2$, $\code{t}_2$)}        \\
+     & \quad \Gamma_1 = \Gamma\typecx{x}{$\code{t}_1$}                         \\
+    \code{check($\Gamma$, if x then $\code{e}_1$ else $\code{e}_2$, t)}
+     & = c_1 \land c_2                                                         \\
+     & \textrm{where:}                                                         \\
+     & \quad c_1 = \implcons{y}{int\{x|x\}}{check($\Gamma$, $\code{e}_1$, t)}  \\
+     & \quad c_2 = \implcons{y}{int\{x|!x\}}{check($\Gamma$, $\code{e}_2$, t)}
   \end{align*}
   \caption{
     Synthesis function for the synthesis relation.
@@ -2120,7 +2177,7 @@ The function \code{check} is implemented as shown in Figure~\ref{fig:check_funct
   }\label{fig:check_function_impl}
 \end{figure}
 
-\section{The LLVM intermediate representation}
+\chapter{The LLVM intermediate representation}\label{ch:llvm}
 
 To do. Work in progress.
 
