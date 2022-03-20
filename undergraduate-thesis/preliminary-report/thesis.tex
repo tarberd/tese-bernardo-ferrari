@@ -1763,9 +1763,12 @@ Also, the constants \code{c} includes primitives such as integers and primitive 
 Furthermore, in the definition of types, we find:
 \begin{itemize}
   \item The syntactic variable \code{b} for the languages primitive types (e.g., the set of all integers \code{int});
+
   \item The refined types \code{t} composed of a base type \code{b} and the definition of a refinement \code{\{x|p\}}, which is a pair of a \textit{value variable} \code{x} and a logical predicate \code{p} from the SMT logic in Figure~\ref{fig:refinement_predicates}.
+
   \item And, a dependent function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
 \end{itemize}
+In order to reduce verbosity, a refined type which allows all values, written \code{b\{x|true\}}, can be abbreviated into its base type \code{b}.
 
 \subsection{Variable substitution rules for refinement types}
 
@@ -1908,9 +1911,10 @@ We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesi
 \begin{figure}[ht]
   \begin{align*}
     \inferrule*[right=Syn-Var]{
-      \typer{x}{t} \in \Gamma
+    \typer{x}{t} \in \Gamma \\
+      \code{self(x, t)} = \code{s}
     }{
-      \synthcxr{}{x}{t}
+      \synthcxr{}{x}{s}
     }
      &  &
     \inferrule*[right=Syn-Const]{
@@ -1918,22 +1922,22 @@ We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesi
     }{
       \synthcxr{}{c}{t}
     }
+  \end{align*}
+  \begin{align*}
+    \inferrule*[right=Syn-App]{
+    \synthcxr{}{e}{\fnty{y:$\code{t}_1$}{$\code{t}_2$}} \\
+      \checkcxr{}{x}{$\code{t}_1$}
+    }{
+      \synthcxr{}{e x}{$\code{t}_2$[y := x]}
+    }
      &  &
     \inferrule*[right=Syn-Ann]{
-    \ctxtr{}{t} \\
+    \ctxtr{}{t}                                         \\
       \checkcxr{}{e}{t}
     }{
       \synthcxr{}{e:t}{t}
     }
   \end{align*}
-  \begin{equation*}
-    \inferrule*[right=Syn-App]{
-      \synthcxr{}{e}{\fnty{y:$\code{t}_1$}{$\code{t}_2$}} \\
-      \checkcxr{}{x}{$\code{t}_1$}
-    }{
-      \synthcxr{}{e x}{$\code{t}_2$[y := x]}
-    }
-  \end{equation*}
   \caption{
     Inference rules for the Synthesis judgment. Adapted from \textcite{jhala2020tutorial}.
   }\label{fig:tutorial_synthesis}
@@ -1976,8 +1980,8 @@ We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesi
 
   \begin{equation*}
     \inferrule*[right=Chk-If]{
-      \qquad \qquad \qquad \quad \ \ \code{y} \notin \Gamma \\
-      \checkcxr{}{x}{bool\{x|true\}} \\\\
+      \qquad \quad \ \code{y} \notin \Gamma \\
+      \checkcxr{}{x}{bool} \\\\
       \checkcxr{\typecx{y}{int\{y|x\}}}{$\code{e}_1$}{t} \\
       \checkcxr{\typecx{y}{int\{y|!x\}}}{$\code{e}_2$}{t}
     }{
@@ -2007,11 +2011,27 @@ The terms that can be synthesized and their respective inference rules for their
         \end{gather*}
         and comparison operations as in
         \begin{align*}
-          \code{prim(let)} & = \fnty{x:int}{\fnty{y:int}{\code{bool\{z|z == x <= y\}}}} \\
-          \code{prim(geq)} & = \fnty{x:int}{\fnty{y:int}{\code{bool\{z|z == x > y\}}}}  \\
+          \code{prim(leq)} & = \fnty{x:int}{\fnty{y:int}{\code{bool\{z|z == x < y\}}}}  \\
+          \code{prim(get)} & = \fnty{x:int}{\fnty{y:int}{\code{bool\{z|z == x >= y\}}}} \\
         \end{align*}
 
-  \item Variable terms \code{x} synthesize the type \code{t} if $\typer{x}{t} \in \Gamma$ through the use of the rule Syn-Var.
+  \item Variable terms \code{x} synthesize the type resulting from \code{self(x, t)} if $\typer{x}{t} \in \Gamma$ through the use of the rule Syn-Var where the function \code{self} is defined as
+        \begin{equation*}
+          \code{self(x, t)} = \begin{cases}
+            \code{b\{y| p \&\& y == x\}} & \textrm{if \code{t}} = \code{b\{y|p\}} \\
+            \code{t}                     & \textrm{otherwise}
+          \end{cases}
+        \end{equation*}
+        The use of \code{self} guaranties that we further strengthen base type refinements by bring the value of \code{x} into the refinement predicate of \code{t}.
+        For example, consider the function \code{abs} for calculating the absolute value on an integer \code{x}
+        \begin{align*}
+          \code{abs} = \lambda\code{x. let c = leq(0, x) in if (c) then (x) else (sub 0 x)}
+        \end{align*}
+        of type
+        \begin{equation*}
+          \typer{abs}{\fnty{x:int}{int\{y| y >= 0 \&\& y >= x\}}}
+        \end{equation*}
+        If \code{x} had type \code{int\{x|true\}}, the body term of the \code{abs} function would never be a subtype of its output type, while, when extending the type predicate into the type \code{int\{y| true \&\& x == y\}} the generated validity constraint can reason on the value of \code{x} and check the validity of the function \code{abs}~\cite{jhala2020tutorial}.
 
   \item Application terms \code{e x} synthesize the output type of the function type synthesized for the term \code{e} with its input binder substituted by the real argument variable \code{x} through rule Syn-App.
         Also, the variable \code{x} is constrained by the input type by the checking judgment \checkcxr{}{x}{$\code{t}_1$} in the premises of Syn-App.
@@ -2114,7 +2134,7 @@ The function \code{synth} is implemented as shown in Figure~\ref{fig:synth_funct
 \begin{figure}[ht]
   \begin{align*}
     \code{synth($\Gamma$, x)}
-     & = \code{(true, t)}                                                                    \\
+     & = \code{(true, self(x, t))}                                                           \\
      & \textrm{where:}                                                                       \\
      & \quad \typer{x}{t} \in \Gamma                                                         \\
     \code{synth($\Gamma$, c)}
