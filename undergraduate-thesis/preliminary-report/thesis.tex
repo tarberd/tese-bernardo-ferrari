@@ -1006,7 +1006,7 @@ fn parse_Factor(p: Parser) -> Parse {
     p.eat_token();
     let expr = parse_Expr(p);
     p.expect(")");
-    Expr(expr)
+    NestedExpr(expr)
   } else if p.at("id") {
     let token = p.eat_token();
     Id(token)
@@ -1085,7 +1085,8 @@ However, this approach limits the compiler to analyze the source program in the 
 Hence, using some sort of intermediate representation between syntax analysis and semantics analysis allows the semantic analyzer to be free from the constraints of the parsing algorithm~\cite{appel2003modern}.
 One possible solution is to design the semantic actions in such a way that they output an intermediate tree data structure~\cite{appel2003modern}.
 When the parser builds a tree with leaf nodes for each token and interior nodes for each production parsed we call such tree a \textit{concrete parse tree}~\cite{appel2003modern}.
-An example of a concrete parse tree together with metadata collected for each node can be found at Figure~\ref{fig:concrete_syntax_tree}.
+
+An example of a concrete parse tree created by the semantic actions of a parser implementing the grammar presented in Figure~\ref{fig:fat_expr_grammar} can be found at Figure~\ref{fig:concrete_syntax_tree}.
 
 \begin{figure}[ht]
   \centering
@@ -1107,19 +1108,42 @@ Expr
   }\label{fig:concrete_syntax_tree}
 \end{figure}
 
-Sometimes a concrete parse tree is too verbose, like a tree for the grammar in Figure~\ref{fig:fat_expr_grammar}, and, it is ideal to transform this tree into a simpler one in order to facilitate semantic analysis~\cite{appel2003modern}.
+\subsection{Abstract syntax trees}\label{sec:syntax:subsec:abstrac_syntax_trees}
+
+Sometimes a concrete parse tree is too verbose, like a concrete tree for the grammar in Figure~\ref{fig:fat_expr_grammar}, and, it is ideal to transform this tree into a simpler one in order to facilitate semantic analysis~\cite{appel2003modern}.
 We can then create a second grammar with the \textit{abstract syntax} of the language.
 The abstract syntax grammar does not need to follow the constraints of syntax analysis and only exists to facilitate the later stages of compilation~\cite{appel2003modern}.
 For example, we can use the ambiguous grammar at~\eqref{eq:ambiguous_expr_grammar} as the abstract syntax for the language described by the grammar in Figure~\ref{fig:fat_expr_grammar}.
 
 A compiler could easily translate a concrete parse tree into an \textit{Abstract Syntax Tree} (AST)~\cite{appel2003modern}.
-An AST can be programmed by the use of programming constructs such as \textit{Abstract Data Types} (ADT) as show in Figure~\ref{fig:abstract_syntax_adt}.
-In Section~\ref{chapter:background:sec:semantic} we will explore how to formally define the abstract tree and the rules that allows us to check if the semantic properties of the language are sound.
+In order to build tree translators, compiler implementation use a variety of programming tools in order to traverse the input tree and output the desired tree.
+\textcite{appel2003modern} explains how to use the visitor programming pattern in object-oriented programming languages with inheritance and interfaces in order to create tree traversal algorithms.
+Furthermore, \textcite{pierce2002types} advocates for the use of programming languages with pattern matching and abstract data types in order to define recursive functions in a functional programming fashion to traverse the tree.
+
+A tree translator implementation using recursive functions and pattern matching for the concrete parse tree \code{Parse} defined in Figure~\ref{fig:abstract_syntax_adt_a} created by the predictive parser in Figure~\ref{fig:predictive_parser_expr_term_all} and Figure~\ref{fig:predictive_parser_fact} into the AST defined in Figure~\ref{fig:abstract_syntax_adt_b} can be found in Figure~\ref{fig:cst_ast_translator_expr}, Figure~\ref{fig:cst_ast_translator_term}, and Figure~\ref{fig:cst_ast_translator_factor}.
 
 \begin{figure}[ht]
   \centering
-  \begin{minipage}{0.6\textwidth}
-    \begin{rustcode}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \begin{minipage}{\textwidth}
+      \begin{rustcode}
+enum Parse {
+  Expr(Parse, Parse),
+  Expr2(Token, Parse, Parse),
+  Term(Parse, Parse),
+  Term2(Token, Parse, Parse),
+  Number(Token),
+  Id(Token),
+  Empty,
+}
+      \end{rustcode}
+    \end{minipage}
+    \caption{Concrete syntax tree definition for the predictive parser in Figure~\ref{fig:predictive_parser_expr_term_all} and Figure~\ref{fig:predictive_parser_fact}.}\label{fig:abstract_syntax_adt_a}
+  \end{subfigure}
+  \qquad
+  \begin{subfigure}[b]{0.45\textwidth}
+    \begin{minipage}{\textwidth}
+      \begin{rustcode}
 enum Ast {
   Expr(Ast, BinOp, Ast),
   Number(Int),
@@ -1131,11 +1155,112 @@ enum BinOp {
   Times,
   Div,
 }
+      \end{rustcode}
+    \end{minipage}
+    \caption{
+      Abstract syntax tree definition.
+    }\label{fig:abstract_syntax_adt_b}
+  \end{subfigure}
+  \caption{
+    Data structures for a concrete parse tree and an equivalent abstract syntax tree.
+  }\label{fig:abstract_syntax_adt}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \begin{minipage}{0.9\textwidth}
+    \begin{rustcode}
+fn translate_expr(expr: Parse) -> Ast {
+  match expr {
+    Parse::Expr(term, cont) => {
+      let ast_term = translate_term(term);
+      match translate_expr2(cont) {
+        None => ast_term,
+        Some((op, ast_cont)) => Ast::Expr(ast_term, op, ast_cont),
+      }
+    }
+    _ => panic!("not an Expr"),
+  }
+}
+fn translate_expr2(expr2: Parse) -> Option<(BinOp, Ast)> {
+  match expr2 {
+    Parse::Expr2(op_tok, term, cont) => {
+      let op = into_binop(op_tok);
+      let ast_term = translate_term(term);
+      let ast = match translate_expr2(cont) {
+        None => (op, ast_term),
+        Some(op2, ast_term2) => (op, Ast::Expr(ast_term, op2, ast_term2)),
+      };
+      Some(ast)
+    }
+    Parse::Empty => None,
+    _ => panic!("not an Expr2"),
+  }
+}
     \end{rustcode}
   \end{minipage}
   \caption{
-    An example of an abstract syntax for grammar at Figure~\eqref{eq:ambiguous_expr_grammar} described by Abstract data types.
-  }\label{fig:abstract_syntax_adt}
+    A tree transformation from the \code{Expr} and \code{Expr2} nodes in Figure~\ref{fig:abstract_syntax_adt_a} into the AST nodes in Figure~\ref{fig:abstract_syntax_adt_b}.
+  }\label{fig:cst_ast_translator_expr}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \begin{minipage}{0.9\textwidth}
+    \begin{rustcode}
+fn translate_term(term: Parse) -> Ast {
+  match term {
+    Parse::Term(factor, cont) => {
+      let ast_factor = translate_factor(factor);
+      match translate_factor2(cont) {
+        None => ast_factor,
+        Some((op, ast_cont)) => Ast::Expr(ast, op, ast_cont),
+      }
+    }
+    _ => panic!("not an Term"),
+  }
+}
+fn translate_term2(term2: Parse) -> Option<(BinOp, Ast)> {
+  match term2 {
+    Parse::Term2(op_tok, factor, cont) => {
+      let op = into_binop(op_tok);
+      let ast_factor = translate_factor(factor);
+      let ast = match translate_term2(cont) {
+        None => (op, ast_factor),
+        Some(op2, ast_factor2) => {
+          (op, Ast::Expr(ast_factor, op2, ast_factor2))
+        }
+      };
+      Some(ast)
+    }
+    Parse::Empty => None,
+    _ => panic!("not an Term2"),
+  }
+}
+    \end{rustcode}
+  \end{minipage}
+  \caption{
+    A tree transformation from the \code{Term} and \code{Term2} nodes in Figure~\ref{fig:abstract_syntax_adt_a} into the Ast nodes in Figure~\ref{fig:abstract_syntax_adt_b}.
+  }\label{fig:cst_ast_translator_term}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \begin{minipage}{0.9\textwidth}
+    \begin{rustcode}
+fn translate_factor(factor: Parse) -> Ast {
+  match factor {
+    Parse::NestedExpr(expr) => translate_expr(expr),
+    Parse::Number(token) => Ast::Number(token.into_int()),
+    Parse::Id(token) => Ast::Id(token.into_string()),
+    _ => panic!("not an Factor"),
+  }
+}
+    \end{rustcode}
+  \end{minipage}
+  \caption{
+    A tree transformation from the \code{NestedExpr}, \code{Number}, and \code{Id} nodes in Figure~\ref{fig:abstract_syntax_adt_a} into the Ast nodes in Figure~\ref{fig:abstract_syntax_adt_b}.
+  }\label{fig:cst_ast_translator_factor}
 \end{figure}
 
 \subsection{Syntax error recovery}
@@ -1501,7 +1626,7 @@ Furthermore, if we try to prove and infer the type of the example~\ref{eq:eval_s
 \end{equation*}
 when trying to inductively define the typing relation for example~\ref{eq:eval_step1}, we can not properly use the induction rule Ty-If because the terms in both branches of the \code{if} evaluate to different types, and the rule Ty-If mandates that both branches evaluate to the same type for the rule to be sated.
 
-\subsection{Pure simply typed lambda calculus}
+\subsection{Pure simply typed lambda calculus}\label{sec:semantic:purelambda}
 
 In this section we continue expanding the abstract syntax in discussion in order to accommodate the use of variables, let expressions, function abstractions, and function applications. In doing so we will be discussing a variation of what \textcite{pierce2002types} calls \textit{Pure simply typed lambda-calculus}.
 
@@ -1521,7 +1646,8 @@ To bring our discussion to the simply typed lambda calculus, we resume all const
     \astmore{term term} \\
     \astprod{var}{a $\mid$ b $\mid$ c $\mid$ $\dots$ $\mid$ x $\mid$ y $\mid$ z $\mid$ aa $\mid$ ab $\mid$ $\dots$} \\
     \astprod{Type}{Bool} \\
-    \astmore{Nat}
+    \astmore{Nat} \\
+    \astmore{\fnty{Type}{Type}}
   \end{alignedat}
 \end{equation}
 
@@ -1643,6 +1769,142 @@ as presented in the following inference trees
     \typecxr{}{\astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}}{Bool}%
   }
 \end{align*}
+
+\subsection{A type checker implementation for the simply typed lambda calculus}
+
+The goal of a type checker is to show that a program can be correctly evaluated.
+In order to achieve this goal we introduced the typing relation and the inference rules that defines it.
+Now, for an algorithmic definition of a type checker, we take the typing relation
+\begin{equation*}
+ \typecxr{}{term}{Type}
+\end{equation*}
+and, from the inversion lemma for the typing relation \cite{pierce2002types}, interpret it as a function
+\begin{equation*}
+ \code{typeof($\Gamma$, term)} = \code{Type}
+\end{equation*}
+
+We can easily derive an ADT definition for the abstract syntax of $\Gamma$, \code{term}, and \code{Type} presented in the simply typed lambda calculus defined by grammar~\eqref{eq:simply_typed_lc} as show by Figure~\ref{fig:typeof_adt}.
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \begin{minipage}{\textwidth}
+      \begin{rustcode}
+enum Context {
+  Empty,
+  Cons(
+    Context,
+    (String, Type)
+  ),
+}
+      \end{rustcode}
+    \end{minipage}
+    \caption{
+    }\label{fig:typeof_context_adt}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \begin{minipage}{\textwidth}
+      \begin{rustcode}
+enum Type {
+  Num,
+  Bool,
+  Fn(Type, Type),
+}
+      \end{rustcode}
+    \end{minipage}
+    \caption{}\label{fig:typeof_type_adt}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \begin{minipage}{\textwidth}
+      \begin{rustcode}
+enum Term {
+  True,
+  False,
+  If(Term, Term, Term),
+  Zero,
+  Succ(Term),
+  Pred(Term),
+  IsZero(Term),
+  Var(String),
+  Let(String, Term, Term),
+  Fn(String, Type, Term),
+  App(Term, Term),
+}
+      \end{rustcode}
+    \end{minipage}
+    \caption{}\label{fig:typeof_term_adt}
+  \end{subfigure}
+  \caption{
+    Data structures for the context $\Gamma$~(a), \code{Type}~(b), and \code{term}~(c) from the abstract syntax defined in grammar~\eqref{eq:simply_typed_lc}.
+  }\label{fig:typeof_adt}
+\end{figure}
+
+Given the ADT definitions of \code{Context}, \code{Term}, and \code{Type}, we can now define the \code{typeof} function as show in Figure~\ref{fig:typeof_impl}.
+The definition of \code{typeof} in Figure~\ref{fig:typeof_impl} is directly derived from the inference rules from Figure~\ref{fig:simpli_typed_type_rel} and the inference rules from~\ref{fig:sample_term_ast_tyrel} with added context propagation.
+Furthermore, from the inversion lemma of the typing relation \cite{pierce2002types}, if the \code{typeof} function is able to output a valid type, then, the input term is consider to be well-typed and sound to the language's type system.
+
+\begin{figure}[h!]
+  \centering
+    \begin{minipage}{0.8\textwidth}
+      \begin{rustcode}
+fn typeof(cx: Context, t: Term) -> Type {
+  match t {
+    True => Bool,
+    False => Bool,
+    If(t1, t2, t3) => if typeof(cx, t1) == Bool {
+      let if_ty = typeof(cx, t2);
+      if if_ty == typeof(cx, t3) {
+        if_ty
+      } else {
+        panic!("if branches differ in type")
+      }
+    } else {
+      panic!("if condition term not a Bool")
+    },
+    Zero => Type::Num,
+    Succ(t) => if typeof(cx, t) == Type::Num {
+      Type::Num
+    } else {
+      panic!("succ argument term not a Num")
+    },
+    Pred(t) => if typeof(cx, t) == Type::Num {
+      Type::Num
+    } else {
+      panic!("pred argument term not a Num")
+    },
+    IsZero(t) => if typeof(cx, t) == Type::Num {
+      Type::Bool
+    } else {
+      panic!("iszero argument term not a Num")
+    }
+    Var(x) => get_type_in_context(cx, x)
+    Let(x, t1, t2) => {
+      let x_ty = typeof(t1);
+      let cx1 = add_binding(cx, (x, x_ty));
+      typeof(cx1, t2)
+    }
+    Fn(x, x_ty, t) => {
+      let cx1 = add_binding(cx, (x, x_ty));
+      Type::Fn(ty, typeof(cx1, t))
+    }
+    App(t1, t2) => match typeof(cx, t1) {
+      Fn(in_ty, out_ty) => if typeof(cx, t2) == in_ty {
+        out_ty
+      } else {
+        panic!("Application argument term type differs from function's input type")
+      },
+      _ => panic!("Application function term not a Function type")
+    }
+  }
+}
+      \end{rustcode}
+    \end{minipage}
+    \caption{
+      An implementation of the \code{typeof} function for typechecking the simply typed lambda calculus described in Section~\ref{sec:semantic:purelambda}.
+    }\label{fig:typeof_impl}
+\end{figure}
 
 \section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
@@ -2031,7 +2293,7 @@ The terms that can be synthesized and their respective inference rules for their
         \begin{equation*}
           \typer{abs}{\fnty{x:int}{int\{y| y >= 0 \&\& y >= x\}}}
         \end{equation*}
-        If \code{x} had type \code{int\{x|true\}}, the body term of the \code{abs} function would never be a subtype of its output type, while, when extending the type predicate into the type \code{int\{y| true \&\& x == y\}} the generated validity constraint can reason on the value of \code{x} and check the validity of the function \code{abs}~\cite{jhala2020tutorial}.
+        If the variable term \code{x} had synthesized type \code{int\{x|true\}}, the body term of the \code{abs} function would never be a subtype of its output type, while, when extending the type predicate into the type \code{int\{y| true \&\& x == y\}} the generated validity constraint can reason on the value of \code{x} and check the validity of the function \code{abs}~\cite{jhala2020tutorial}.
 
   \item Application terms \code{e x} synthesize the output type of the function type synthesized for the term \code{e} with its input binder substituted by the real argument variable \code{x} through rule Syn-App.
         Also, the variable \code{x} is constrained by the input type by the checking judgment \checkcxr{}{x}{$\code{t}_1$} in the premises of Syn-App.
