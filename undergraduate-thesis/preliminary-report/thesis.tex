@@ -1372,7 +1372,7 @@ We can than proof that \code{if true than succ 0 else pred succ 0} is a \code{te
 Here we see the concrete inference rules in play, and not the rules schemas.
 We constructed the inference rules in such a way that proving a tree is part of $T$ is no different from finding a derivation for a string $s$ for the grammar.
 
-\subsection{Operational Semantics}
+\subsection{Operational Semantics}\label{sec:semantic:operational}
 
 The \textit{operational semantics} of a language allows for the precise definition of how terms are evaluated, that is, the precise definition of the \textit{semantics} of the language~\cite{pierce2002types}.
 It specifies the behavior of a programming language by defining an \textit{abstract machine} that uses the terms of the programming language as its instructions instead of a low-level processor's instruction set~\cite{pierce2002types}.
@@ -1909,6 +1909,12 @@ fn typeof(cx: Context, t: Term) -> Type {
 \section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
 As the last phase of a compiler's front end we have the intermediate code generation.
+The intermediate code generation will take as input the abstract syntax tree generated from semantic analisys and output an intermediate representation (IR).
+In a sense, we will be evaluating the source AST but, instead of generating the resulting value of the AST's computation as we formalized in Section~\ref{sec:semantic:operational} using operational semantics, we will be evaluating the source AST into another syntactical representation.
+In practive, compilers may construct a sequence of many intermediate syntactical representations until reaching the target machine executable code~\cite{Aho:2006:CPT:1177220}.
+Each one suitable for the kind of analisys and operations it is executed uppon.
+
+We have already described how to evaluate a concrete parse tree into an abstract syntax tree in Section~\ref{sec:syntax:subsec:abstrac_syntax_trees} and the process of creating tree traversals algorithms in order to compute a new syntactical representation continues into evaluating an abstract syntax tree into an IR suitable for code optimization and target code generation.
 
 To do. Here goes an introduction of Single Static Assignment intermediate representations.
 
