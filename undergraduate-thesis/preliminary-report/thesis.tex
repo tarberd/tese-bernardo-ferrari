@@ -1912,7 +1912,7 @@ The intermediate code generation will take as input the abstract syntax tree gen
 In a sense, we will be evaluating the source AST but, instead of generating the resulting value of the AST's computation as we formalized in Section~\ref{sec:semantic:operational} using operational semantics, we will be evaluating the source AST into another syntactical representation.
 
 Compilers may construct a sequence of many intermediate syntactical representations until reaching the target machine executable code where each IR is suitable for the kind of analysis and operations it is executed upon~\cite{Aho:2006:CPT:1177220}.
-We have already described how to evaluate a concrete parse tree into an abstract syntax tree in Section~\ref{sec:syntax:subsec:abstrac_syntax_trees}, and, the process of creating tree traversals algorithms in order to perform tree transformations continues into evaluating an AST into an IR suitable for code optimization and target code generation.
+We have already described how to evaluate a concrete parse tree into an AST in Section~\ref{sec:syntax:subsec:abstrac_syntax_trees}, and, the process of creating tree traversals algorithms in order to perform tree transformations continues into evaluating an AST into an IR suitable for code optimization and target code generation.
 
 A suitable IR has several qualities:
 \begin{itemize}
@@ -1920,6 +1920,40 @@ A suitable IR has several qualities:
   \item It must be convenient for a back-end to translate it into machine code for the desired range of target machines~\cite{appel2003modern};
   \item The syntactical constructs of the IR must have clear and simple meanings allowing for the specification and implementation of optimizing transformations of the IR~\cite{appel2003modern}.
 \end{itemize}
+Thus, a good IR would abstract the desired range of target machines into an abstract machine that is capable of describing target machine operations either directly or by using the abstract machine operations as building blocks for more complex operations~\cite{appel2003modern}.
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \begin{alignat*}{2}
+      \astprod{IR}{stmtList}                    \\
+      \astprod{stmtList}{stmt stmtList \bnfor{stmt}} \\
+      \astprod{stmt}{expr}                           \\
+      \astmore{name = expr}                          \\
+      \astmore{store name expr}                      \\
+      \astmore{jump expr}                            \\
+      \astmore{cjump expr expr}                      \\
+      \astmore{label stmt}
+    \end{alignat*}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.4\textwidth}
+    \begin{alignat*}{2}
+      \astprod{expr}{const}        \\
+      \astmore{label}              \\
+      \astmore{name}               \\
+      \astmore{expr binop expr}    \\
+      \astmore{unop expr}          \\
+      \astmore{call expr exprList} \\
+      \astmore{load expr}          \\
+      \astprod{exprList}{expr exprList \bnfor{$\epsilon$}}
+    \end{alignat*}
+  \end{subfigure}
+  \caption{
+    Adoleta
+  }\label{fig:adoleta}
+\end{figure}
+
 
 \subsection{Three-address code}
 
@@ -1943,27 +1977,7 @@ An address can be one of the following:
   \item A \textit{name} \code{n} which is can either be generated from the variables in the source AST, or, an automatically generated temporary name.
 \end{itemize}
 
- where we find a singe assigned address at the instruction's left side and on the right side we have, either a single address, or, an $n$-ary operator together with $n$ address arguments~\cite{Aho:2006:CPT:1177220}.
-
-\begin{equation}~\label{eq:simply_typed_lc}
-  \begin{alignedat}{2}
-    \astprod{expr}{c} \\
-    \astmore{n} \\
-    \astmore{if term then term else term} \\
-    \astmore{0} \\
-    \astmore{succ term} \\
-    \astmore{pred term} \\
-    \astmore{iszero term} \\
-    \astmore{var} \\
-    \astmore{\astlet{var}{term}{term}} \\
-    \astmore{\fnabs{var}{Type}{term}} \\
-    \astmore{term term} \\
-    \astprod{var}{a $\mid$ b $\mid$ c $\mid$ $\dots$ $\mid$ x $\mid$ y $\mid$ z $\mid$ aa $\mid$ ab $\mid$ $\dots$} \\
-    \astprod{Type}{Bool} \\
-    \astmore{Nat} \\
-    \astmore{\fnty{Type}{Type}}
-  \end{alignedat}
-\end{equation}
+where we find a singe assigned address at the instruction's left side and on the right side we have, either a single address, or, an $n$-ary operator together with $n$ address arguments~\cite{Aho:2006:CPT:1177220}.
 
 To do. Here goes an introduction of Single Static Assignment intermediate representations.
 
