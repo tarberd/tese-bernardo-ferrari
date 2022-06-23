@@ -1920,13 +1920,14 @@ A suitable IR has several qualities:
   \item It must be convenient for a back-end to translate it into machine code for the desired range of target machines~\cite{appel2003modern};
   \item The syntactical constructs of the IR must have clear and simple meanings allowing for the specification and implementation of optimizing transformations of the IR~\cite{appel2003modern}.
 \end{itemize}
-Thus, a good IR would abstract the desired range of target machines into an abstract machine that is capable of describing target machine operations either directly or by using the abstract machine operations as building blocks for more complex operations~\cite{appel2003modern}.
+Thus, a good IR for code generation would abstract the desired range of target machines into an abstract machine that is capable of describing target machine operations either directly or by using the abstract machine operations as building blocks for more complex operations~\cite{appel2003modern}.
+This can be achieved by the IR represented by the grammar in Figure~\ref{fig:codegen_ir}.
 
 \begin{figure}[ht]
   \centering
   \begin{subfigure}[b]{0.4\textwidth}
     \begin{alignat*}{2}
-      \astprod{IR}{stmtList}                    \\
+      \astprod{IR}{stmtList}                         \\
       \astprod{stmtList}{stmt stmtList \bnfor{stmt}} \\
       \astprod{stmt}{expr}                           \\
       \astmore{name = expr}                          \\
@@ -1950,8 +1951,9 @@ Thus, a good IR would abstract the desired range of target machines into an abst
     \end{alignat*}
   \end{subfigure}
   \caption{
-    Adoleta
-  }\label{fig:adoleta}
+    An intermediate representation for code generation.
+    Adapted from \textcite{appel2003modern}.
+  }\label{fig:codegen_ir}
 \end{figure}
 
 
