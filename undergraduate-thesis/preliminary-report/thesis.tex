@@ -33,6 +33,7 @@
 \usepackage{csquotes} % Quoting authors
 \usepackage{caption} % configures hyperref to point to top of images
 \usepackage{subcaption} % adds subfigures
+\usepackage[noabbrev, capitalise]{cleveref}
 
 % bibliography
 \usepackage[style=abnt]{biblatex}
@@ -313,7 +314,7 @@ Therefore, if we wish to implement compilers for $n$ different programming langu
 
 If we give the analysis-synthesis model of a compiler a more fine-grained look, we can identify that the compiler's front and back end operate as a series of phases, each one transforming one intermediate representation to another in order to further advance the computation of the target program~\cite{Aho:2006:CPT:1177220}.
 The analysis step, or front end, may be subdivided into: a lexical analyzer, a syntax analyzer, a semantic analyzer and an intermediate code generator; also, the synthesis step may be subdivided into: machine-independent code optimization, code generation, and machine-dependent code optimization~\cite{Aho:2006:CPT:1177220}.
-The different phases and the intermediate representations between them can be seen at Figure~\ref{figure:compilation-phases}.
+The different phases and the intermediate representations between them can be seen at~\cref{figure:compilation-phases}.
 
 \begin{figure}[!ht]
   \centering
@@ -452,7 +453,7 @@ The specific research artifacts constructed by this work that allow the discussi
 \section{Methodology}
 
 The aim of this work is to find optimizations opportunities during intermediate code generation of a higher-level language with refinement types.
-In order to achieve the specific goals specified in Section~\ref{chapter:introduction:sec:goals:specific_goals} we will employ different methods during research.
+In order to achieve the specific goals specified in~\cref{chapter:introduction:sec:goals:specific_goals} we will employ different methods during research.
 
 In the specification of the \textit{Ekitai} programming language aspects we will employ techniques from the established literature, such as books and articles, on language design and compiler construction.
 Also, in order to specify the type system with refinement types we analyze the recent publications about refinement types in the ACM Sigplan's conferences and journals.
@@ -460,19 +461,19 @@ Whereas in the implementation of \textit{Ekitai's} front end we will develop a f
 
 \section{Structure of the work}
 
-In the next chapter, Chapter~\ref{chapter:background}, we will introduce the background knowledge needed to design a higher level language's front end.
-Furthermore, in Chapter~\ref{ch:refinement_types}, we explore how to add refinements to a lambda calculus language.
-In Chapter~\ref{ch:llvm}, we explore how to use the LLVM intermediate representation.
-Then, in Chapter~\ref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
+In~\cref{chapter:background} we will introduce the background knowledge needed to design a higher level language's front end.
+Furthermore, in~\cref{ch:refinement_types}, we explore how to add refinements to a lambda calculus language.
+In~\cref{ch:llvm}, we explore how to use the LLVM intermediate representation.
+Then, in~\cref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
 
 \chapter{A review on front end design and implementation}\label{chapter:background}
 
 In this chapter we present a brief review of the background needed to build a compiler's front end.
-We begin by presenting the formal definition of a language in Section~\ref{ch:background:sec:strings_and_languages}.
-Then, give a brief overview of what is a lexical analyzer and how it is constructed in Section~\ref{chapter:background:sec:lexical}.
-We continue by presenting the aspects of a syntax analyzer in Section~\ref{chapter:background:sec:syntax}.
-Furthermore, we go on to explore the semantic analyzer and the tools used to formalize the type system in Section~\ref{chapter:background:sec:semantic}.
-And then, explore the aspects of intermediate code generation in Section~\ref{chapter:background:sec:intermediate}.
+We begin by presenting the formal definition of a language in~\cref{ch:background:sec:strings_and_languages}.
+Then, give a brief overview of what is a lexical analyzer and how it is constructed in~\cref{chapter:background:sec:lexical}.
+We continue by presenting the aspects of a syntax analyzer in~\cref{chapter:background:sec:syntax}.
+Furthermore, we go on to explore the semantic analyzer and the tools used to formalize the type system in~\cref{chapter:background:sec:semantic}.
+And then, explore the aspects of intermediate code generation in~\cref{chapter:background:sec:intermediate}.
 
 \section{Strings and Languages}\label{ch:background:sec:strings_and_languages}
 
@@ -515,7 +516,7 @@ Although having a simple definition, proving that a string $s$ belongs to a lang
 
 We end up using different languages with different symbols for lexical, syntax and semantic analysis in order to verify the source program.
 Although, for example, the lexer may take as its symbols the characters present in the encoding of its input file (e.g., UTF-8 and ASCII), the parser may take the token names outputted by the lexer as its symbols.
-In the next sections~\ref{chapter:background:sec:lexical},~\ref{chapter:background:sec:syntax}, and~\ref{chapter:background:sec:semantic}, we explore the different formal tools the different analysis steps use to prove that a string of their respective symbols is a valid source program and how they produce an output for the next step in compilation.
+In the next~\crefrange{chapter:background:sec:lexical}{chapter:background:sec:semantic}, we explore the different formal tools the different analysis steps use to prove that a string of their respective symbols is a valid source program and how they produce an output for the next step in compilation.
 
 \section{Lexical Analysis}\label{chapter:background:sec:lexical}
 
@@ -614,7 +615,7 @@ In both cases the output will either be the list of tokens or the lexical error 
 The second phase of a compiler is called syntax analysis, or \textit{parsing}.
 The \textit{parser} receives as input a token stream produced by the lexical analyzer and creates a tree-like intermediate representation that is constrained by a particular grammatical structure~\cite{Aho:2006:CPT:1177220}.
 
-If we give the token stream~\eqref{figure:introduction_token_stream} as input to a parser it may produce the \textit{parse tree} structure found on Figure~\ref{figure:introduction_ast}.
+If we give the token stream~\eqref{figure:introduction_token_stream} as input to a parser it may produce the \textit{parse tree} structure found on~\cref{figure:introduction_ast}.
 This structure has more information than the linear token stream it received as input.
 For example, it is prepared in such a way to preserve the order of operations from classic arithmetic.
 Consequently, the tree is composed of two interior nodes labeled $\bnfvar{Expr}$ for binary operations: the bottom one, denoting the sub-expression
@@ -802,8 +803,8 @@ thus, having two leftmost derivations that shows the string belongs to the gramm
 
 A grammar is said to be \textit{ambiguous} if it has a non-unique leftmost or rightmost derivation for any string of the language it describes~\cite{Aho:2006:CPT:1177220}.
 Therefore, grammar~\eqref{eq:ambiguous_expr_grammar} is clearly ambiguous given derivations~\eqref{eq:ambiouous_derivation1} and~\eqref{eq:ambiouous_derivation2}.
-From the parse trees in Figure~\ref{fig:ambiguous_parse_tree} we can visualize that the order of operations differ between the derivations of \code{id + number * id}.
-In Figure~\ref{fig:ambiguous_parse_tree_a} we have \code{(id + number) * id} and in Figure~\ref{fig:ambiguous_parse_tree_b} we have \code{id + (number * id)} which have different mathematical meanings.
+From the parse trees in~\cref{fig:ambiguous_parse_tree} we can visualize that the order of operations differ between the derivations of \code{id + number * id}.
+In~\cref{fig:ambiguous_parse_tree_a} we have \code{(id + number) * id} and in~\cref{fig:ambiguous_parse_tree_b} we have \code{id + (number * id)} which have different mathematical meanings.
 
 \begin{figure}[ht]
   \centering
@@ -900,7 +901,7 @@ Top-down parsers, also called recursive descent parsers, have the advantage of i
 Although simple, classic implementations of recursive descent parsers, such as the $LL(1)$ and $LL(k)$ predictive parsers, cannot deal with ambiguous grammars and, since they rely on leftmost derivations, cannot deal with left recursions on grammar productions~\cite{Aho:2006:CPT:1177220}.
 There may also be the need to run a left factoring algorithm in order to generate a correct predictive parsing table for $LL(1)$ and $LL(k)$ automatic parser generators~\cite{Aho:2006:CPT:1177220}.
 
-A non left recursive, left factored grammar for grammar~\eqref{eq:unambiguous_expr_grammar} can be built as show in Figure~\ref{fig:fat_expr_grammar}.
+A non left recursive, left factored grammar for grammar~\eqref{eq:unambiguous_expr_grammar} can be built as show in~\cref{fig:fat_expr_grammar}.
 \begin{figure}[ht]
   \centering
   \begin{alignat}{2}
@@ -921,7 +922,7 @@ A non left recursive, left factored grammar for grammar~\eqref{eq:unambiguous_ex
   }\label{fig:fat_expr_grammar}
 \end{figure}
 This grammar complies with every constraint imposed by a classic implementation of a predictive recursive descent parser since it is unambiguous, free of left recursions and left factored.
-An example implementation of predictive parsers for the variables \bnfvar{Expr}, \bnfvar{Expr2}, \bnfvar{Term}, \bnfvar{Term2} and \bnfvar{Factor} can be found respectively at Figures~\ref{fig:predictive_parser_expr},~\ref{fig:predictive_parser_expr2},~\ref{fig:predictive_parser_term},~\ref{fig:predictive_parser_term2} and~\ref{fig:predictive_parser_fact}.
+An example implementation of predictive parsers for the variables \bnfvar{Expr}, \bnfvar{Expr2}, \bnfvar{Term}, \bnfvar{Term2} and \bnfvar{Factor} can be found respectively at~\cref{fig:predictive_parser_expr,fig:predictive_parser_expr2,fig:predictive_parser_term,fig:predictive_parser_term2,fig:predictive_parser_fact}.
 
 \begin{figure}[ht]
   \centering
@@ -1038,7 +1039,7 @@ We were once again forced to add new variables to the already unambiguous gramma
 The transformations added variables without clear meanings, such as \bnfvar{Expr2} and \bnfvar{Term2}, further complicating the parse tree.
 In order to enrich the capabilities of recursive descendant parsers, advances were made to allow recursive descendant parsers to parse some ambiguous grammars with left recursion without the need to left factoring.
 \textcite{pratt1973operatorprecedence} proposed a \textit{top-down operator precedence} approach to parse arithmetic expressions by assigning a total order to tokens using a function for the left and right binding power of tokens in order to uniquely create parse trees of ambiguous left recursive expression grammars.
-An example Pratt parser for grammar~\eqref{eq:ambiguous_expr_grammar} is found at Figure~\ref{fig:pratt_parser_expr_grammar}.
+An example Pratt parser for grammar~\eqref{eq:ambiguous_expr_grammar} is found at~\cref{fig:pratt_parser_expr_grammar}.
 Pratt parsers work by combining recursion with iteration.
 If we try to parse the sentence \code{$\code{id}_1$ + number * $\code{id}_2$} it:
 \begin{itemize}
@@ -1047,7 +1048,7 @@ If we try to parse the sentence \code{$\code{id}_1$ + number * $\code{id}_2$} it
   \item checks if it binds to the left stronger than the minimum binding power, in this case it does not since the minimum starts at $0$, continuing on to recursively parse \bnfter{number} which its node becomes the new `left' in the new recursion step;
   \item the next operator is then \codett{*} with binding power $3$ and $4$, this time the left binding power still is not smaller than the minimum of $2$, and we recursively parse $\codett{id}_2$ which again its node becomes a new `left';
   \item now, upon trying to parse a new operator, we break from the loop and return the node for $\codett{id}_2$ and name it `right'; then, we construct a node \bnfvar{Expr} with `left', which is \codett{number} for this iteration, the operator \codett{*}, and `right', which is $\codett{id}_2$;
-  \item we then return again with another \bnfvar{Expr} node with `left', which now is $\codett{id}_1$, the operator \codett{+}, and the last returned expression as `right' finally forming the parse tree with correct precedence found at Figure~\ref{fig:ambiguous_parse_tree_b}.
+  \item we then return again with another \bnfvar{Expr} node with `left', which now is $\codett{id}_1$, the operator \codett{+}, and the last returned expression as `right' finally forming the parse tree with correct precedence found at~\cref{fig:ambiguous_parse_tree_b}.
 \end{itemize}
 The loop to keep checking if the next operation binds stronger than the minimum for the recursion guaranties both correct associativity and operator precedence~\cite{pratt1973operatorprecedence}.
 
@@ -1076,7 +1077,7 @@ Take the following syntax-directed definition
   \bnfprod{Expr}{\bnfvar{Term} \bnfvar{Expr2} \{Expr.n = Expr(Term.n, Expr2.n)\}} \label{eq:sdd_example}
 \end{alignat}
 Note that the attribute \codett{n} for the variables \bnfvar{Expr}, \bnfvar{Term} and \bnfvar{Expr2}, can be thought of as the return node value of a parsing function for this production.
-If we give a closer look at the parser implemented in Figure~\ref{fig:predictive_parser_expr}, we can see this semantic action at line 4, after parsing \bnfvar{Term} and \bnfvar{Expr2}, returning the value of the attribute \codett{Expr.n}.
+If we give a closer look at the parser implemented in~\cref{fig:predictive_parser_expr}, we can see this semantic action at line 4, after parsing \bnfvar{Term} and \bnfvar{Expr2}, returning the value of the attribute \codett{Expr.n}.
 Furthermore, the position of the semantic action in a production body determines when the semantic action executes during parsing.
 In this example it is positioned after the parser finishes parsing the production.
 
@@ -1086,7 +1087,7 @@ Hence, using some sort of intermediate representation between syntax analysis an
 One possible solution is to design the semantic actions in such a way that they output an intermediate tree data structure~\cite{appel2003modern}.
 When the parser builds a tree with leaf nodes for each token and interior nodes for each production parsed we call such tree a \textit{concrete parse tree}~\cite{appel2003modern}.
 
-An example of a concrete parse tree created by the semantic actions of a parser implementing the grammar presented in Figure~\ref{fig:fat_expr_grammar} can be found at Figure~\ref{fig:concrete_syntax_tree}.
+An example of a concrete parse tree created by the semantic actions of a parser implementing the grammar presented in~\cref{fig:fat_expr_grammar} can be found in~\cref{fig:concrete_syntax_tree}.
 
 \begin{figure}[ht]
   \centering
@@ -1104,23 +1105,23 @@ Expr
     \end{rustcode}
   \end{minipage}
   \caption{
-    A sample concrete syntax tree of grammar~\ref{fig:fat_expr_grammar} for sentence \codett{5 + a}.
+    A sample concrete syntax tree for the grammar in~\cref{fig:fat_expr_grammar} representing sentence \code{5 + a}.
   }\label{fig:concrete_syntax_tree}
 \end{figure}
 
 \subsection{Abstract syntax trees}\label{sec:syntax:subsec:abstrac_syntax_trees}
 
-Sometimes a concrete parse tree is too verbose, like a concrete tree for the grammar in Figure~\ref{fig:fat_expr_grammar}, and, it is ideal to transform this tree into a simpler one in order to facilitate semantic analysis~\cite{appel2003modern}.
+Sometimes a concrete parse tree is too verbose, like a concrete tree for the grammar in~\cref{fig:fat_expr_grammar}, and, it is ideal to transform this tree into a simpler one in order to facilitate semantic analysis~\cite{appel2003modern}.
 We can then create a second grammar with the \textit{abstract syntax} of the language.
 The abstract syntax grammar does not need to follow the constraints of syntax analysis and only exists to facilitate the later stages of compilation~\cite{appel2003modern}.
-For example, we can use the ambiguous grammar at~\eqref{eq:ambiguous_expr_grammar} as the abstract syntax for the language described by the grammar in Figure~\ref{fig:fat_expr_grammar}.
+For example, we can use the ambiguous grammar at~\eqref{eq:ambiguous_expr_grammar} as the abstract syntax for the language described by the grammar in~\cref{fig:fat_expr_grammar}.
 
 A compiler could easily translate a concrete parse tree into an \textit{Abstract Syntax Tree} (AST)~\cite{appel2003modern}.
 In order to build tree translators, compiler implementation use a variety of programming tools in order to traverse the input tree and output the desired tree.
 \textcite{appel2003modern} explains how to use the visitor programming pattern in object-oriented programming languages with inheritance and interfaces in order to create tree traversal algorithms.
 Furthermore, \textcite{pierce2002types} advocates for the use of programming languages with pattern matching and abstract data types in order to define recursive functions in a functional programming fashion to traverse the tree.
 
-A tree translator implementation using recursive functions and pattern matching for the concrete parse tree \code{Parse} defined in Figure~\ref{fig:abstract_syntax_adt_a} created by the predictive parser in Figure~\ref{fig:predictive_parser_expr_term_all} and Figure~\ref{fig:predictive_parser_fact} into the AST defined in Figure~\ref{fig:abstract_syntax_adt_b} can be found in Figure~\ref{fig:cst_ast_translator_expr}, Figure~\ref{fig:cst_ast_translator_term}, and Figure~\ref{fig:cst_ast_translator_factor}.
+A tree translator implementation using recursive functions and pattern matching for the concrete parse tree \code{Parse} defined in~\cref{fig:abstract_syntax_adt_a} created by the predictive parser in~\cref{fig:predictive_parser_expr_term_all,fig:predictive_parser_fact} into the AST defined in~\cref{fig:abstract_syntax_adt_b} can be found in~\cref{fig:cst_ast_translator_expr,fig:cst_ast_translator_term,fig:cst_ast_translator_factor}.
 
 \begin{figure}[ht]
   \centering
@@ -1138,8 +1139,9 @@ enum Parse {
 }
       \end{rustcode}
     \end{minipage}
-    \caption{Concrete syntax tree definition for the predictive parser in Figure~\ref{fig:predictive_parser_expr_term_all} and Figure~\ref{fig:predictive_parser_fact}.}\label{fig:abstract_syntax_adt_a}
-  \end{subfigure}
+    \caption{
+      Concrete syntax tree definition for the predictive parser in~\cref{fig:predictive_parser_expr_term_all,fig:predictive_parser_fact}.
+    }\label{fig:abstract_syntax_adt_a} \end{subfigure}
   \qquad
   \begin{subfigure}[b]{0.45\textwidth}
     \begin{minipage}{\textwidth}
@@ -1200,7 +1202,7 @@ fn translate_expr2(expr2: Parse) -> Option<(BinOp, Ast)> {
     \end{rustcode}
   \end{minipage}
   \caption{
-    A tree transformation from the \code{Expr} and \code{Expr2} nodes in Figure~\ref{fig:abstract_syntax_adt_a} into the AST nodes in Figure~\ref{fig:abstract_syntax_adt_b}.
+    A tree transformation from the \code{Expr} and \code{Expr2} nodes in~\cref{fig:abstract_syntax_adt_a} into the AST nodes in~\cref{fig:abstract_syntax_adt_b}.
   }\label{fig:cst_ast_translator_expr}
 \end{figure}
 
@@ -1240,7 +1242,7 @@ fn translate_term2(term2: Parse) -> Option<(BinOp, Ast)> {
     \end{rustcode}
   \end{minipage}
   \caption{
-    A tree transformation from the \code{Term} and \code{Term2} nodes in Figure~\ref{fig:abstract_syntax_adt_a} into the Ast nodes in Figure~\ref{fig:abstract_syntax_adt_b}.
+    A tree transformation from the \code{Term} and \code{Term2} nodes in~\cref{fig:abstract_syntax_adt_a} into the Ast nodes in~\cref{fig:abstract_syntax_adt_b}.
   }\label{fig:cst_ast_translator_term}
 \end{figure}
 
@@ -1259,7 +1261,7 @@ fn translate_factor(factor: Parse) -> Ast {
     \end{rustcode}
   \end{minipage}
   \caption{
-    A tree transformation from the \code{NestedExpr}, \code{Number}, and \code{Id} nodes in Figure~\ref{fig:abstract_syntax_adt_a} into the Ast nodes in Figure~\ref{fig:abstract_syntax_adt_b}.
+    A tree transformation from the \code{NestedExpr}, \code{Number}, and \code{Id} nodes in~\cref{fig:abstract_syntax_adt_a} into the Ast nodes in~\cref{fig:abstract_syntax_adt_b}.
   }\label{fig:cst_ast_translator_factor}
 \end{figure}
 
@@ -1319,7 +1321,7 @@ According to \textcite{pierce2002types}, using the grammar to define the set of 
    & \text{if } \code{term}_1, \code{term}_2, \code{term}_3 \in T \text{, then }
   \code{if $\code{term}_1$ then $\code{term}_2$ else $\code{term}_3$} \in T\label{eq:example_clause3}
 \end{align}
-Formally, this definition defines $T$ as a set of \textit{trees} and not a set of strings as we show in Section~\ref{chapter:background:sec:syntax} with derivations~\cite{pierce2002types}.
+Formally, this definition defines $T$ as a set of \textit{trees} and not a set of strings as we show in~\cref{chapter:background:sec:syntax} with derivations~\cite{pierce2002types}.
 A shorthand definition for the same inductive definition of terms can be given in \textit{inference rules}, as following:
 \begin{align*}
   \code{true} \in T &  & \code{false} \in T &  & \code{0} \in T
@@ -1389,7 +1391,7 @@ In order to define operational semantics for~\eqref{eq:sample_term_ast} we first
   \end{aligned}
 \end{equation}
 and second, we define and \textit{evaluation relation}, or \textit{judgments}, on terms, written \evalr{term}{$\code{term}_1$} meaning \code{term} evaluates to $\code{term}_1$ in on step~\cite{pierce2002types}.
-The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations defined by the inference rules in Figure~\ref{fig:sample_term_ast_opsem}.
+The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations defined by the inference rules in~\cref{fig:sample_term_ast_opsem}.
 
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
@@ -1456,11 +1458,11 @@ The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations
   }\label{fig:sample_term_ast_opsem}
 \end{figure}
 
-Using the evaluation relations from Figure~\ref{fig:sample_term_ast_opsem} we can evaluate the for example
+Using the evaluation relations from~\cref{fig:sample_term_ast_opsem} we can evaluate the for example
 \begin{equation}\label{eq:eval_step1}
   \code{if iszero 0 then succ 0 else false}
 \end{equation}
-looking at Figure~\ref{fig:sample_term_ast_opsem}, we see that the only inference rule we can apply is Eval-If, applying this rule to~\eqref{eq:eval_step1} we get
+looking at~\cref{fig:sample_term_ast_opsem}, we see that the only inference rule we can apply is Eval-If, applying this rule to~\eqref{eq:eval_step1} we get
 \begin{equation*}
   \inferrule*[right=Eval-If]{
     \inferrule*[right=Eval-IszeroZero]{ }{
@@ -1546,7 +1548,7 @@ We introduce the syntactic form for the metavariable \code{Type} to the syntax~\
     \astmore{Bool}
   \end{alignedat}
 \end{equation}
-and define the inference rules for the typing relation of the abstract syntax~\eqref{eq:sample_term_ast} as show in Figure~\ref{fig:sample_term_ast_tyrel}.
+and define the inference rules for the typing relation of the abstract syntax~\eqref{eq:sample_term_ast} as show in~\cref{fig:sample_term_ast_tyrel}.
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
     \begin{align*}
@@ -1587,7 +1589,7 @@ and define the inference rules for the typing relation of the abstract syntax~\e
   }\label{fig:sample_term_ast_tyrel}
 \end{figure}
 
-Now we can use the inference rules from~\ref{fig:sample_term_ast_tyrel} to prove if the term
+Now we can use the inference rules from~\cref{fig:sample_term_ast_tyrel} to prove if the term
 \begin{equation*}
   \typer{iszero succ 0}{Bool}
 \end{equation*}
@@ -1609,7 +1611,7 @@ but, if we try to prove something wrong like
   \typer{succ true}{Num} \quad \text{or} \quad \typer{if 0 then true else false}{Bool}
 \end{equation*}
 we will quickly find that there are no rules that allow us to reach the type relation axioms.
-Furthermore, if we try to prove and infer the type of the example~\ref{eq:eval_step1} we end up with the following rule applications
+Furthermore, if we try to prove and infer the type of the example~\eqref{eq:eval_step1} we end up with the following rule applications
 \begin{equation*}
   \inferrule*[right=Ty-If]{
     \typer{iszero 0}{Bool}
@@ -1623,7 +1625,7 @@ Furthermore, if we try to prove and infer the type of the example~\ref{eq:eval_s
     \typer{if iszero 0 the succ 0 else false}{$?$}
   }
 \end{equation*}
-when trying to inductively define the typing relation for example~\ref{eq:eval_step1}, we can not properly use the induction rule Ty-If because the terms in both branches of the \code{if} evaluate to different types, and the rule Ty-If mandates that both branches evaluate to the same type for the rule to be sated.
+when trying to inductively define the typing relation for example~\eqref{eq:eval_step1}, we can not properly use the induction rule Ty-If because the terms in both branches of the \code{if} evaluate to different types, and the rule Ty-If mandates that both branches evaluate to the same type for the rule to be sated.
 
 \subsection{Pure simply typed lambda calculus}\label{sec:semantic:purelambda}
 
@@ -1668,7 +1670,7 @@ $\Gamma$ is essentially a list of typing relations that grows to the right by ap
 The new three-place typing relation is written \typecxr{}{term}{Type}, and it means that \code{term} has type \code{Type} under the context $\Gamma$~\cite{pierce2002types}.
 If the context is empty we write \typecxre{$\emptyset$}{term}{Type}, but the $\emptyset$ is usually omitted as in \typecxre{}{term}{Type}.
 
-\textcite{pierce2002types} defines the three-place typing relation inference rules as show in Figure~\ref{fig:simpli_typed_type_rel}.
+\textcite{pierce2002types} defines the three-place typing relation inference rules as show in~\cref{fig:simpli_typed_type_rel}.
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
     \begin{align*}
@@ -1707,7 +1709,7 @@ If the context is empty we write \typecxre{$\emptyset$}{term}{Type}, but the $\e
     Adapted from \textcite{pierce2002types}.
   }\label{fig:simpli_typed_type_rel}
 \end{figure}
-Supposing all typing relation rules from Figure~\ref{fig:sample_term_ast_tyrel} were updated to the newer three-part type relation, In order to exemplify the workings of rules Ty-Var, Ty-Le, Ty-FnAbs, and Ty-FnApp, we will build the inference tree for the term
+Supposing all typing relation rules from~\cref{fig:sample_term_ast_tyrel} were updated to the newer three-part type relation, In order to exemplify the workings of rules Ty-Var, Ty-Le, Ty-FnAbs, and Ty-FnApp, we will build the inference tree for the term
 \begin{equation*}
   \astlet{fun}{\fnabs{x}{Nat}{iszero x}}{fun succ 0}
 \end{equation*}
@@ -1782,7 +1784,7 @@ and, from the inversion lemma for the typing relation \cite{pierce2002types}, in
   \code{typeof($\Gamma$, term)} = \code{Type}
 \end{equation*}
 
-We can easily derive an ADT definition for the abstract syntax of $\Gamma$, \code{term}, and \code{Type} presented in the simply typed lambda calculus defined by grammar~\eqref{eq:simply_typed_lc} as show by Figure~\ref{fig:typeof_adt}.
+We can easily derive an ADT definition for the abstract syntax of $\Gamma$, \code{term}, and \code{Type} presented in the simply typed lambda calculus defined by grammar~\eqref{eq:simply_typed_lc} as show by~\cref{fig:typeof_adt}.
 
 \begin{figure}[ht]
   \centering
@@ -1840,9 +1842,9 @@ enum Term {
   }\label{fig:typeof_adt}
 \end{figure}
 
-Given the ADT definitions of \code{Context}, \code{Term}, and \code{Type}, we can now define the \code{typeof} function as show in Figure~\ref{fig:typeof_impl}.
-The definition of \code{typeof} in Figure~\ref{fig:typeof_impl} is directly derived from the inference rules from Figure~\ref{fig:simpli_typed_type_rel} and the inference rules from~\ref{fig:sample_term_ast_tyrel} with added context propagation.
-Furthermore, from the inversion lemma of the typing relation \cite{pierce2002types}, if the \code{typeof} function is able to output a valid type, then, the input term is consider to be well-typed and sound to the language's type system.
+Given the ADT definitions of \code{Context}, \code{Term}, and \code{Type}, we can now define the \code{typeof} function as show in~\cref{fig:typeof_impl}.
+The definition of \code{typeof} in~\cref{fig:typeof_impl} is directly derived from the inference rules from~\cref{fig:simpli_typed_type_rel} and the inference rules from~\cref{fig:sample_term_ast_tyrel} with added context propagation.
+Furthermore, from the inversion lemma of the typing relation~\cite{pierce2002types}, if the \code{typeof} function is able to output a valid type, then, the input term is consider to be well-typed and sound to the language's type system.
 
 \begin{figure}[h!]
   \centering
@@ -1901,7 +1903,7 @@ fn typeof(cx: Context, t: Term) -> Type {
       \end{rustcode}
   \end{minipage}
   \caption{
-    An implementation of the \code{typeof} function for typechecking the simply typed lambda calculus described in Section~\ref{sec:semantic:purelambda}.
+    An implementation of the \code{typeof} function for typechecking the simply typed lambda calculus described in~\cref{sec:semantic:purelambda}.
   }\label{fig:typeof_impl}
 \end{figure}
 
@@ -1909,10 +1911,10 @@ fn typeof(cx: Context, t: Term) -> Type {
 
 As the last phase of a compiler's front end we have the intermediate code generation.
 The intermediate code generation will take as input the abstract syntax tree generated from semantic analysis and output an intermediate representation (IR).
-In a sense, we will be evaluating the source AST but, instead of generating the resulting value of the AST's computation as we formalized in Section~\ref{sec:semantic:operational} using operational semantics, we will be evaluating the source AST into another syntactical representation.
+In a sense, we will be evaluating the source AST but, instead of generating the resulting value of the AST's computation as we formalized in~\cref{sec:semantic:operational} using operational semantics, we will be evaluating the source AST into another syntactical representation.
 
 Compilers may construct a sequence of many intermediate syntactical representations until reaching the target machine executable code where each IR is suitable for the kind of analysis and operations it is executed upon~\cite{Aho:2006:CPT:1177220}.
-We have already described how to evaluate a concrete parse tree into an AST in Section~\ref{sec:syntax:subsec:abstrac_syntax_trees}, and, the process of creating tree traversals algorithms in order to perform tree transformations continues into evaluating an AST into an IR suitable for code optimization and target code generation.
+We have already described how to evaluate a concrete parse tree into an AST in~\cref{sec:syntax:subsec:abstrac_syntax_trees}, and, the process of creating tree traversals algorithms in order to perform tree transformations continues into evaluating an AST into an IR suitable for code optimization and target code generation.
 
 A suitable IR has several qualities:
 \begin{itemize}
@@ -1921,7 +1923,7 @@ A suitable IR has several qualities:
   \item The syntactical constructs of the IR must have clear and simple meanings allowing for the specification and implementation of optimizing transformations of the IR~\cite{appel2003modern}.
 \end{itemize}
 Thus, a good IR for code generation would abstract the desired range of target machines into an abstract machine that is capable of describing target machine operations either directly or by using the abstract machine operations as building blocks for more complex operations~\cite{appel2003modern}.
-This can be achieved by the IR represented by the grammar in Figure~\ref{fig:codegen_ir}.
+This can be achieved by the IR represented by the grammar in~\cref{fig:codegen_ir}.
 
 \begin{figure}[ht]
   \centering
@@ -2004,11 +2006,11 @@ This approach creates a development cycle were the implementation hits programme
 
 \section{Extending the simply typed lambda calculus with refinements}
 
-Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in Section~\ref{chapter:background:sec:semantic} together with the respective inference rules and the newly added typing relations.
+Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in~\cref{chapter:background:sec:semantic} together with the respective inference rules and the newly added typing relations.
 
 \subsection{Abstract syntax of predicates and constraints}
 
-The authors start the construction by defining the abstract syntax for the predicates and constraints syntactical categories as seen in Figure~\ref{fig:refinement_predicates}.
+The authors start the construction by defining the abstract syntax for the predicates and constraints syntactical categories as seen in~\cref{fig:refinement_predicates}.
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
     \begin{alignat*}{4}
@@ -2054,14 +2056,14 @@ and the operation $\code{p}_1\bowtie\code{p}_2$ was added to represent all inter
 All the other operations are mapped to uninterpreted functions, were the only thing the SMT solver knows about them is the axiom of congruence which says the for all variables $x$ and $y$, if $x = y$ then $f(x) = f(y)$~\cite{jhala2020tutorial}.
 Examples of predicates include the ones we have discussed in the Introduction of this work, we can use \code{0 <= v} to denote the natural numbers and \code{0 <= v \&\& v = length(x)} to denote the values of valid indices of an array.
 
-A type checker with refinements produces what is called \textit{Verification Condition} (VC) constraints \code{c}, which are defined in Figure~\ref{fig:refinement_predicates}.
+A type checker with refinements produces what is called \textit{Verification Condition} (VC) constraints \code{c}, which are defined in~\cref{fig:refinement_predicates}.
 Constrains are either a single quantifier-free predicate \code{p}, or a conjunction $\code{c}_1 \land \code{c}_2$, or an implication of the form $\forall\code{\typer{x}{T}.p}\implies\code{c}$~\cite{jhala2020tutorial}.
 The latter form of a constraint means that for all \code{x} of a given base type \code{b}, if p holds then so must c.
 These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
 
 \subsection{Abstract syntax of terms and types}
 
-The abstract syntax for terms and types presented by the authors is summarized in Figure~\ref{fig:refinement_terms}.
+The abstract syntax for terms and types presented by the authors is summarized in~\cref{fig:refinement_terms}.
 
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
@@ -2090,14 +2092,14 @@ The abstract syntax for terms and types presented by the authors is summarized i
   }\label{fig:refinement_terms}
 \end{figure}
 
-The terms presented by the authors are similar to the terms explores in Section~\ref{chapter:background:sec:semantic}.
+The terms presented by the authors are similar to the terms explores in~\cref{chapter:background:sec:semantic}.
 They differ only by the function application, which now must receive a variable as parameter, by the introduction of type annotation terms, and, by the introduction of a recursive binding that allows the use of recursive functions.
 Also, the constants \code{c} includes primitives such as integers and primitive functions such as \code{sum} and \code{sub} for arithmetic operations.
 Furthermore, in the definition of types, we find:
 \begin{itemize}
   \item The syntactic variable \code{b} for the languages primitive types (e.g., the set of all integers \code{int});
 
-  \item The refined types \code{t} composed of a base type \code{b} and the definition of a refinement \code{\{x|p\}}, which is a pair of a \textit{value variable} \code{x} and a logical predicate \code{p} from the SMT logic in Figure~\ref{fig:refinement_predicates}.
+  \item The refined types \code{t} composed of a base type \code{b} and the definition of a refinement \code{\{x|p\}}, which is a pair of a \textit{value variable} \code{x} and a logical predicate \code{p} from the SMT logic in~\cref{fig:refinement_predicates}.
 
   \item And, a dependent function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} composed of a binder \code{x} of type $\code{t}_1$ which can appear at the refinement predicate of $\code{t}_2$.
 \end{itemize}
@@ -2149,7 +2151,7 @@ For statically ensuring that the simply typed lambda calculus with refinement ty
           }\label{fig:tutorial_well_formedness}
         \end{figure}
 
-        The inference rules in Figure~\ref{fig:tutorial_well_formedness} define the well-formedness judgment.
+        The inference rules in~\cref{fig:tutorial_well_formedness} define the well-formedness judgment.
         The rule Wf-Base defines that, for a refinement \code{b\{x|p\}} to be well-formed in a context $\Gamma$, the predicate \code{p} needs to be well-sorted in the context $\Gamma$ extended with the binding \typer{x}{b} (assuming the erasure of all refinements from $\Gamma$)~\cite{jhala2020tutorial}.
         And, the rule Wf-Fun defines that, for a function type \fnty{x:$\code{t}_1$}{$\code{t}_2$} to be well-formed, the type $\code{t}_1$ needs to be well-formed, and, the type $\code{t}_2$ needs to be well-formed with the context extended with the parameter \typer{x}{$\code{t}_1$}~\cite{jhala2020tutorial}.
 
@@ -2174,7 +2176,7 @@ For statically ensuring that the simply typed lambda calculus with refinement ty
           }\label{fig:tutorial_entailment}
         \end{figure}
 
-        The inference rules in Figure~\ref{fig:tutorial_entailment} define the entailment judgment.
+        The inference rules in~\cref{fig:tutorial_entailment} define the entailment judgment.
         The rule Ent-Empty defines that the context $\Gamma$ entails the constraint \code{c} given that \code{c} is SMT solvable~\cite{jhala2020tutorial}.
         Furthermore, the rule Ent-Reduce defines how to reduce the context into the verification condition by removing bindings from the context and translating them into constraints~\cite{jhala2020tutorial}.
 
@@ -2218,28 +2220,28 @@ For statically ensuring that the simply typed lambda calculus with refinement ty
           }\label{fig:tutorial_subtyping}
         \end{figure}
 
-        The inference rules in Figure~\ref{fig:tutorial_subtyping} define the subtyping judgment.
+        The inference rules in~\cref{fig:tutorial_subtyping} define the subtyping judgment.
         The rule Sub-Base defines that, for a refined type \code{b\{$\code{x}_1$|$\code{p}_1$\}} to be a subtype of \code{b\{$\code{x}_2$|$\code{p}_2$\}}, the context has to entail the constraint \code{$\forall$\code{\typer{$\code{x}_1$}{b}.\ $\code{p}_1$}$\implies$\code{$\code{p}_2$[$\code{x}_2$ := $\code{x}_1$]}} which means that if $\code{p}_1$ holds then so must $\code{p}_2$ with all free occurrences of $\code{x}_2$ substituted by $\code{x}_1$~\cite{jhala2020tutorial}.
         And, the rule Sub-Fun decomposes the subtype of function types into the contravariant subtype of the input types and the covariant subtype of the return types~\cite{jhala2020tutorial}.
 
   \item The \textit{Synthesis} judgment \synthcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} can be generated, or synthesized, for the term \code{e}~\cite{jhala2020tutorial}.
-        This judgment is relative to the typing relation for the unrefined simply typed lambda calculus in Section~\ref{chapter:background:sec:semantic}.
+        This judgment is relative to the typing relation for the unrefined simply typed lambda calculus in~\cref{chapter:background:sec:semantic}.
 
-        The inference rules in Figure~\ref{fig:tutorial_synthesis} define the synthesis judgment.
-        They work together with the \textit{checking} judgment inference rules to build the \textit{bidirectional typing} system described in Section~\ref{sub:bidirectional_typing}.
+        The inference rules in~\cref{fig:tutorial_synthesis} define the synthesis judgment.
+        They work together with the \textit{checking} judgment inference rules to build the \textit{bidirectional typing} system described in~\cref{sub:bidirectional_typing}.
 
   \item And, the \textit{Checking} judgment \checkcxr{}{e}{t} meaning that in the context $\Gamma$ the type \code{t} is a valid type for the term \code{e}, that is, constraining the term \code{e} to \textit{synthesize} a type \code{s} where \subtyr{s}{t}~\cite{jhala2020tutorial}.
         This judgment is used to verify that a term is of given annotated type and to push the type annotation inside it's sub-terms to get localized type obligations for inner expressions~\cite{jhala2020tutorial}.
 
-        The inference rules in Figure~\ref{fig:tutorial_checking} define the checking judgment, complementing the inference rules for the synthesis judgment.
+        The inference rules in~\cref{fig:tutorial_checking} define the checking judgment, complementing the inference rules for the synthesis judgment.
 \end{itemize}
 
 \subsection{Bidirectional typing}\label{sub:bidirectional_typing}
 
-The typing relation \typecxr{}{x}{T} presented in Section~\ref{ch:background:sec:typing_relation} for the simply typed lambda calculus proves that the program is sound by synthesizing a type for each leaf term on the abstract tree and then subsequently synthesizing the types for the intermediate terms until we synthesize the type for the root term thus proving the program's soundness traversing the abstract tree in a single direction, i.e., from the leaves to the root.
+The typing relation \typecxr{}{x}{T} presented in~\cref{ch:background:sec:typing_relation} for the simply typed lambda calculus proves that the program is sound by synthesizing a type for each leaf term on the abstract tree and then subsequently synthesizing the types for the intermediate terms until we synthesize the type for the root term thus proving the program's soundness traversing the abstract tree in a single direction, i.e., from the leaves to the root.
 
 The bidirectional typing rules proposed by \textcite{jhala2020tutorial} levers the type synthesis of terms by combining the synthesis with checking judgments.
-We will explore the inference rules present in Figure~\ref{fig:tutorial_synthesis} and Figure~\ref{fig:tutorial_checking} by exploring how they prove the types for each term \code{e} described in Figure~\ref{fig:refinement_terms}.
+We will explore the inference rules present in~\cref{fig:tutorial_synthesis,fig:tutorial_checking} by exploring how they prove the types for each term \code{e} described in~\cref{fig:refinement_terms}.
 
 \begin{figure}[ht]
   \begin{align*}
@@ -2440,7 +2442,7 @@ The subtyping relation can be implemented as a function \code{sub} that takes tw
 \begin{equation*}
   \textrm{if \code{sub($\code{t}_1$, $\code{t}_2$)} = \code{c} and \ctxtr{}{c} then \subtycxr{}{$\code{t}_1$}{$\code{t}_2$}}
 \end{equation*}
-The function \code{sub} is implemented as shown in Figure~\ref{fig:subtyping_function_impl} where each definition is relative to the inference rules Sub-Base and Sub-Fun from Figure~\ref{fig:tutorial_subtyping}.
+The function \code{sub} is implemented as shown in~\cref{fig:subtyping_function_impl} where each definition is relative to the inference rules Sub-Base and Sub-Fun from~\cref{fig:tutorial_subtyping}.
 
 \begin{figure}[ht]
   \begin{align*}
@@ -2462,7 +2464,7 @@ The synthesis relation can be implemented as a function \code{synth} that takes 
 \begin{equation*}
   \textrm{if \code{synth($\Gamma$, e)} = \code{(c, t)} and \ctxtr{}{c} then \synthcxr{}{\code{e}}{\code{t}}}
 \end{equation*}
-The function \code{synth} is implemented as shown in Figure~\ref{fig:synth_function_impl} where each definition is relative to the inference rules Syn-Var, Syn-Const, Syn-Ann, and Syn-App from Figure~\ref{fig:tutorial_synthesis}.
+The function \code{synth} is implemented as shown in~\cref{fig:synth_function_impl} where each definition is relative to the inference rules Syn-Var, Syn-Const, Syn-Ann, and Syn-App from~\cref{fig:tutorial_synthesis}.
 
 \begin{figure}[ht]
   \begin{align*}
@@ -2492,7 +2494,7 @@ Last, the checking relation can be implemented as a function \code{check} that t
 \begin{equation*}
   \textrm{if \code{check($\Gamma$, e, t)} = \code{c} and \ctxtr{}{c} then \checkcxr{}{\code{e}}{\code{t}}}
 \end{equation*}
-The function \code{check} is implemented as shown in Figure~\ref{fig:check_function_impl} where each definition is relative to the inference rules Chk-Fun, Chk-Let, Chk-Rec, Chk-If, and Chk-Syn, present in Figure~\ref{fig:tutorial_checking}.
+The function \code{check} is implemented as shown in~\cref{fig:check_function_impl} where each definition is relative to the inference rules Chk-Fun, Chk-Let, Chk-Rec, Chk-If, and Chk-Syn, present in~\cref{fig:tutorial_checking}.
 
 \begin{figure}[ht]
   \begin{align*}
@@ -2540,7 +2542,7 @@ In this chapter we will describe the design of the \textit{Ekitai} programming a
 
 \section{The Ekitai's lexer}
 
-The lexical aspects of the Ekitai programming language are defined by Figures~\ref{fig:ekitai_tokens_helper} and~\ref{fig:ekitai_tokens}.
+The lexical aspects of the Ekitai programming language are defined by~\cref{fig:ekitai_tokens_helper,fig:ekitai_tokens}.
 We decided to use an automatic lexer generator since we found no advantage in building one by hand and the automatic parser generator used was capable of lexing all token patterns in the specification.\footnote{The automatic lexer generator used in this work is Logos~\cite{logos2020}.}
 
 \begin{figure}[ht]
@@ -2551,7 +2553,7 @@ We decided to use an automatic lexer generator since we found no advantage in bu
     \code{word}  & \rightarrow \ [\code{[:digit:][:alpha:]\_}]
   \end{align*}
   \caption{
-    Building block regular definitions for token patterns of Figure~\ref{fig:ekitai_tokens}.
+    Building block regular definitions for token patterns of~\cref{fig:ekitai_tokens}.
   }\label{fig:ekitai_tokens_helper}
 \end{figure}
 \begin{figure}[ht]
@@ -2628,7 +2630,7 @@ We decided to use an automatic lexer generator since we found no advantage in bu
   }\label{fig:ekitai_tokens}
 \end{figure}
 
-Note in Figure~\ref{fig:ekitai_tokens} that the token name \code{Identifier} has, in its described language, common strings with token names for keywords, i.e., token names ending in \code{Kw}. The automatic lexer algorithm solves this problem by applying two disambiguation rules:
+Note in~\cref{fig:ekitai_tokens} that the token name \code{Identifier} has, in its described language, common strings with token names for keywords, i.e., token names ending in \code{Kw}. The automatic lexer algorithm solves this problem by applying two disambiguation rules:
 \begin{itemize}
   \item Longer matching lexemes have priority over shorter matching lexemes, i.e., \code{>=} has higher priority than \code{>} for token names \code{GreaterEquals} and \code{Greater}.
   \item Groups have lower priority that singular regular expressions, i.e., $[\code{ab}]$ has less priority than \code{a} and \code{b}, and, permutations have the lowest priority, i.e, $a^*$.
@@ -2643,7 +2645,7 @@ In order to keep the grammar out of clutter, we will present the grammar using s
 Instead of writing \code{LetKw} or \code{DoubleAmpersand} we will stick to writing \code{let} and \code{\&\&} respectively.
 Furthermore, we will use \code{Id} for short of \code{Identifier} and \code{Int} for short of \code{Integer}.
 
-First we define the syntax structure for the source program's top level items by presenting the grammar productions in Figure~\ref{fig:ekitai_syntax_toplevel}.
+First we define the syntax structure for the source program's top level items by presenting the grammar productions in~\cref{fig:ekitai_syntax_toplevel}.
 
 \begin{figure}[ht]
   \begin{alignat*}{2}
@@ -2717,7 +2719,7 @@ First we define the syntax structure for the source program's top level items by
 The variable \bnfvar{SourceFile} is the start symbol of the Ekytai's syntax grammar.
 It generates a list of Items \bnfvar{FnDef} and \bnfvar{TypeDef} for function definitions and type definitions respectively.
 
-From the grammar in~\ref{fig:ekitai_syntax_toplevel}, we are able to see the structure of the top level constructs. For example, the following program illustrates a \bnfvar{SourceFile} with two \bnfvar{Item} in the \bnfvar{ItemList}:
+From the grammar in~\cref{fig:ekitai_syntax_toplevel}, we are able to see the structure of the top level constructs. For example, the following program illustrates a \bnfvar{SourceFile} with two \bnfvar{Item} in the \bnfvar{ItemList}:
 \begin{center}
   \begin{minipage}{0.8\textwidth}
     \begin{rustcode}
@@ -2743,11 +2745,11 @@ inside the type definition for
 \begin{equation*}
   \code{SomeTypeName}
 \end{equation*}
-The \bnfvar{Path} variable is defined on Figure~\ref{fig:ekitai_syntax_terms} as part of Ekitais's grammar for terms.
+The \bnfvar{Path} variable is defined on~\cref{fig:ekitai_syntax_terms} as part of Ekitais's grammar for terms.
 
 Beyond the top level items, we still have to define the variables for \bnfvar{Type} and for \bnfvar{BlockExpr}.
-The \bnfvar{BlockExpr} variable is part of the grammar for Ekitai's terms as shown in Figure~\ref{fig:ekitai_syntax_terms}.
-While the \bnfvar{Type} variable is part of the grammar for Ekitai's types defined in Figure~\ref{fig:ekitai_syntax_types}.
+The \bnfvar{BlockExpr} variable is part of the grammar for Ekitai's terms as shown in~\cref{fig:ekitai_syntax_terms}.
+While the \bnfvar{Type} variable is part of the grammar for Ekitai's types defined in~\cref{fig:ekitai_syntax_types}.
 
 \begin{figure}[ht]
   \centering
@@ -2930,7 +2932,7 @@ While the \bnfvar{Type} variable is part of the grammar for Ekitai's types defin
   }\label{fig:ekitai_syntax_types}
 \end{figure}
 
-The syntax for refinements defined in Figure~\ref{fig:ekitai_syntax_types} allows for any expression as the refinement predicate.
+The syntax for refinements defined in~\cref{fig:ekitai_syntax_types} allows for any expression as the refinement predicate.
 We do that in order to reuse the parser for \bnfvar{Expr} and leave to the semantic analysis to restrict what sentences from \bnfvar{Expr} are allowed as refinement predicates.
 
 \section{The Ekitai's type system}
