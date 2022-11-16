@@ -1987,7 +1987,8 @@ To do. Here goes an introduction of Single Static Assignment intermediate repres
 
 \chapter{Refinement types with predicates}\label{ch:refinement_types}
 
-In order to explore refinement types, we will be discussing the works by \textcite{jhala2020tutorial} which was written in order to collect in a single place the authors previous efforts in \textcite{vazou2014liquidhaskell} building the LiquidHaskell extension  which opened the way for many implementations of refinement types on top of existing languages.
+In order to explore refinement types we will be discussing the works by \textcite{jhala2020tutorial}.
+This work is a collection of the authors previous efforts in \textcite{vazou2014liquidhaskell} building the LiquidHaskell extension which opened the way for many implementations of refinement types on top of existing languages.
 Notable implementation include the work of \textcite{vekris2016refinementtypescript} adding refinement types for the TypeScript language, the work of \textcite{vazou2018refinementruby} adding refinement types for the Ruby language, and the work of \textcite{sammler2021refinedc} integrating refinement types for the C language.
 
 In \textcite{jhala2020tutorial}, the authors elaborate that the type systems of common high level programming languages can allow types to be \textit{refined} with logic predicates.
@@ -2057,9 +2058,11 @@ All the other operations are mapped to uninterpreted functions, were the only th
 Examples of predicates include the ones we have discussed in the Introduction of this work, we can use \code{0 <= v} to denote the natural numbers and \code{0 <= v \&\& v = length(x)} to denote the values of valid indices of an array.
 
 A type checker with refinements produces what is called \textit{Verification Condition} (VC) constraints \code{c}, which are defined in~\cref{fig:refinement_predicates}.
-Constrains are either a single quantifier-free predicate \code{p}, or a conjunction $\code{c}_1 \land \code{c}_2$, or an implication of the form $\forall\code{\typer{x}{T}.p}\implies\code{c}$~\cite{jhala2020tutorial}.
-The latter form of a constraint means that for all \code{x} of a given base type \code{b}, if p holds then so must c.
-These constraints can than be passed to an SMT that will verify if they are sated, and, if so, it is guaranteed that the program is well typed and is capable of being evaluated~\cite{jhala2020tutorial}.
+Constrains are either a single quantifier-free predicate \code{p}, a conjunction $\code{c}_1 \land \code{c}_2$, or an implication of the form $\forall\code{\typer{x}{T}.p}\implies\code{c}$~\cite{jhala2020tutorial}.
+The latter form of a constraint means that for all \code{x} of a given base type \code{b}, if \code{p} holds then so must \code{c}.
+
+An SMT solver can then verify if a constraint \code{c} is valid by flattening \code{c} into a collection of sub-constraints $\code{c}_i = \forall x. \code{p}_i \implies \code{q}_i$ such that $\code{c} \Longleftrightarrow \code{c}_i$~\cite{jhala2020tutorial}.
+The validity of each $\code{c}_i$ is then determined by checking if the quantifier free predicate $\code{p}_i \land \lnot \code{q}_i$ is not solvable by an SMT solver.
 
 \subsection{Abstract syntax of terms and types}
 
@@ -2745,7 +2748,7 @@ inside the type definition for
 \begin{equation*}
   \code{SomeTypeName}
 \end{equation*}
-The \bnfvar{Path} variable is defined on~\cref{fig:ekitai_syntax_terms} as part of Ekitais's grammar for terms.
+The \bnfvar{Path} variable is defined on~\cref{fig:ekitai_syntax_terms} as part of Ekitai's grammar for terms.
 
 Beyond the top level items, we still have to define the variables for \bnfvar{Type} and for \bnfvar{BlockExpr}.
 The \bnfvar{BlockExpr} variable is part of the grammar for Ekitai's terms as shown in~\cref{fig:ekitai_syntax_terms}.
