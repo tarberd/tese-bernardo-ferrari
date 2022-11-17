@@ -2940,6 +2940,43 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
 
 \section{The Ekitai's type system}
 
+\begin{figure}
+  \begin{alignat*}{2}
+    \astprod{SourceFile}{ModItem SourceFile \bnfor{$\epsilon$}}          \\
+    \astprod{ModItem}{FnDef \bnfor{TyDef}}                               \\
+    \astprod{TyDef}{type Name = ValueConsList}                           \\
+    \astprod{ValueConsList}{ValueCons | ValueConsList \bnfor{$\epsilon$}} \\
+    \astprod{ValueCons}{Name TypeList}                                  \\
+    \astprod{TypeList}{Type TypeList \bnfor{$\epsilon$}}                \\
+    \astprod{FnDef}{fn Name: FnType = Term}                     \\
+    \astprod{Name}{id}
+  \end{alignat*}
+  \caption{Ekitai's top level items AST.}
+\end{figure}
+
+\begin{figure}
+  \begin{alignat*}{2}
+    \astprod{Type}{RefType \bnfor{FnType}} \\
+    \astprod{RefType}{\{Name: BaseType | Term\}} \\
+    \astprod{FnType}{Name:RefType -> Type} \\
+    \astprod{BaseType}{I32 \bnfor{I64} \bnfor{Bool}}
+  \end{alignat*}
+  \caption{Ekitai's AST for Types.}
+\end{figure}
+
+\begin{figure}
+  \begin{alignat*}{2}
+    \astprod{Term}{let Name = Term in Term} \\
+    \astmore{if Name then Term else Term}   \\
+    \astmore{Int \bnfor{Bool} \bnfor{Name}} \\
+    \astmore{Term x} \\
+    \astmore{match Term CaseList}
+  \end{alignat*}
+  \caption{Ekitai's top level items AST.}
+\end{figure}
+
+
+
 To do. Work in progress.
 
 \section{The Ekitai's LLVM intermediate code generator}
