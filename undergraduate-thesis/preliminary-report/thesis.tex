@@ -2009,7 +2009,7 @@ This approach creates a development cycle were the implementation hits programme
 
 Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in~\cref{chapter:background:sec:semantic} together with the respective inference rules and the newly added typing relations.
 
-\subsection{Abstract syntax of predicates and constraints}
+\subsection{Abstract syntax of predicates and constraints}\label{ch:refinement_types:subsec:predicates_ast}
 
 The authors start the construction by defining the abstract syntax for the predicates and constraints syntactical categories as seen in~\cref{fig:refinement_predicates}.
 \begin{figure}[ht]
@@ -2108,7 +2108,7 @@ Furthermore, in the definition of types, we find:
 \end{itemize}
 In order to reduce verbosity, a refined type which allows all values, written \code{b\{x|true\}}, can be abbreviated into its base type \code{b}.
 
-\subsection{Variable substitution rules for refinement types}
+\subsection{Variable substitution rules for refinement types}\label{sub:substitution}
 
 The authors use the notation \code{t[x := y]} to denote a type substitution where all free occurrences of \code{y} inside the type \code{t} are substituted by \code{x}.
 For the refined type, the substitution is defined as
@@ -2938,9 +2938,7 @@ While the \bnfvar{Type} variable is part of the grammar for Ekitai's types defin
 The syntax for refinements defined in~\cref{fig:ekitai_syntax_types} allows for any expression as the refinement predicate.
 We do that in order to reuse the parser for \bnfvar{Expr} and leave to the semantic analysis to restrict what sentences from \bnfvar{Expr} are allowed as refinement predicates.
 
-\section{The Ekitai's type system}
-
-\begin{figure}
+\begin{figure}[!htb]
   \begin{alignat*}{2}
     \astprod{SourceFile}{ModItem SourceFile \bnfor{$\epsilon$}}          \\
     \astprod{ModItem}{FnDef \bnfor{TyDef}}                               \\
@@ -2954,7 +2952,7 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
   \caption{Ekitai's top level items AST.}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[!htb]
   \begin{alignat*}{2}
     \astprod{Type}{RefType \bnfor{FnType}} \\
     \astprod{RefType}{\{Name: BaseType | Term\}} \\
@@ -2964,7 +2962,7 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
   \caption{Ekitai's AST for Types.}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[!htb]
   \begin{alignat*}{2}
     \astprod{Term}{let Name = Term in Term} \\
     \astmore{if Name then Term else Term}   \\
@@ -2975,9 +2973,188 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
   \caption{Ekitai's top level items AST.}
 \end{figure}
 
+\pagebreak
 
+\section{The Ekitai's type system}
 
-To do. Work in progress.
+Ekitai's type-checker embodies a sophisticated blend of practicality and rigorous theory, aiming to provide developers with a powerful yet intuitive type system. Drawing from the comprehensive theoretical foundation detailed in \autoref{ch:refinement_types}, this type system represents the synergy of many advanced type-checking techniques.
+
+\subsection{Abstract Syntax Tree (AST)}
+
+Central to understanding Ekitai's type system is its Abstract Syntax Tree (AST). The AST allows for an intuitive and structured representation of expressions, which significantly eases the process of type-checking.
+
+\begin{rustcode}
+  // Base type with a refinement predicate: b{x|p}
+  struct RefinedBase {
+      pub base: Type,
+      pub binder: Name,
+      pub predicate: Predicate,
+  }
+  
+  // x:t -> t
+  struct DependentFunction {
+      pub parameter: (Name, RefinedBase),
+      pub tail_type: Box<RefinedType>,
+  }
+  
+  // t
+  enum RefinedType {
+      Base(RefinedBase),
+      Fn(DependentFunction),
+  }
+  
+  pub enum Type {
+      AbstractDataType(TypeDefinitionId /* internal ID for our AST database */),
+      FunctionDefinition(CallableDefinitionId /* internal ID for our AST database */),
+      Pointer(Box<Type>),
+      Scalar(ScalarType),
+  }
+  
+  pub enum ScalarType {
+      Integer(IntegerKind /* I32, I64 */),
+      Boolean,
+  }
+  
+  struct Context {
+      bindings: Vec<(Path, RefinedType)>,
+  }  
+\end{rustcode}
+  
+In this architecture:
+\begin{itemize}
+    \item The \texttt{RefinedBase} is a structure that encapsulates the base type along with a refinement predicate.
+    \item The \texttt{DependentFunction} represents functions that possess a dependency on a specific parameter type.
+    \item \texttt{RefinedType} serves as an overarching enum, capturing the essence of both basic and functional types.
+    \item The differentiation between abstract data types, function definitions, pointers, and scalars is captured by the \texttt{Type} enum.
+\end{itemize}
+
+\subsection{Predicates and Constraints}
+
+Predicates and constraints form the bedrock of Ekitai's type-checking. They define the conditions under which types are valid, and how they interact with one another.
+
+\begin{rustcode}
+  pub enum Predicate {
+    Variable(Name),
+    Boolean(bool),
+    Integer(u128),
+    // contains arithmetic and boolean operators
+    Binary(BinaryOperator, Box<Predicate>, Box<Predicate>),
+    Unary(UnaryOperator, Box<Predicate>),
+  }
+  
+  enum Constraint {
+    Predicate(Predicate),
+    Implication {
+        binder: Name,
+        base: Type,
+        antecedent: Predicate,
+        consequent: Box<Self>,
+    },
+    Conjunction(Box<Self>, Box<Self>),
+  }
+\end{rustcode}
+  
+The given code follows from \autoref{ch:refinement_types:subsec:predicates_ast}, \texttt{Predicate} encompasses several fundamental constructs, like variables, booleans, and integers. It also includes unary and binary operations, enabling more complex type validations. On the other hand, \texttt{Constraint} brings together predicates, implications, and conjunctions, offering a robust mechanism to express and check type requirements.
+
+\subsection{Type Inference and Checking}
+
+Ekitai employs advanced type inference algorithms to predict the type of a given term. This prediction, coupled with constraints, becomes instrumental in type validation. The following code follows from \autoref{sub:bidirectional_typing}:
+
+\begin{rustcode}
+// returns the type of the term and a constraint that must be satisfied
+fn synth_type(self, term_id: TermId) -> (Self, RefinedType, Option<Constraint>)
+// checks that the type of the lesser term is a subtype of the greater type
+fn subtype(self, lesser: RefinedBase, greater: RefinedBase) -> (Self, Constraint)
+
+// checks that the term has type constraint_type
+fn check_type(mut self, term_id: TermId, constraint_type: RefinedBase) -> (Self, Constraint) {
+    let term = &self.body.expressions[term_id];
+    match term {
+        Term::Block {
+            statements,
+            trailing_expression,
+        } => {
+            // ... ommited for brevity, but
+            // we check that the trailing expression has type constraint_type
+            // among other things
+        }
+        Term::If {
+            condition,
+            then_branch,
+            else_branch,
+        } => {
+            // ... ommited for brevity, but
+            // we check that condition has type bool
+            // c1, c2 are the constraints for the then and else branches
+            // both must be satisfied
+            (fold, Constraint::Conjunction(c1.into(), c2.into()))
+        }
+        _ => {
+            let (fold, t, c) = self.synth_type(term_id);
+            // we verify that t <: constraint_type
+            let (fold, c2) = fold.subtype(t.as_refined_base(), constraint_type);
+            // both c and c2 must be satisfied
+            (fold, Constraint::make_conjunction(c, c2))
+        }
+    }
+}
+\end{rustcode}
+
+While the \texttt{synth_type} function determines the type of a term and any associated constraints, \texttt{check_type} verifies the type compatibility and ensures adherence to established constraints.
+
+\subsection{Entailment and Substitution}
+
+In the realm of Ekitai's type system, entailment stands as a mechanism to ascertain whether a given constraint can be satisfied within a specific context, from \autoref{fig:tutorial_entailment}.
+
+\begin{rustcode}
+// within a context, checks if a constraint can be satisfied
+fn entailment(context: Context, constraint: Constraint) -> bool {
+    match context.pop() {
+        (_, None) => solve(constraint),
+        (tail, Some((path, RefinedType::Fn(_)))) => entailment(tail, constraint),
+        (tail, Some((path, RefinedType::Base(RefinedBase { binder, predicate, base })))) => {
+            let context_binder = path.as_name();
+            let predicate = substitution(binder, context_binder.clone(), predicate);
+
+            entailment(
+                tail,
+                Constraint::Implication {
+                    binder: context_binder,
+                    base,
+                    antecedent: predicate,
+                    consequent: constraint.into(),
+                },
+            )
+        }
+    }
+}
+// substitutes all occurrences of old by new in predicate
+fn substitution(old: Name, new: Name, predicate: Predicate) -> Predicate  
+\end{rustcode}
+
+The substitution function(\autoref{sub:substitution}) complements the process by replacing instances of one predicate with another, aiding in the seamless integration of types and constraints within varying contexts.
+
+\subsection{Interfacing with the SMT Solver}
+
+To bolster its type-checking prowess, Ekitai integrates with an SMT solver. This solver acts as a decision-making tool, determining the feasibility of constraints.
+
+\begin{rustcode}
+// gets the constraint, flattens it and then pass it to an SMT solver
+// to check if the constraint can be satisfied or not
+fn solve(constraint: Constraint) -> bool
+
+// flattens a complex constraint into a data structure that the SMT
+// solver can process more easily
+fn flatten(constraint: Constraint) -> Vec<FlatImplicationConstraint>
+
+struct FlatImplicationConstraint {
+    binders: Vec<(Name, Type)>,
+    antecedent: Predicate,
+    consequent: Predicate,
+}  
+\end{rustcode}
+
+The \texttt{solve} function directs the constraint to the SMT solver after a flattening process. This flattened constraint, represented as \texttt{FlatImplicationConstraint}, is optimized for the solver, ensuring efficient and accurate type validations.
 
 \section{The Ekitai's LLVM intermediate code generator}
 
