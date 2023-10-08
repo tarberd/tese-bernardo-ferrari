@@ -2537,7 +2537,34 @@ The function \code{check} is implemented as shown in~\cref{fig:check_function_im
 
 \chapter{The LLVM intermediate representation}\label{ch:llvm}
 
-To do. Work in progress.
+LLVM, an acronym for Low-Level Virtual Machine, is a pioneering compiler infrastructure renowned for its versatility and reusability. First introduced by Würthinger et al. in 2013, LLVM supplies a suite of reusable modules crucial for constructing compilers. Distinctively, it's designed with language agnosticism in mind, making it a premier choice for compiling a broad spectrum of programming languages, including but not limited to C, C++, Rust, and Swift \cite{denisov2018mull}.
+
+\section{LLVM's Intermediate Representation (IR)}
+
+At the heart of LLVM's design is its Intermediate Representation (IR), often referred to as LLVM IR. This IR serves as a three-address code, meticulously designed to delineate programs in a format that is both low-level and independent of any particular platform \cite{lee2018reconciling}.
+
+\subsection{Characteristics of LLVM IR}
+
+\begin{itemize}
+    \item \textbf{SSA-based Representation:} LLVM IR employs a Static Single Assignment (SSA) form. A fundamental characteristic of SSA is its insistence that each variable be assigned precisely once, making it a prime structure for optimizing and analyzing code efficiently.
+    
+    \item \textbf{Typed Language:} Another striking aspect of LLVM IR is its strong typing system. Analogous to those in many high-level programming languages, types in LLVM IR range from integers and floating-point numbers to more complex structures like pointers.
+    
+    \item \textbf{Structure of LLVM IR:} Programs in LLVM IR are intricately constructed using a mix of instructions and basic blocks. While instructions are the workhorses performing operations on values, basic blocks present these instructions in sequences ensuring sequential execution. Furthermore, control flow, an essential aspect of any programming representation, finds its expression in LLVM IR through conditional branches and unequivocal jumps.
+\end{itemize}
+
+\subsection{Optimizations in LLVM}
+
+One of the crowning features of LLVM IR is its powerful optimization capabilities. The LLVM framework equips developers with a battery of optimization passes, tailored to refine the IR and enhance the efficiency of the resultant code \cite{lee2018reconciling}. These optimization techniques span across various strategies, such as:
+
+\begin{itemize}
+    \item Common subexpression elimination
+    \item Dead code elimination
+    \item Loop optimizations
+    \item And many more...
+\end{itemize}
+
+The LLVM optimizer, with its robust analytical prowess, examines code to judiciously apply these optimizations. The optimizer's decisions are rooted in the inherent properties of the IR, notably the SSA form and the embedded type information.
 
 \chapter{The Ekitai language}\label{chapter:proposal}
 
