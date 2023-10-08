@@ -1983,7 +1983,31 @@ An address can be one of the following:
 
 where we find a singe assigned address at the instruction's left side and on the right side we have, either a single address, or, an $n$-ary operator together with $n$ address arguments~\cite{Aho:2006:CPT:1177220}.
 
-To do. Here goes an introduction of Single Static Assignment intermediate representations.
+\subsection{Single Static Assignment (SSA)}
+
+The Single Static Assignment (SSA) is another intermediate representation (IR) form, but unlike the three-address code, it's distinguished by its property wherein every variable is assigned precisely once~\cite{Cytron:1991:ESA:115372.115320}. This unique characteristic of SSA form has significant implications for the subsequent stages of compilation.
+
+For instance, given a variable named \code{x}, if the need arises in the source to assign multiple values to it, in the SSA form, the variable will be represented by different versions like \code{x1}, \code{x2}, and so forth. This simplifies the process of tracing a variable's value at any point in the program.
+
+\subsubsection{Key Characteristics of SSA}
+
+\begin{itemize}
+    \item \textbf{Unique Assignments:} Every variable in the SSA form gets written to exactly once. This uniqueness in assignment drastically reduces ambiguities during code analysis and optimization.
+
+    \item \textbf{$\phi$-functions:} These special functions emerge as a distinct trait of SSA. At control flow merge points, where variables from diverse paths converge, $\phi$-functions are employed. For a variable \code{x} with different values from two different branches, the merge would use a $\phi$-function like \code{x3 = φ(x1, x2)}.
+
+    \item \textbf{Clear Data Flow:} With each variable assigned only once, tracking the flow of data becomes notably more streamlined. This property aids in more efficient and direct data flow analysis.
+\end{itemize}
+
+The structure of the SSA, formed by \textit{variables} and their uniquely assigned \textit{values}, combined with the use of \textit{$\phi$-functions}, represents programs in a manner that simplifies many aspects of optimization and analysis. Especially, the process of discerning a variable's value and life cycle is made straightforward due to this unique assignment property. As with the three-address code, SSA form serves as a pivotal step in the compilation process, readying the code for subsequent stages of optimization.
+
+% TODO: Add references
+% \bibitem{Cytron:1991:ESA:115372.115320}
+% Cytron, R., Ferrante, J., Rosen, B. K., Wegman, M. N., \& Zadeck, F. K. (1991).
+% \textit{Efficiently computing static single assignment form and the control dependence graph.}
+% ACM Transactions on Programming Languages and Systems (TOPLAS), 13(4), 451-490.
+% \end{thebibliography}
+
 
 \chapter{Refinement types with predicates}\label{ch:refinement_types}
 
@@ -2536,6 +2560,8 @@ The function \code{check} is implemented as shown in~\cref{fig:check_function_im
 \end{figure}
 
 \chapter{The LLVM intermediate representation}\label{ch:llvm}
+
+% TODO: Add references in bib
 
 LLVM, an acronym for Low-Level Virtual Machine, is a pioneering compiler infrastructure renowned for its versatility and reusability. LLVM supplies a suite of reusable modules crucial for constructing compilers. Distinctively, it's designed with language agnosticism in mind, making it a premier choice for compiling a broad spectrum of programming languages, including but not limited to C, C++, Rust, and Swift \cite{denisov2018mull}.
 
