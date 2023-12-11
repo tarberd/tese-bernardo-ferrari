@@ -292,7 +292,7 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-As stated by~\textcite{Aho:2006:CPT:1177220}, \textquote{Programming languages are notations to describe computations to people and to machines}.
+As stated by \textcite{Aho:2006:CPT:1177220}, \textquote{Programming languages are notations to describe computations to people and to machines}.
 These notations can take numerous forms.
 They range from lower-level languages, such as machine code ready to be executed by a specific machine, to a higher-level language, such as C, Java, Rust, Haskell and Ml.
 Lower-level languages like machine code are very verbose in how they describe computations; usually describing directly to the machine when and how to execute each computation through simple notations like: add the values from two data locations, compare two values, jump the next 4 instructions, and so on~\cite{Aho:2006:CPT:1177220}.
@@ -358,7 +358,7 @@ The different phases and the intermediate representations between them can be se
     \draw (opt ind.east) -| (backend.north);
     \draw (opt dep.east) -| (backend);
   \end{tikzpicture}
-  \caption{Phases of a compiler and the intermediate representations between them. Adapted from~\textcite{Aho:2006:CPT:1177220}.}\label{figure:compilation-phases}
+  \caption{Phases of a compiler and the intermediate representations between them. Adapted from \textcite{Aho:2006:CPT:1177220}.}\label{figure:compilation-phases}
 \end{figure}
 
 According to \textcite{appel2003modern}, \textquote{An intermediate representation (IR) is a kind of abstract machine language that can express the target-machine operations without committing to too much machine-specific detail}.
@@ -422,7 +422,7 @@ Given these definitions, the refinement type checker can then prove, during the 
 \section{Motivation and research problem}
 
 There is an increasing number of uses of refinement types being implemented on top of existing languages.
-For example: the work of~\textcite{vazou2014liquidhaskell} presenting LiquidHaskell as refinement types for the Haskell language; the work of~\textcite{vekris2016refinementtypescript} integrating refinement types for the TypeScript language; the work of~\textcite{sammler2021refinedc} integrating refinement types for the C language; and, the work of~\textcite{vazou2018refinementruby} integrating refinement types for the Ruby language.
+For example: the work of \textcite{vazou2014liquidhaskell} presenting LiquidHaskell as refinement types for the Haskell language; the work of \textcite{vekris2016refinementtypescript} integrating refinement types for the TypeScript language; the work of \textcite{sammler2021refinedc} integrating refinement types for the C language; and, the work of \textcite{vazou2018refinementruby} integrating refinement types for the Ruby language.
 
 Although refinement types have been proved useful in improving the static checking capabilities of higher level languages, there is a lack of research on bringing refinement types to the intermediate code generation phase of a compiler's front end.
 Hence, we state the research problem in the form of the question: What can we discover when we add refinement types to the intermediate code generation phase of a compiler's front end?
@@ -1052,9 +1052,9 @@ If we try to parse the sentence \code{$\code{id}_1$ + number * $\code{id}_2$} it
 \end{itemize}
 The loop to keep checking if the next operation binds stronger than the minimum for the recursion guaranties both correct associativity and operator precedence~\cite{pratt1973operatorprecedence}.
 
-Besides the work of~\textcite{pratt1973operatorprecedence}, there are recursive descent parsers which can parse a bigger range of ambiguous and left recursive grammars.
+Besides the work of \textcite{pratt1973operatorprecedence}, there are recursive descent parsers which can parse a bigger range of ambiguous and left recursive grammars.
 \textcite{10.1007/978-3-540-77442-6_12} proposes a handwritten parser combinator approach that uses composable higher-order functions, together with memoization and backtracking, in order to allow parsing both ambiguity and left recursive grammars in polynomial time.
-There is also the works of~\textcite{10.1145/583852.581483} that proposes a handwritten parser approach, called \textit{Packrat}, using memoization, backtracking, and unlimited look ahead to parse $LL(k)$ and $LR(k)$ grammars by using \textit{Parsing Expression Grammar} (PEG) definitions, formalized by~\textcite{10.1145/982962.964011}, which differs from context-free grammars by imposing a total order to the rules set of the grammar.
+There is also the works of \textcite{10.1145/583852.581483} that proposes a handwritten parser approach, called \textit{Packrat}, using memoization, backtracking, and unlimited look ahead to parse $LL(k)$ and $LR(k)$ grammars by using \textit{Parsing Expression Grammar} (PEG) definitions, formalized by \textcite{10.1145/982962.964011}, which differs from context-free grammars by imposing a total order to the rules set of the grammar.
 Therefore, PEGs cannot be ambiguous because there is no choice involved in which production to choose for derivation~\cite{10.1145/982962.964011}.
 Furthermore, \textcite{10.1145/1328408.1328424} extended Packrat to allow left-recursion by changing its memoization process.
 
@@ -1064,11 +1064,11 @@ Writing a bottom-up shift-reduce parser for an $LR$ class grammar is not an easy
 parser generators for $LR(1)$ and $LR(k)$ languages are capable of generating very efficient parsers for a large range of context-free grammars~\cite{Aho:2006:CPT:1177220}.
 Even allowing grammar designers to solve shifting-reduce conflicts by hand assigning whether to shift or to reduce for every conflict~\cite{Aho:2006:CPT:1177220}.
 
-Although using bottom-up parser generators are desirable for its expressiveness and efficiency, in the works of \textcite{matklad2020challenginglrparsing, matklad2020prattparsing} for the Rust Analyzer, and~\textcite{Parr13} for the ANTLR parser generator, the authors advocate to implement handwritten recursive descent top-down parser for it allows the implementation of better error messages and error recovery algorithms for modern compiler implementations and tools.
+Although using bottom-up parser generators are desirable for its expressiveness and efficiency, in the works of \textcite{matklad2020challenginglrparsing, matklad2020prattparsing} for the Rust Analyzer, and \textcite{Parr13} for the ANTLR parser generator, the authors advocate to implement handwritten recursive descent top-down parser for it allows the implementation of better error messages and error recovery algorithms for modern compiler implementations and tools.
 
 \subsection{Semantic actions and syntax-directed translations}
 
-As put by~\textcite{appel2003modern} \textquote{A compiler must do more than recognize whether a sentence belongs to the language of a grammar, it must do something useful with that sentence}.
+As put by \textcite{appel2003modern} \textquote{A compiler must do more than recognize whether a sentence belongs to the language of a grammar, it must do something useful with that sentence}.
 The specification of \textit{semantic actions} allows us to do something useful with sentences that are parsed~\cite{appel2003modern}.
 They are pieces of code that we can attach to the body of grammar production rules to specify \textit{syntax-directed definitions}~\cite{Aho:2006:CPT:1177220}.
 Syntax-directed definitions, then, are used to perform \textit{syntax-directed translations} by executing the code specified by the semantic actions during specific moments of the parsing process~\cite{Aho:2006:CPT:1177220}.
@@ -1081,7 +1081,7 @@ If we give a closer look at the parser implemented in~\cref{fig:predictive_parse
 Furthermore, the position of the semantic action in a production body determines when the semantic action executes during parsing.
 In this example it is positioned after the parser finishes parsing the production.
 
-It is possible to write an entire compiler into the semantic actions of a parser~\cite{appel2003modern}.
+In \textcite{appel2003modern} the autors state that it is possible to write an entire compiler into the semantic actions of a parser.
 However, this approach limits the compiler to analyze the source program in the strict order it is parsed~\cite{appel2003modern}.
 Hence, using some sort of intermediate representation between syntax analysis and semantics analysis allows the semantic analyzer to be free from the constraints of the parsing algorithm~\cite{appel2003modern}.
 One possible solution is to design the semantic actions in such a way that they output an intermediate tree data structure~\cite{appel2003modern}.
@@ -1357,7 +1357,11 @@ Each rule means that if we found the statements in the premises listed above the
 When defining the syntax as inference rules, the fact that $T$ is the smallest possible set is not stated explicitly but implied, also, the rules with no premise are called \textit{axioms} and are written with no bar, since there is nothing to put above it~\cite{pierce2002types}.
 Furthermore, \textcite{pierce2002types} points out that what we are calling \textit{inference rules} are actually \textit{rule schemas} which represents the infinite set of \textit{concrete rules} that can be obtained by substituting each variable by all possible sentences of the syntactic category, e.g., substituting each metavariable for \code{term} by every possible term in the inference rules above.
 
-We can than proof that \code{if true than succ 0 else pred succ 0} is a \code{term} as
+We can than proof that
+\begin{equation*}
+  \code{if true than succ 0 else pred succ 0}
+\end{equation*}
+is a \code{term} as follows:
 \begin{equation*}
   \inferrule{
     \code{true} \in T
@@ -1379,7 +1383,7 @@ We constructed the inference rules in such a way that proving a tree is part of 
 The \textit{operational semantics} of a language allows for the precise definition of how terms are evaluated, that is, the precise definition of the \textit{semantics} of the language~\cite{pierce2002types}.
 It specifies the behavior of a programming language by defining an \textit{abstract machine} that uses the terms of the programming language as its instructions instead of a low-level processor's instruction set~\cite{pierce2002types}.
 
-For simple languages like~\eqref{eq:sample_term_ast} the state of the abstract machine can be defined by just a \code{term} and its behavior by a \textit{transition function} that for each \code{term} either performs an evaluation step, or halts and announces the evaluation has ended~\cite{pierce2002types}.
+For simple languages like~\eqref{eq:sample_term_ast} the state of the abstract machine can be defined by just a \code{term} and its behavior by a \textit{transition function} that for each \code{term} either performs an evaluation step, or halts and announces that the evaluation has ended~\cite{pierce2002types}.
 In order to define operational semantics for~\eqref{eq:sample_term_ast} we first extend the abstract syntax with a new metavariable \code{value} for the possible end results of evaluation as
 \begin{equation}\label{eq:sample_ast_values}
   \begin{aligned}
@@ -1390,8 +1394,11 @@ In order to define operational semantics for~\eqref{eq:sample_term_ast} we first
     \astmore{succ nvalue}
   \end{aligned}
 \end{equation}
-and second, we define and \textit{evaluation relation}, or \textit{judgments}, on terms, written \evalr{term}{$\code{term}_1$} meaning \code{term} evaluates to $\code{term}_1$ in on step~\cite{pierce2002types}.
-The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations defined by the inference rules in~\cref{fig:sample_term_ast_opsem}.
+and second, we define and \textit{evaluation relation}, or \textit{judgments}, on terms, written
+\begin{equation*}
+  \evalr{term}{$\code{term}_1$}
+\end{equation*}
+meaning \code{term} evaluates to $\code{term}_1$ in one step~\cite{pierce2002types}.
 
 \begin{figure}[ht]
   \begin{minipage}{\textwidth}
@@ -1458,11 +1465,14 @@ The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relations
   }\label{fig:sample_term_ast_opsem}
 \end{figure}
 
-Using the evaluation relations from~\cref{fig:sample_term_ast_opsem} we can evaluate the for example
+The evaluation relation for~\eqref{eq:sample_term_ast} is the smallest relation defined by the inference rules in~\cref{fig:sample_term_ast_opsem}.
+Using the evaluation relations from~\cref{fig:sample_term_ast_opsem} we can evaluate the following program
 \begin{equation}\label{eq:eval_step1}
   \code{if iszero 0 then succ 0 else false}
 \end{equation}
-looking at~\cref{fig:sample_term_ast_opsem}, we see that the only inference rule we can apply is Eval-If, applying this rule to~\eqref{eq:eval_step1} we get
+
+By looking at~\cref{fig:sample_term_ast_opsem}, we see that the only inference rule we can apply is Eval-If.
+When applying this rule to~\eqref{eq:eval_step1} we get
 \begin{equation*}
   \inferrule*[right=Eval-If]{
     \inferrule*[right=Eval-IszeroZero]{ }{
@@ -1779,7 +1789,7 @@ Now, for an algorithmic definition of a type checker, we take the typing relatio
 \begin{equation*}
   \typecxr{}{term}{Type}
 \end{equation*}
-and, from the inversion lemma for the typing relation \cite{pierce2002types}, interpret it as a function
+and, from the inversion lemma for the typing relation~\cite{pierce2002types}, interpret it as a function
 \begin{equation*}
   \code{typeof($\Gamma$, term)} = \code{Type}
 \end{equation*}
@@ -1842,11 +1852,7 @@ enum Term {
   }\label{fig:typeof_adt}
 \end{figure}
 
-Given the ADT definitions of \code{Context}, \code{Term}, and \code{Type}, we can now define the \code{typeof} function as show in~\cref{fig:typeof_impl}.
-The definition of \code{typeof} in~\cref{fig:typeof_impl} is directly derived from the inference rules from~\cref{fig:simpli_typed_type_rel} and the inference rules from~\cref{fig:sample_term_ast_tyrel} with added context propagation.
-Furthermore, from the inversion lemma of the typing relation~\cite{pierce2002types}, if the \code{typeof} function is able to output a valid type, then, the input term is consider to be well-typed and sound to the language's type system.
-
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering
   \begin{minipage}{0.8\textwidth}
     \begin{rustcode}
@@ -1906,6 +1912,10 @@ fn typeof(cx: Context, t: Term) -> Type {
     An implementation of the \code{typeof} function for typechecking the simply typed lambda calculus described in~\cref{sec:semantic:purelambda}.
   }\label{fig:typeof_impl}
 \end{figure}
+
+Given the ADT definitions of \code{Context}, \code{Term}, and \code{Type}, we can now define the \code{typeof} function as show in~\cref{fig:typeof_impl}.
+The definition of \code{typeof} in~\cref{fig:typeof_impl} is directly derived from the inference rules from~\cref{fig:simpli_typed_type_rel} and the inference rules from~\cref{fig:sample_term_ast_tyrel} with added context propagation.
+Furthermore, from the inversion lemma of the typing relation~\cite{pierce2002types}, if the \code{typeof} function is able to output a valid type, then, the input term is consider to be well-typed and sound to the language's type system.
 
 \section{Intermediate code generation}\label{chapter:background:sec:intermediate}
 
@@ -1992,11 +2002,15 @@ For instance, given a variable named \code{x}, if the need arises in the source 
 \subsubsection{Key Characteristics of SSA}
 
 \begin{itemize}
-    \item \textbf{Unique Assignments:} Every variable in the SSA form gets written to exactly once. This uniqueness in assignment drastically reduces ambiguities during code analysis and optimization.
+    \item \textbf{Unique Assignments:} Every variable in the SSA form gets written to exactly once.
+    This uniqueness in assignment drastically reduces ambiguities during code analysis and optimization.
 
-    \item \textbf{$\phi$-functions:} These special functions emerge as a distinct trait of SSA. At control flow merge points, where variables from diverse paths converge, $\phi$-functions are employed. For a variable \code{x} with different values from two different branches, the merge would use a $\phi$-function like \code{x3 = φ(x1, x2)}.
+    \item \textbf{$\phi$-functions:} These special functions emerge as a distinct trait of SSA\@.
+    At control flow merge points, where variables from diverse paths converge, $\phi$-functions are employed.
+    For a variable \code{x} with different values from two different branches, the merge would use a $\phi$-function like \code{x3 = $\phi$(x1, x2)}.
 
-    \item \textbf{Clear Data Flow:} With each variable assigned only once, tracking the flow of data becomes notably more streamlined. This property aids in more efficient and direct data flow analysis.
+    \item \textbf{Clear Data Flow:} With each variable assigned only once, tracking the flow of data becomes notably more streamlined.
+    This property aids in more efficient and direct data flow analysis.
 \end{itemize}
 
 The structure of the SSA, formed by \textit{variables} and their uniquely assigned \textit{values}, combined with the use of \textit{$\phi$-functions}, represents programs in a manner that simplifies many aspects of optimization and analysis. Especially, the process of discerning a variable's value and life cycle is made straightforward due to this unique assignment property. As with the three-address code, SSA form serves as a pivotal step in the compilation process, readying the code for subsequent stages of optimization.
@@ -2563,31 +2577,38 @@ The function \code{check} is implemented as shown in~\cref{fig:check_function_im
 
 % TODO: Add references in bib
 
-LLVM, an acronym for Low-Level Virtual Machine, is a pioneering compiler infrastructure renowned for its versatility and reusability. LLVM supplies a suite of reusable modules crucial for constructing compilers. Distinctively, it's designed with language agnosticism in mind, making it a premier choice for compiling a broad spectrum of programming languages, including but not limited to C, C++, Rust, and Swift \cite{denisov2018mull}.
+LLVM, an acronym for Low-Level Virtual Machine, is a pioneering compiler infrastructure renowned for its versatility and reusability. LLVM supplies a suite of reusable modules crucial for constructing compilers. Distinctively, it's designed with language agnosticism in mind, making it a premier choice for compiling a broad spectrum of programming languages, including but not limited to C, C++, Rust, and Swift~\cite{denisov2018mull}.
 
 \section{LLVM's Intermediate Representation (IR)}
 
-At the heart of LLVM's design is its Intermediate Representation (IR), often referred to as LLVM IR. This IR serves as a three-address code, meticulously designed to delineate programs in a format that is both low-level and independent of any particular platform \cite{lee2018reconciling}.
+At the heart of LLVM's design is its Intermediate Representation (IR), often referred to as LLVM IR\@.
+This IR serves as a three-address code, meticulously designed to delineate programs in a format that is both low-level and independent of any particular platform~\cite{lee2018reconciling}.
 
 \subsection{Characteristics of LLVM IR}
 
 \begin{itemize}
-    \item \textbf{SSA-based Representation:} LLVM IR employs a Static Single Assignment (SSA) form. A fundamental characteristic of SSA is its insistence that each variable be assigned precisely once, making it a prime structure for optimizing and analyzing code efficiently.
-    
-    \item \textbf{Typed Language:} Another striking aspect of LLVM IR is its strong typing system. Analogous to those in many high-level programming languages, types in LLVM IR range from integers and floating-point numbers to more complex structures like pointers.
-    
-    \item \textbf{Structure of LLVM IR:} Programs in LLVM IR are intricately constructed using a mix of instructions and basic blocks. While instructions are the workhorses performing operations on values, basic blocks present these instructions in sequences ensuring sequential execution. Furthermore, control flow, an essential aspect of any programming representation, finds its expression in LLVM IR through conditional branches and unequivocal jumps.
+    \item \textbf{SSA-based Representation:} LLVM IR employs a Static Single Assignment (SSA) form.
+    A fundamental characteristic of SSA is its insistence that each variable be assigned precisely once, making it a prime structure for optimizing and analyzing code efficiently.
+
+    \item \textbf{Typed Language:} Another striking aspect of LLVM IR is its strong typing system.
+    Analogous to those in many high-level programming languages, types in LLVM IR range from integers and floating-point numbers to more complex structures like pointers.
+
+    \item \textbf{Structure of LLVM IR:} Programs in LLVM IR are intricately constructed using a mix of instructions and basic blocks.
+    While instructions are the workhorses performing operations on values, basic blocks present these instructions in sequences ensuring sequential execution.
+    Furthermore, control flow, an essential aspect of any programming representation, finds its expression in LLVM IR through conditional branches and unequivocal jumps.
 \end{itemize}
 
 \subsection{Optimizations in LLVM}
 
-One of the crowning features of LLVM IR is its powerful optimization capabilities. The LLVM framework equips developers with a battery of optimization passes, tailored to refine the IR and enhance the efficiency of the resultant code \cite{lee2018reconciling}. These optimization techniques span across various strategies, such as:
+One of the crowning features of LLVM IR is its powerful optimization capabilities.
+The LLVM framework equips developers with a battery of optimization passes, tailored to refine the IR and enhance the efficiency of the resultant code~\cite{lee2018reconciling}.
+These optimization techniques span across various strategies, such as:
 
 \begin{itemize}
     \item Common subexpression elimination
     \item Dead code elimination
     \item Loop optimizations
-    \item And many more...
+    \item And many more\dots{}
 \end{itemize}
 
 The LLVM optimizer, with its robust analytical prowess, examines code to judiciously apply these optimizations. The optimizer's decisions are rooted in the inherent properties of the IR, notably the SSA form and the embedded type information.
@@ -3030,7 +3051,7 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
 
 \section{The Ekitai's type system}
 
-Ekitai's type-checker embodies a sophisticated blend of practicality and rigorous theory, aiming to provide developers with a powerful yet intuitive type system. Drawing from the comprehensive theoretical foundation detailed in \autoref{ch:refinement_types}, this type system represents the synergy of many advanced type-checking techniques.
+Ekitai's type-checker embodies a sophisticated blend of practicality and rigorous theory, aiming to provide developers with a powerful yet intuitive type system. Drawing from the comprehensive theoretical foundation detailed in \cref{ch:refinement_types}, this type system represents the synergy of many advanced type-checking techniques.
 
 \subsection{Abstract Syntax Tree (AST)}
 
@@ -3043,42 +3064,42 @@ Central to understanding Ekitai's type system is its Abstract Syntax Tree (AST).
       pub binder: Name,
       pub predicate: Predicate,
   }
-  
+
   // x:t -> t
   struct DependentFunction {
       pub parameter: (Name, RefinedBase),
       pub tail_type: Box<RefinedType>,
   }
-  
+
   // t
   enum RefinedType {
       Base(RefinedBase),
       Fn(DependentFunction),
   }
-  
+
   pub enum Type {
       AbstractDataType(TypeDefinitionId /* internal ID for our AST database */),
       FunctionDefinition(CallableDefinitionId /* internal ID for our AST database */),
       Pointer(Box<Type>),
       Scalar(ScalarType),
   }
-  
+
   pub enum ScalarType {
       Integer(IntegerKind /* I32, I64 */),
       Boolean,
   }
-  
+
   struct Context {
       bindings: Vec<(Path, RefinedType)>,
-  }  
+  }
 \end{rustcode}
-  
+
 In this architecture:
 \begin{itemize}
-    \item The \texttt{RefinedBase} is a structure that encapsulates the base type along with a refinement predicate.
-    \item The \texttt{DependentFunction} represents functions that possess a dependency on a specific parameter type.
-    \item \texttt{RefinedType} serves as an overarching enum, capturing the essence of both basic and functional types.
-    \item The differentiation between abstract data types, function definitions, pointers, and scalars is captured by the \texttt{Type} enum.
+    \item The \bnfvar{RefinedBase} is a structure that encapsulates the base type along with a refinement predicate.
+    \item The \bnfvar{DependentFunction} represents functions that possess a dependency on a specific parameter type.
+    \item \bnfvar{RefinedType} serves as an overarching enum, capturing the essence of both basic and functional types.
+    \item The differentiation between abstract data types, function definitions, pointers, and scalars is captured by the \bnfvar{Type} enum.
 \end{itemize}
 
 \subsection{Predicates and Constraints}
@@ -3094,7 +3115,7 @@ Predicates and constraints form the bedrock of Ekitai's type-checking. They defi
     Binary(BinaryOperator, Box<Predicate>, Box<Predicate>),
     Unary(UnaryOperator, Box<Predicate>),
   }
-  
+
   enum Constraint {
     Predicate(Predicate),
     Implication {
@@ -3106,8 +3127,10 @@ Predicates and constraints form the bedrock of Ekitai's type-checking. They defi
     Conjunction(Box<Self>, Box<Self>),
   }
 \end{rustcode}
-  
-The given code follows from \autoref{ch:refinement_types:subsec:predicates_ast}, \texttt{Predicate} encompasses several fundamental constructs, like variables, booleans, and integers. It also includes unary and binary operations, enabling more complex type validations. On the other hand, \texttt{Constraint} brings together predicates, implications, and conjunctions, offering a robust mechanism to express and check type requirements.
+
+The given code follows from \cref{ch:refinement_types:subsec:predicates_ast}, \bnfvar{Predicate} encompasses several fundamental constructs, like variables, booleans, and integers.
+It also includes unary and binary operations, enabling more complex type validations.
+On the other hand, \bnfvar{Constraint} brings together predicates, implications, and conjunctions, offering a robust mechanism to express and check type requirements.
 
 \subsection{Type Inference and Checking}
 
@@ -3153,7 +3176,7 @@ fn check_type(mut self, term_id: TermId, constraint_type: RefinedBase) -> (Self,
 }
 \end{rustcode}
 
-While the \texttt{synth_type} function determines the type of a term and any associated constraints, \texttt{check_type} verifies the type compatibility and ensures adherence to established constraints.
+While the \codett{synth\_type} function determines the type of a term and any associated constraints, \codett{check\_type} verifies the type compatibility and ensures adherence to established constraints.
 
 \subsection{Entailment and Substitution}
 
@@ -3182,10 +3205,10 @@ fn entailment(context: Context, constraint: Constraint) -> bool {
     }
 }
 // substitutes all occurrences of old by new in predicate
-fn substitution(old: Name, new: Name, predicate: Predicate) -> Predicate  
+fn substitution(old: Name, new: Name, predicate: Predicate) -> Predicate
 \end{rustcode}
 
-The substitution function(\autoref{sub:substitution}) complements the process by replacing instances of one predicate with another, aiding in the seamless integration of types and constraints within varying contexts.
+The substitution function (\autoref{sub:substitution}) complements the process by replacing instances of one predicate with another, aiding in the seamless integration of types and constraints within varying contexts.
 
 \subsection{Interfacing with the SMT Solver}
 
@@ -3204,7 +3227,7 @@ struct FlatImplicationConstraint {
     binders: Vec<(Name, Type)>,
     antecedent: Predicate,
     consequent: Predicate,
-}  
+}
 \end{rustcode}
 
 The \texttt{solve} function directs the constraint to the SMT solver after a flattening process. This flattened constraint, represented as \texttt{FlatImplicationConstraint}, is optimized for the solver, ensuring efficient and accurate type validations.
