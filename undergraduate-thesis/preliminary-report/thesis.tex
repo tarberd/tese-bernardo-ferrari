@@ -1995,33 +1995,29 @@ where we find a singe assigned address at the instruction's left side and on the
 
 \subsection{Single Static Assignment (SSA)}
 
-The Single Static Assignment (SSA) is another intermediate representation (IR) form, but unlike the three-address code, it's distinguished by its property wherein every variable is assigned precisely once~\cite{Cytron:1991:ESA:115372.115320}. This unique characteristic of SSA form has significant implications for the subsequent stages of compilation.
+The Single Static Assignment (SSA) is another intermediate representation (IR) form, but unlike the three-address code, it's distinguished by its property wherein every variable is assigned precisely once~\cite{10.1145/115372.115320}.
+This unique characteristic of SSA form has significant implications for the subsequent stages of compilation.
 
-For instance, given a variable named \code{x}, if the need arises in the source to assign multiple values to it, in the SSA form, the variable will be represented by different versions like \code{x1}, \code{x2}, and so forth. This simplifies the process of tracing a variable's value at any point in the program.
+For instance, given a variable named \code{x}, if the need arises in the source to assign multiple values to it, in the SSA form, the variable will be represented by different versions like \code{x1}, \code{x2}, and so forth.
+This simplifies the process of tracing a variable's value at any point in the program.
 
 \subsubsection{Key Characteristics of SSA}
 
 \begin{itemize}
-    \item \textbf{Unique Assignments:} Every variable in the SSA form gets written to exactly once.
-    This uniqueness in assignment drastically reduces ambiguities during code analysis and optimization.
+  \item \textbf{Unique Assignments:} Every variable in the SSA form gets written to exactly once.
+        This uniqueness in assignment drastically reduces ambiguities during code analysis and optimization.
 
-    \item \textbf{$\phi$-functions:} These special functions emerge as a distinct trait of SSA\@.
-    At control flow merge points, where variables from diverse paths converge, $\phi$-functions are employed.
-    For a variable \code{x} with different values from two different branches, the merge would use a $\phi$-function like \code{x3 = $\phi$(x1, x2)}.
+  \item \textbf{$\phi$-functions:} These special functions emerge as a distinct trait of SSA\@.
+        At control flow merge points, where variables from diverse paths converge, $\phi$-functions are employed.
+        For a variable \code{x} with different values from two different branches, the merge would use a $\phi$-function like \code{x3 = $\phi$(x1, x2)}.
 
-    \item \textbf{Clear Data Flow:} With each variable assigned only once, tracking the flow of data becomes notably more streamlined.
-    This property aids in more efficient and direct data flow analysis.
+  \item \textbf{Clear Data Flow:} With each variable assigned only once, tracking the flow of data becomes notably more streamlined.
+        This property aids in more efficient and direct data flow analysis.
 \end{itemize}
 
-The structure of the SSA, formed by \textit{variables} and their uniquely assigned \textit{values}, combined with the use of \textit{$\phi$-functions}, represents programs in a manner that simplifies many aspects of optimization and analysis. Especially, the process of discerning a variable's value and life cycle is made straightforward due to this unique assignment property. As with the three-address code, SSA form serves as a pivotal step in the compilation process, readying the code for subsequent stages of optimization.
-
-% TODO: Add references
-% \bibitem{Cytron:1991:ESA:115372.115320}
-% Cytron, R., Ferrante, J., Rosen, B. K., Wegman, M. N., \& Zadeck, F. K. (1991).
-% \textit{Efficiently computing static single assignment form and the control dependence graph.}
-% ACM Transactions on Programming Languages and Systems (TOPLAS), 13(4), 451-490.
-% \end{thebibliography}
-
+The structure of the SSA, formed by \textit{variables} and their uniquely assigned \textit{values}, combined with the use of \textit{$\phi$-functions}, represents programs in a manner that simplifies many aspects of optimization and analysis.
+Especially, the process of discerning a variable's value and life cycle is made straightforward due to this unique assignment property.
+As with the three-address code, SSA form serves as a pivotal step in the compilation process, readying the code for subsequent stages of optimization.
 
 \chapter{Refinement types with predicates}\label{ch:refinement_types}
 
@@ -2575,41 +2571,34 @@ The function \code{check} is implemented as shown in~\cref{fig:check_function_im
 
 \chapter{The LLVM intermediate representation}\label{ch:llvm}
 
-% TODO: Add references in bib
-
-LLVM, an acronym for Low-Level Virtual Machine, is a pioneering compiler infrastructure renowned for its versatility and reusability. LLVM supplies a suite of reusable modules crucial for constructing compilers. Distinctively, it's designed with language agnosticism in mind, making it a premier choice for compiling a broad spectrum of programming languages, including but not limited to C, C++, Rust, and Swift~\cite{denisov2018mull}.
+LLVM, an acronym for Low-Level Virtual Machine, is a pioneering compiler infrastructure renowned for its versatility and reusability.
+LLVM supplies a suite of reusable modules crucial for constructing compilers.
+Distinctively, it's designed with language agnosticism in mind, making it a premier choice for compiling a broad spectrum of programming languages, including but not limited to C, C++, Rust, and Swift~\cite{Denisov_2018}.
 
 \section{LLVM's Intermediate Representation (IR)}
 
 At the heart of LLVM's design is its Intermediate Representation (IR), often referred to as LLVM IR\@.
-This IR serves as a three-address code, meticulously designed to delineate programs in a format that is both low-level and independent of any particular platform~\cite{lee2018reconciling}.
+This IR serves as a three-address code, meticulously designed to delineate programs in a format that is both low-level and independent of any particular platform~\cite{10.1145/3276495}.
 
 \subsection{Characteristics of LLVM IR}
 
 \begin{itemize}
-    \item \textbf{SSA-based Representation:} LLVM IR employs a Static Single Assignment (SSA) form.
-    A fundamental characteristic of SSA is its insistence that each variable be assigned precisely once, making it a prime structure for optimizing and analyzing code efficiently.
+  \item \textbf{SSA-based Representation:} LLVM IR employs a Static Single Assignment (SSA) form.
+        A fundamental characteristic of SSA is its insistence that each variable be assigned precisely once, making it a prime structure for optimizing and analyzing code efficiently.
 
-    \item \textbf{Typed Language:} Another striking aspect of LLVM IR is its strong typing system.
-    Analogous to those in many high-level programming languages, types in LLVM IR range from integers and floating-point numbers to more complex structures like pointers.
+  \item \textbf{Typed Language:} Another striking aspect of LLVM IR is its strong typing system.
+        Analogous to those in many high-level programming languages, types in LLVM IR range from integers and floating-point numbers to more complex structures like pointers.
 
-    \item \textbf{Structure of LLVM IR:} Programs in LLVM IR are intricately constructed using a mix of instructions and basic blocks.
-    While instructions are the workhorses performing operations on values, basic blocks present these instructions in sequences ensuring sequential execution.
-    Furthermore, control flow, an essential aspect of any programming representation, finds its expression in LLVM IR through conditional branches and unequivocal jumps.
+  \item \textbf{Structure of LLVM IR:} Programs in LLVM IR are intricately constructed using a mix of instructions and basic blocks.
+        While instructions are the workhorses performing operations on values, basic blocks present these instructions in sequences ensuring sequential execution.
+        Furthermore, control flow, an essential aspect of any programming representation, finds its expression in LLVM IR through conditional branches and unequivocal jumps.
 \end{itemize}
 
 \subsection{Optimizations in LLVM}
 
 One of the crowning features of LLVM IR is its powerful optimization capabilities.
-The LLVM framework equips developers with a battery of optimization passes, tailored to refine the IR and enhance the efficiency of the resultant code~\cite{lee2018reconciling}.
-These optimization techniques span across various strategies, such as:
-
-\begin{itemize}
-    \item Common subexpression elimination
-    \item Dead code elimination
-    \item Loop optimizations
-    \item And many more\dots{}
-\end{itemize}
+The LLVM framework equips developers with a battery of optimization passes, tailored to refine the IR and enhance the efficiency of the resultant code~\cite{10.1145/3276495}.
+These optimization techniques span across various strategies, such as: Common subexpression elimination; Dead code elimination; Loop optimizations.
 
 The LLVM optimizer, with its robust analytical prowess, examines code to judiciously apply these optimizations. The optimizer's decisions are rooted in the inherent properties of the IR, notably the SSA form and the embedded type information.
 
@@ -3014,13 +3003,13 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
 
 \begin{figure}[!htb]
   \begin{alignat*}{2}
-    \astprod{SourceFile}{ModItem SourceFile \bnfor{$\epsilon$}}          \\
-    \astprod{ModItem}{FnDef \bnfor{TyDef}}                               \\
-    \astprod{TyDef}{type Name = ValueConsList}                           \\
+    \astprod{SourceFile}{ModItem SourceFile \bnfor{$\epsilon$}}           \\
+    \astprod{ModItem}{FnDef \bnfor{TyDef}}                                \\
+    \astprod{TyDef}{type Name = ValueConsList}                            \\
     \astprod{ValueConsList}{ValueCons | ValueConsList \bnfor{$\epsilon$}} \\
-    \astprod{ValueCons}{Name TypeList}                                  \\
-    \astprod{TypeList}{Type TypeList \bnfor{$\epsilon$}}                \\
-    \astprod{FnDef}{fn Name: FnType = Term}                     \\
+    \astprod{ValueCons}{Name TypeList}                                    \\
+    \astprod{TypeList}{Type TypeList \bnfor{$\epsilon$}}                  \\
+    \astprod{FnDef}{fn Name: FnType = Term}                               \\
     \astprod{Name}{id}
   \end{alignat*}
   \caption{Ekitai's top level items AST.}
@@ -3028,9 +3017,9 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
 
 \begin{figure}[!htb]
   \begin{alignat*}{2}
-    \astprod{Type}{RefType \bnfor{FnType}} \\
+    \astprod{Type}{RefType \bnfor{FnType}}       \\
     \astprod{RefType}{\{Name: BaseType | Term\}} \\
-    \astprod{FnType}{Name:RefType -> Type} \\
+    \astprod{FnType}{Name:RefType -> Type}       \\
     \astprod{BaseType}{I32 \bnfor{I64} \bnfor{Bool}}
   \end{alignat*}
   \caption{Ekitai's AST for Types.}
@@ -3041,65 +3030,67 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
     \astprod{Term}{let Name = Term in Term} \\
     \astmore{if Name then Term else Term}   \\
     \astmore{Int \bnfor{Bool} \bnfor{Name}} \\
-    \astmore{Term x} \\
+    \astmore{Term x}                        \\
     \astmore{match Term CaseList}
   \end{alignat*}
   \caption{Ekitai's top level items AST.}
 \end{figure}
 
+After construction of the Syntax tree, Ekitai's front-end translates
 \pagebreak
 
 \section{The Ekitai's type system}
 
-Ekitai's type-checker embodies a sophisticated blend of practicality and rigorous theory, aiming to provide developers with a powerful yet intuitive type system. Drawing from the comprehensive theoretical foundation detailed in \cref{ch:refinement_types}, this type system represents the synergy of many advanced type-checking techniques.
+Ekitai's type-checker embodies a sophisticated blend of practicality and rigorous theory, aiming to provide developers with a powerful yet intuitive type system.
+Drawing from the comprehensive theoretical foundation detailed in \cref{ch:refinement_types}, this type system is an implementation of a refinement types for a subset of lambda calculus.
 
 \subsection{Abstract Syntax Tree (AST)}
 
 Central to understanding Ekitai's type system is its Abstract Syntax Tree (AST). The AST allows for an intuitive and structured representation of expressions, which significantly eases the process of type-checking.
 
 \begin{rustcode}
-  // Base type with a refinement predicate: b{x|p}
-  struct RefinedBase {
-      pub base: Type,
-      pub binder: Name,
-      pub predicate: Predicate,
-  }
+// Base type with a refinement predicate: b{x|p}
+struct RefinedBase {
+    pub base: Type,
+    pub binder: Name,
+    pub predicate: Predicate,
+}
 
-  // x:t -> t
-  struct DependentFunction {
-      pub parameter: (Name, RefinedBase),
-      pub tail_type: Box<RefinedType>,
-  }
+// x:t -> t
+struct DependentFunction {
+    pub parameter: (Name, RefinedBase),
+    pub tail_type: Box<RefinedType>,
+}
 
-  // t
-  enum RefinedType {
-      Base(RefinedBase),
-      Fn(DependentFunction),
-  }
+// t
+enum RefinedType {
+    Base(RefinedBase),
+    Fn(DependentFunction),
+}
 
-  pub enum Type {
-      AbstractDataType(TypeDefinitionId /* internal ID for our AST database */),
-      FunctionDefinition(CallableDefinitionId /* internal ID for our AST database */),
-      Pointer(Box<Type>),
-      Scalar(ScalarType),
-  }
+pub enum Type {
+    AbstractDataType(TypeDefinitionId /* internal ID for our AST database */),
+    FunctionDefinition(CallableDefinitionId /* internal ID for our AST database */),
+    Pointer(Box<Type>),
+    Scalar(ScalarType),
+}
 
-  pub enum ScalarType {
-      Integer(IntegerKind /* I32, I64 */),
-      Boolean,
-  }
+pub enum ScalarType {
+    Integer(IntegerKind /* I32, I64 */),
+    Boolean,
+}
 
-  struct Context {
-      bindings: Vec<(Path, RefinedType)>,
-  }
+struct Context {
+    bindings: Vec<(Path, RefinedType)>,
+}
 \end{rustcode}
 
 In this architecture:
 \begin{itemize}
-    \item The \bnfvar{RefinedBase} is a structure that encapsulates the base type along with a refinement predicate.
-    \item The \bnfvar{DependentFunction} represents functions that possess a dependency on a specific parameter type.
-    \item \bnfvar{RefinedType} serves as an overarching enum, capturing the essence of both basic and functional types.
-    \item The differentiation between abstract data types, function definitions, pointers, and scalars is captured by the \bnfvar{Type} enum.
+  \item The \bnfvar{RefinedBase} is a structure that encapsulates the base type along with a refinement predicate.
+  \item The \bnfvar{DependentFunction} represents functions that possess a dependency on a specific parameter type.
+  \item \bnfvar{RefinedType} serves as an overarching enum, capturing the essence of both basic and functional types.
+  \item The differentiation between abstract data types, function definitions, pointers, and scalars is captured by the \bnfvar{Type} enum.
 \end{itemize}
 
 \subsection{Predicates and Constraints}
@@ -3107,25 +3098,25 @@ In this architecture:
 Predicates and constraints form the bedrock of Ekitai's type-checking. They define the conditions under which types are valid, and how they interact with one another.
 
 \begin{rustcode}
-  pub enum Predicate {
-    Variable(Name),
-    Boolean(bool),
-    Integer(u128),
-    // contains arithmetic and boolean operators
-    Binary(BinaryOperator, Box<Predicate>, Box<Predicate>),
-    Unary(UnaryOperator, Box<Predicate>),
-  }
+pub enum Predicate {
+  Variable(Name),
+  Boolean(bool),
+  Integer(u128),
+  // contains arithmetic and boolean operators
+  Binary(BinaryOperator, Box<Predicate>, Box<Predicate>),
+  Unary(UnaryOperator, Box<Predicate>),
+}
 
-  enum Constraint {
-    Predicate(Predicate),
-    Implication {
-        binder: Name,
-        base: Type,
-        antecedent: Predicate,
-        consequent: Box<Self>,
-    },
-    Conjunction(Box<Self>, Box<Self>),
-  }
+enum Constraint {
+  Predicate(Predicate),
+  Implication {
+    binder: Name,
+    base: Type,
+    antecedent: Predicate,
+    consequent: Box<Self>,
+  },
+  Conjunction(Box<Self>, Box<Self>),
+}
 \end{rustcode}
 
 The given code follows from \cref{ch:refinement_types:subsec:predicates_ast}, \bnfvar{Predicate} encompasses several fundamental constructs, like variables, booleans, and integers.
@@ -3139,40 +3130,41 @@ Ekitai employs advanced type inference algorithms to predict the type of a given
 \begin{rustcode}
 // returns the type of the term and a constraint that must be satisfied
 fn synth_type(self, term_id: TermId) -> (Self, RefinedType, Option<Constraint>)
+
 // checks that the type of the lesser term is a subtype of the greater type
 fn subtype(self, lesser: RefinedBase, greater: RefinedBase) -> (Self, Constraint)
 
 // checks that the term has type constraint_type
 fn check_type(mut self, term_id: TermId, constraint_type: RefinedBase) -> (Self, Constraint) {
-    let term = &self.body.expressions[term_id];
-    match term {
-        Term::Block {
-            statements,
-            trailing_expression,
-        } => {
-            // ... ommited for brevity, but
-            // we check that the trailing expression has type constraint_type
-            // among other things
-        }
-        Term::If {
-            condition,
-            then_branch,
-            else_branch,
-        } => {
-            // ... ommited for brevity, but
-            // we check that condition has type bool
-            // c1, c2 are the constraints for the then and else branches
-            // both must be satisfied
-            (fold, Constraint::Conjunction(c1.into(), c2.into()))
-        }
-        _ => {
-            let (fold, t, c) = self.synth_type(term_id);
-            // we verify that t <: constraint_type
-            let (fold, c2) = fold.subtype(t.as_refined_base(), constraint_type);
-            // both c and c2 must be satisfied
-            (fold, Constraint::make_conjunction(c, c2))
-        }
+  let term = &self.body.expressions[term_id];
+  match term {
+    Term::Block {
+      statements,
+      trailing_expression,
+    } => {
+      // ... ommited for brevity, but
+      // we check that the trailing expression has type constraint_type
+      // among other things
     }
+    Term::If {
+      condition,
+      then_branch,
+      else_branch,
+    } => {
+      // ... ommited for brevity, but
+      // we check that condition has type bool
+      // c1, c2 are the constraints for the then and else branches
+      // both must be satisfied
+      (fold, Constraint::Conjunction(c1.into(), c2.into()))
+    }
+    _ => {
+      let (fold, t, c) = self.synth_type(term_id);
+      // we verify that t <: constraint_type
+      let (fold, c2) = fold.subtype(t.as_refined_base(), constraint_type);
+      // both c and c2 must be satisfied
+      (fold, Constraint::make_conjunction(c, c2))
+    }
+  }
 }
 \end{rustcode}
 
@@ -3185,25 +3177,26 @@ In the realm of Ekitai's type system, entailment stands as a mechanism to ascert
 \begin{rustcode}
 // within a context, checks if a constraint can be satisfied
 fn entailment(context: Context, constraint: Constraint) -> bool {
-    match context.pop() {
-        (_, None) => solve(constraint),
-        (tail, Some((path, RefinedType::Fn(_)))) => entailment(tail, constraint),
-        (tail, Some((path, RefinedType::Base(RefinedBase { binder, predicate, base })))) => {
-            let context_binder = path.as_name();
-            let predicate = substitution(binder, context_binder.clone(), predicate);
+  match context.pop() {
+    (_, None) => solve(constraint),
+    (tail, Some((path, RefinedType::Fn(_)))) => entailment(tail, constraint),
+    (tail, Some((path, RefinedType::Base(RefinedBase { binder, predicate, base })))) => {
+      let context_binder = path.as_name();
+      let predicate = substitution(binder, context_binder.clone(), predicate);
 
-            entailment(
-                tail,
-                Constraint::Implication {
-                    binder: context_binder,
-                    base,
-                    antecedent: predicate,
-                    consequent: constraint.into(),
-                },
-            )
-        }
+      entailment(
+        tail,
+        Constraint::Implication {
+          binder: context_binder,
+          base,
+          antecedent: predicate,
+          consequent: constraint.into(),
+        },
+      )
     }
+  }
 }
+
 // substitutes all occurrences of old by new in predicate
 fn substitution(old: Name, new: Name, predicate: Predicate) -> Predicate
 \end{rustcode}

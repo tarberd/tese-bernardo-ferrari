@@ -5,7 +5,7 @@
   note    = {{\em See {\tt http://llvm.cs.uiuc.edu}.}},
   school  = {{Computer Science Dept., University of Illinois at Urbana-Champaign}},
   title   = {{LLVM: An Infrastructure for Multi-Stage Optimization}},
-  year    = {2002},
+  year    = {2002}
 }
 
 @inproceedings{lattner2004llvm,
@@ -14,5 +14,54 @@
   organization = {IEEE Computer Society},
   pages        = {75},
   title        = {LLVM: A compilation framework for lifelong program analysis \& transformation},
-  year         = {2004},
+  year         = {2004}
+}
+
+@article{10.1145/115372.115320,
+  author     = {Cytron, Ron and Ferrante, Jeanne and Rosen, Barry K. and Wegman, Mark N. and Zadeck, F. Kenneth},
+  title      = {Efficiently computing static single assignment form and the control dependence graph},
+  year       = {1991},
+  issue_date = {Oct. 1991},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {13},
+  number     = {4},
+  issn       = {0164-0925},
+  url        = {https://doi.org/10.1145/115372.115320},
+  doi        = {10.1145/115372.115320},
+  journal    = {ACM Trans. Program. Lang. Syst.},
+  month      = {oct},
+  pages      = {451–490},
+  numpages   = {40},
+  keywords   = {control dependence, control flow graph, def-use chain, dominator, optimizing compilers}
+}
+
+@inproceedings{Denisov_2018,
+  title     = {Mull It Over: Mutation Testing Based on LLVM},
+  url       = {http://dx.doi.org/10.1109/ICSTW.2018.00024},
+  doi       = {10.1109/icstw.2018.00024},
+  booktitle = {2018 IEEE International Conference on Software Testing, Verification and Validation Workshops (ICSTW)},
+  publisher = {IEEE},
+  author    = {Denisov, Alex and Pankevich, Stanislav},
+  year      = {2018},
+  month     = apr
+}
+
+@article{10.1145/3276495,
+  author     = {Lee, Juneyoung and Hur, Chung-Kil and Jung, Ralf and Liu, Zhengyang and Regehr, John and Lopes, Nuno P.},
+  title      = {Reconciling high-level optimizations and low-level code in LLVM},
+  year       = {2018},
+  issue_date = {November 2018},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {2},
+  number     = {OOPSLA},
+  url        = {https://doi.org/10.1145/3276495},
+  doi        = {10.1145/3276495},
+  abstract   = {LLVM miscompiles certain programs in C, C++, and Rust that use low-level language features such as raw pointers in Rust or conversion between integers and pointers in C or C++. The problem is that it is difficult for the compiler to implement aggressive, high-level memory optimizations while also respecting the guarantees made by the programming languages to low-level programs. A deeper problem is that the memory model for LLVM's intermediate representation (IR) is informal and the semantics of corner cases are not always clear to all compiler developers. We developed a novel memory model for LLVM IR and formalized it. The new model requires a handful of problematic IR-level optimizations to be removed, but it also supports the addition of new optimizations that were not previously legal. We have implemented the new model and shown that it fixes known memory-model-related miscompilations without impacting the quality of generated code.},
+  journal    = {Proc. ACM Program. Lang.},
+  month      = {oct},
+  articleno  = {125},
+  numpages   = {28},
+  keywords   = {LLVM, IR Memory Model}
 }
