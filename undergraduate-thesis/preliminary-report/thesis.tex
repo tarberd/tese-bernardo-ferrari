@@ -3227,7 +3227,153 @@ The \texttt{solve} function directs the constraint to the SMT solver after a fla
 
 \section{The Ekitai's LLVM intermediate code generator}
 
-To do. Work in progress.
+\begin{rustcode}
+fn fold_binary_expression(
+  &self,
+  indirect_value: Option<PointerValue<'context>>,
+  operator: &BinaryOperator,
+  lhs: &TermId,
+  rhs: &TermId,
+) -> Option<Value<'context>> {
+  let lhs = self.fold_expression(None, *lhs);
+  let rhs = self.fold_expression(None, *rhs);
+  let int_value = match operator {
+    BinaryOperator::Arithmetic(arithmetic_op) => match arithmetic_op {
+      ArithmeticOperator::Add => self.builder.build_int_add(lhs, rhs, ""),
+      // ...
+    },
+    BinaryOperator::Compare(compare_op) => {
+      // ...
+    }
+  };
+  match indirect_value {
+    Some(ptr) => {
+      self.builder.build_store(ptr, int_value.as_basic_value_enum());
+      None
+    }
+    None => Some(Value::new(ValueKind::Direct, int_value.into())),
+  }
+}
+\end{rustcode}
+
+\begin{rustcode}
+fn fold_call_expression(
+  &self,
+  indirect_value: Option<PointerValue<'context>>,
+  callee: &TermId,
+  arguments: &[TermId],
+) -> Option<Value<'context>> {
+  let callee_type = &self.inference.type_of_expression[*callee];
+  let callable_definition = match callee_type {
+    Type::FunctionDefinition(callable) => callable,
+    _ => panic!("call has no callable type."),
+  };
+  match callable_definition {
+    CallableDefinitionId::FunctionDefinition(id) => {
+      let function_info = self.function_info_cache.function_info(&id);
+      let function_value = self.function_value_cache.llvm_function_value(&id);
+
+      let return_type = function_info.get_return_type(function_value);
+
+      // Allocates the return value if it is not returned directly via registers
+      // i.e. returned indirectly through memory
+      let indirect_function_return = match function_info.return_kind {
+        ValueKind::Direct => None,
+        ValueKind::Indirect => match indirect_value {
+          Some(ptr) => Some(ptr.as_basic_value_enum()),
+          None => Some(
+            self.get_alloca_builder()
+              .build_alloca(
+                BasicTypeEnum::try_from(return_type.into_pointer_type().get_element_type()).unwrap(),
+                "",
+              )
+              .as_basic_value_enum(),
+          ),
+        },
+      }; 
+      // Creates LLVM values for arguments/parameters whether they are storable
+      // in registers or they are stored in memory (and therefore needs alloc/store instructions)
+      let arguments = ...
+
+      // Creating LLVM call instruction
+      let call_value = self.builder.build_call(
+          function_value,
+          arguments.map(|x| x.into()).collect::<Vec<_>>().as_slice(),
+          "",
+      );
+
+      // Returns to the upper level whether the return value is stored in registers
+      match indirect_value {
+          Some(_) => None,
+          None => match function_info.return_kind {
+              ValueKind::Indirect => Some(Value::new(
+                  ValueKind::Indirect,
+                  indirect_function_return.unwrap(),
+              )),
+              ValueKind::Direct => Some(Value::new(
+                  ValueKind::Direct,
+                  call_value.try_as_basic_value().unwrap_left(),
+              )),
+          },
+      }
+    }
+    CallableDefinitionId::ValueConstructor(constructor_id) => {
+      // Constructs a ADT value.
+    }
+  }
+}
+\end{rustcode}
+
+\begin{rustcode}
+fn fold_if_expression(
+  &self,
+  indirect_value: Option<PointerValue<'context>>,
+  condition: &TermId,
+  then_branch: &TermId,
+  else_branch: &TermId,
+) -> Option<Value<'context>> {
+  let comparison = self.fold_expression(None, *condition);
+
+  let then_block = self.context.append_basic_block(self.get_owener_function_value(), "then");
+  let else_block = self.context.append_basic_block(self.get_owener_function_value(), "else");
+  let merge_block = self.context.append_basic_block(self.get_owener_function_value(), "merge");
+
+  // Creates branch instruction to then branch
+  self.builder.build_conditional_branch(comparison, then_block, else_block);
+
+  self.builder.position_at_end(then_block);
+  let then_value = self.fold_expression(indirect_value, *then_branch);
+  let then_block = self.builder.get_insert_block().unwrap();
+  // Creates branch instruction to go to the merge block
+  self.builder.build_unconditional_branch(merge_block);
+
+  self.builder.position_at_end(else_block);
+  let else_value = self.fold_expression(indirect_value, *else_branch);
+  let else_block = self.builder.get_insert_block().unwrap();
+  // Creates branch instruction to go to the merge block
+  self.builder.build_unconditional_branch(merge_block);
+
+  self.builder.position_at_end(merge_block); 
+
+  match indirect_value {
+    Some(ptr) => None,
+    None => {
+      let (
+        Value { kind: then_kind, value: then_value },
+        Value { kind: else_kind, value: else_value },
+      ) = (then_value.unwrap(), else_value.unwrap());
+      match (then_kind, else_kind) {
+        (ValueKind::Direct, ValueKind::Direct) | (ValueKind::Indirect, ValueKind::Indirect) => {
+          let phi = self.builder.build_phi(then_value.get_type(), "phi");
+          phi.add_incoming(&[(&then_value, then_block), (&else_value, else_block)]);
+          Some(Value::new(then_kind, phi.as_basic_value()))
+        }
+        _ => ...,
+      }
+    }
+  }
+}
+\end{rustcode}
 
 \section{Conclusion}
 
