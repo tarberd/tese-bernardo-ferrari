@@ -186,7 +186,7 @@
 \titulo{A programming language with refinement types and its LLVM-IR front end implementation.}
 
 \autor{Bernardo Ferrari Mendonça}
-\data{24 de Fevereiro de 2022} % ou \today
+\data{10 de Junho de 2024} % ou \today
 \instituicao{Universidade Federal de Santa Catarina}
 \centro{Centro Tecnológico}
 \local{Florianópolis} % Apenas cidade! Sem estado
@@ -213,7 +213,7 @@
 \coorientadorext{Prof.\ Rafael de Santiago, Dr.}{Universidade Federal de Santa Catarina}
 \membrabanca{Prof\textsuperscript{a}. Jerusa Marchi, Dr.}{Universidade Federal de Santa Catarina}
 % Dica: se feminino, \coordenadora
-\coordenador{Prof.\ Jean Everson Martina, Dr.}
+\coordenadora{Prof\textsuperscript{a}. Lúcia Helena Martins Pacheco, Dr.}
 
 \begin{document}
 
@@ -243,27 +243,18 @@
   This work is dedicated to my mother, Marcela Ferrari, my sister Camila Ferrari, and to my grandparents Márcio Ferrari and Cláudia Ferrari who plowed the field where I bloom.
 \end{dedicatoria}
 
-\begin{agradecimentos}
-  TODO ack
-\end{agradecimentos}
-
-\begin{epigrafe}
-  TODO epigrafe
-\end{epigrafe}
-
 \begin{resumo}[Resumo]
-  TODO Resumo
+  Esta tese apresenta o design e a implementação do Ekitai, uma linguagem de programação que integra tipos refinados com um front end LLVM-IR. O objetivo principal é aproveitar os tipos refinados para melhorar a segurança de tipos e a otimização durante a geração de código. Exploramos a teoria e os aspectos práticos da incorporação de tipos refinados, que permitem expressar invariantes mais precisos nos tipos. A integração com LLVM-IR demonstra como esses tipos podem ser usados para guiar os processos de otimização e verificação no pipeline de compilação. A avaliação destaca os benefícios e desafios dessa abordagem, fornecendo insights para melhorias e extensões futuras.
 
-  % Atenção! a BU exige separação através de ponto (.). Ela recomanda de 3 a 5 keywords
   \vspace{\baselineskip}
   \textbf{Palavras-chave:} linguagem de programação\@. tipos refinados\@. representação intermediária de código\@. compilador\@. LLVM\@. LLVM-IR\@.
 \end{resumo}
 
 \begin{abstract}
-  TODO abstract
+  This thesis presents the design and implementation of Ekitai, a programming language that integrates refinement types with a LLVM-IR front end. The primary objective is to leverage refinement types to enhance type safety and optimization during code generation. We explore the theory and practical aspects of incorporating refinement types, which allow for expressing more precise invariants in types. The integration with LLVM-IR demonstrates how these types can be used to guide optimization and verification processes in the compilation pipeline. The evaluation showcases the benefits and challenges of this approach, providing insights into future improvements and extensions.
 
   \vspace{\baselineskip}
-  \textbf{Keywords:} Keyword. Another Compound Keyword. Bla.
+  \textbf{Keywords:} Programming Language\@. Refinement Types\@. Intermidiate Code Representation\@. Compiler\@. LLVM\@. LLVM-IR\@.
 \end{abstract}
 
 \listoffigures*  % O * evita que apareça no sumário
@@ -2039,7 +2030,7 @@ By enabling verification on the same language as the programming language, refin
 This approach creates a development cycle were the implementation hits programmers to what properties are important to verify, and the verification hits on how the implementation can be restructured to better express the invariants and enable formal proof~\cite{jhala2020tutorial}.
 
 
-\section{Extending the simply typed lambda calculus with refinements}
+\section{Extending the simply typed lambda calculus with refinements}\label{sec:simply_typed_lambda_calculus_with_refinements}
 
 Concerning the discussion of the implementation of a type system with refinements with predicates, the work by \textcite{jhala2020tutorial} explain how to extend the simply typed lambda calculus we explored in~\cref{chapter:background:sec:semantic} together with the respective inference rules and the newly added typing relations.
 
@@ -2785,7 +2776,8 @@ First we define the syntax structure for the source program's top level items by
 The variable \bnfvar{SourceFile} is the start symbol of the Ekytai's syntax grammar.
 It generates a list of Items \bnfvar{FnDef} and \bnfvar{TypeDef} for function definitions and type definitions respectively.
 
-From the grammar in~\cref{fig:ekitai_syntax_toplevel}, we are able to see the structure of the top level constructs. For example, the following program illustrates a \bnfvar{SourceFile} with two \bnfvar{Item} in the \bnfvar{ItemList}:
+From the grammar in~\cref{fig:ekitai_syntax_toplevel}, we are able to see the structure of the top level constructs.
+For example, the following program illustrates a \bnfvar{SourceFile} with two \bnfvar{Item} in the \bnfvar{ItemList}:
 \begin{center}
   \begin{minipage}{0.8\textwidth}
     \begin{rustcode}
@@ -2799,7 +2791,7 @@ fn some_fn_name(arg_name1: Type1, arg_name_2: Type2, ...) -> {
 \end{rustcode}
   \end{minipage}
 \end{center}
-Further, when defining the induction rules for semantic analysis we will use the \bnfvar{Path} variable to index the constructors inside the \code{type} definition, for example the path
+When translating the Ekitai's parse tree to Ekitai's we use the \bnfvar{Path} variable to index the constructors inside the \code{type} definition and functions names inside modules, for example the path
 \begin{equation*}
   \code{SomeTypeName::SomeConstructorName}
 \end{equation*}
@@ -2811,7 +2803,8 @@ inside the type definition for
 \begin{equation*}
   \code{SomeTypeName}
 \end{equation*}
-The \bnfvar{Path} variable is defined on~\cref{fig:ekitai_syntax_terms} as part of Ekitai's grammar for terms.
+and respectively for functions of different source files.
+The \bnfvar{Path} variable is defined on~\cref{fig:ekitai_syntax_terms} as part of Ekitai's grammar for terms and is used to uniquely identify functions and types of the Ekitai language.
 
 Beyond the top level items, we still have to define the variables for \bnfvar{Type} and for \bnfvar{BlockExpr}.
 The \bnfvar{BlockExpr} variable is part of the grammar for Ekitai's terms as shown in~\cref{fig:ekitai_syntax_terms}.
@@ -3001,6 +2994,25 @@ While the \bnfvar{Type} variable is part of the grammar for Ekitai's types defin
 The syntax for refinements defined in~\cref{fig:ekitai_syntax_types} allows for any expression as the refinement predicate.
 We do that in order to reuse the parser for \bnfvar{Expr} and leave to the semantic analysis to restrict what sentences from \bnfvar{Expr} are allowed as refinement predicates.
 
+The techniques used by Ekitai's Pratt parser were explored in~\cref{chapter:background:sec:syntax}.
+If the reader wants to know the specifics of the implementation we guide to source files of the modules \code{syntax} and \code{parser} of Ekitai's source code at~\cref{appendix:ekitai_github}.
+
+After construction of the CST datastructure containg the parse tree, Ekitai's front-end translates its CST to an intermediate AST.
+The intermediate AST is derived of the lambda calculus with refinements presented in~\cref{ch:refinement_types}.
+The techniques employed in this translation were explored in~\cref{sec:syntax:subsec:abstrac_syntax_trees}.
+If the reader wishes to explore the details of the AST implementation we guide to source files of the module \code{hir}, submodule \code{semantic\_ir}, of Ekitai's source code at~\cref{appendix:ekitai_github} which contains all structs for dealing with Ekitai's higher level intermediate representation.
+We will be defining Ekitai's AST formally and exploring it's type checking algorithms in~\cref{sec:ekitai_type_system}.
+
+\section{The Ekitai's type system}\label{sec:ekitai_type_system}
+
+Ekitai's type-checker aimins to provide developers with a powerful yet intuitive type system by enabling the use of predicates to prove properties on terms of the language.
+Drawing from the theoretical foundation detailed in \cref{ch:refinement_types}, this type system is an implementation of refinement types for a subset of lambda calculus.
+
+\subsection{Abstract Syntax Tree (AST)}
+
+Central to understanding Ekitai's type system is its AST (see~\cref{fig:ekitai_ast}).
+The Ekitai's AST is a derivation of the abstract syntax presented back in~\cref{sec:simply_typed_lambda_calculus_with_refinements}, which significantly eases the process of type-checking since we can use the same inference rules described to type-check programs that where written in Ekitai's Syntax.
+
 \begin{figure}[!htb]
   \begin{alignat*}{2}
     \astprod{SourceFile}{ModItem SourceFile \bnfor{$\epsilon$}}           \\
@@ -3010,43 +3022,37 @@ We do that in order to reuse the parser for \bnfvar{Expr} and leave to the seman
     \astprod{ValueCons}{Name TypeList}                                    \\
     \astprod{TypeList}{Type TypeList \bnfor{$\epsilon$}}                  \\
     \astprod{FnDef}{fn Name: FnType = Term}                               \\
-    \astprod{Name}{id}
-  \end{alignat*}
-  \caption{Ekitai's top level items AST.}
-\end{figure}
-
-\begin{figure}[!htb]
-  \begin{alignat*}{2}
-    \astprod{Type}{RefType \bnfor{FnType}}       \\
-    \astprod{RefType}{\{Name: BaseType | Term\}} \\
-    \astprod{FnType}{Name:RefType -> Type}       \\
-    \astprod{BaseType}{I32 \bnfor{I64} \bnfor{Bool}}
-  \end{alignat*}
-  \caption{Ekitai's AST for Types.}
-\end{figure}
-
-\begin{figure}[!htb]
-  \begin{alignat*}{2}
+    \astprod{Name}{id} \\
+    \astprod{Path}{Name Path \bnfor{$\epsilon$}} \\
+\\
     \astprod{Term}{let Name = Term in Term} \\
     \astmore{if Name then Term else Term}   \\
     \astmore{Int \bnfor{Bool} \bnfor{Name}} \\
     \astmore{Term x}                        \\
-    \astmore{match Term CaseList}
+\\
+    \astprod{Type}{RefType \bnfor{FnType}}       \\
+    \astprod{RefType}{\{Name: BaseType | Term\}} \\
+    \astprod{FnType}{Name:RefType -> Type}       \\
+    \astprod{BaseType}{I32 \bnfor{I64} \bnfor{Bool}} \\
+\\
+    \astprod{$\Gamma$}{$\emptyset$}        \\
+    \astmore{$\Gamma$, \typer{Path}{Type}}    
   \end{alignat*}
-  \caption{Ekitai's top level items AST.}
+  \caption{
+    Ekitai's AST derived from the lambda calculus with refinements from~\cref{sec:simply_typed_lambda_calculus_with_refinements}.
+  }\label{fig:ekitai_ast}
 \end{figure}
 
-After construction of the Syntax tree, Ekitai's front-end translates
-\pagebreak
+We employed two derivations in Ekitai's AST compared to the lambda calculus with refinements detailed in~\cref{sec:simply_typed_lambda_calculus_with_refinements}:
+\begin{itemize}
+  \item First, we added toplevel items for type and funciton definitions;
+  \item Seccond, we removed the function term of the language.
+\end{itemize}
+The first one enables us to bring everything into context before typechecking the terms inside functions.
+While the seccond one was employed to simplify the subsequent translation into LLVM-IR by avoiding the need to create unamed closure objects and deal with capturing variables from the function's context.  
 
-\section{The Ekitai's type system}
-
-Ekitai's type-checker embodies a sophisticated blend of practicality and rigorous theory, aiming to provide developers with a powerful yet intuitive type system.
-Drawing from the comprehensive theoretical foundation detailed in \cref{ch:refinement_types}, this type system is an implementation of a refinement types for a subset of lambda calculus.
-
-\subsection{Abstract Syntax Tree (AST)}
-
-Central to understanding Ekitai's type system is its Abstract Syntax Tree (AST). The AST allows for an intuitive and structured representation of expressions, which significantly eases the process of type-checking.
+Next we will explore some key aspects of Ekitai's AST and typechecker implementations.
+Examples where taken from module \code{hir}, submodules \code{liquid} and \code{check}, found in~\cref{appendix:ekitai_github}
 
 \begin{rustcode}
 // Base type with a refinement predicate: b{x|p}
@@ -3227,6 +3233,16 @@ The \texttt{solve} function directs the constraint to the SMT solver after a fla
 
 \section{The Ekitai's LLVM intermediate code generator}
 
+After we make sure that the program is free from type errors we are able to bring the AST together with all type metadata brought from Ekitai's typechecker we can finally begin the AST's translation to LLVM-IR.
+The examples in this section where taken from module \code{codegen} found in~\cref{appendix:ekitai_github}.
+
+The \code{fold\_binary\_expression} function is a pivotal part of this translation process.
+This function handles the translation of binary expressions in the Ekitai language into their LLVM equivalents.
+The function takes in parameters including a potential pointer for indirect values, the operator involved, and the left-hand side (lhs) and right-hand side (rhs) terms.
+Inside the function, \code{fold\_expression} is recursively called on both lhs and rhs to generate their LLVM-IR counterparts.
+The function then matches the operator to generate the appropriate LLVM instruction, such as \code{build\_int\_add} for addition operations.
+If the operation result needs to be stored indirectly, it handles storing this result; otherwise, it returns the computed value directly.
+
 \begin{rustcode}
 fn fold_binary_expression(
   &self,
@@ -3255,6 +3271,11 @@ fn fold_binary_expression(
   }
 }
 \end{rustcode}
+
+Similarly, the \code{fold\_call\_expression} function translates function call expressions.
+It first retrieves the type of the callee and ensures it is a callable type.
+The function then allocates space for the return value if it is not directly returned via registers.
+The actual call instruction is created using \code{build\_call}, and the function handles whether the return value is direct or indirect.
 
 \begin{rustcode}
 fn fold_call_expression(
@@ -3324,6 +3345,10 @@ fn fold_call_expression(
 }
 \end{rustcode}
 
+The \code{fold\_if\_expression} function handles the translation of conditional expressions.
+It constructs LLVM basic blocks for the then and else branches as well as the merge block.
+It creates the conditional and unconditional branch instructions to ensure proper control flow and uses a Phi node to merge the values from both branches if necessary.
+
 \begin{rustcode}
 fn fold_if_expression(
   &self,
@@ -3375,9 +3400,81 @@ fn fold_if_expression(
 }
 \end{rustcode}
 
+These examples illustrate the meticulous process of translating high-level Ekitai constructs into LLVM-IR, ensuring that the generated code is both efficient and accurate.
+The careful handling of direct and indirect values, precise control flow management, and type-aware function calls are fundamental to producing robust and performant intermediate code.
+
+In LLVM-IR, the distinction between direct and indirect values is crucial for efficient memory management and performance optimization. Direct values are those that reside in registers, allowing for fast access and manipulation by the CPU. These are typically used for small, frequently accessed data such as integers or pointers. By storing these values directly in registers, the program can perform computations more quickly, leveraging the high-speed access provided by the CPU's register file.
+
+On the other hand, indirect values are those that reside in memory, such as the stack or heap. These are accessed via pointers, which provide a reference to the actual data location. Indirect values are necessary for larger data structures or when dealing with values that have a longer lifespan than a single function call. For example, local variables of a function are often stored on the stack, allowing them to persist across function calls and be accessed indirectly. This approach is essential for managing larger datasets that cannot fit within the limited register space and for ensuring data integrity across different scopes and function invocations.
+
+The decision to use direct or indirect values impacts the code generation process significantly. Direct values facilitate quick arithmetic and logic operations, while indirect values enable the handling of complex data structures and longer-term data storage. Efficiently managing this distinction allows the compiler to generate optimized code that balances speed and memory usage, ensuring high performance and resource efficiency in the resulting program.
+
+There are two structures responsible to decide if a value will be direct or indirect. They are:
+\begin{itemize}
+  \item The \code{CodeGenTypeCache} structure is responsible for caching LLVM types to ensure efficient reuse throughout the code generation process.
+\begin{rustcode}
+pub struct CodeGenTypeCache<'db, 'context> {
+  db: &'db dyn CodeGenDatabase,
+  context: &'context Context,
+  target_data: TargetData,
+  adt_map: RefCell<HashMap<TypeDefinitionId, (StructType<'context>, TypeInfo<'context>)>>,
+  adt_variant_map: RefCell<HashMap<ValueConstructorId, StructType<'context>>>,
+}
+\end{rustcode}
+It maintains a mapping between Ekitai types and their corresponding LLVM representations. By caching these types, it avoids the repeated computation of LLVM type representations, which improves the performance and consistency of type handling within the compiler.
+
+\item The \code{CodeGenFunctionInfoCache} structure manages information related to function definitions in the code generation process.
+\begin{rustcode}
+struct CodeGenFunctionInfoCache<'db, 'context, 'type_cache> {
+  db: &'db dyn CodeGenDatabase,
+  context: &'context Context,
+  type_cache: &'type_cache CodeGenTypeCache<'db, 'context>,
+}
+\end{rustcode}
+
+It caches details about function signatures, return types, and parameter types. This cache allows the code generator to quickly retrieve function-related metadata, ensuring efficient generation of function call instructions and correct handling of function returns.
+
+\end{itemize}
+
+These structures play a crucial role in optimizing the code generation process by caching frequently used type and function information, thus enhancing the performance and reliability of the Ekitai compiler's backend. They are also the structures responsible to make Ekitai ABI compatible with the C programming language.
+
 \section{Conclusion}
 
-To do. Work in progress.
+The Ekitai language project demonstrates the successful integration of refinement types with an LLVM-IR front-end implementation. This integration allows for more robust type checking and verification, providing both safety and performance optimizations in the generated code. By leveraging refinement types, Ekitai ensures that programs adhere to stricter constraints, thus reducing runtime errors and improving reliability.
+
+The detailed exploration of Ekitai’s lexer, parser, type system, and LLVM intermediate code generator highlights the complex interplay between various components in a modern compiler. The design and implementation choices, such as the use of SMT solvers for type verification and the handling of direct and indirect values in code generation, underscore the importance of efficient and accurate translation from high-level language constructs to low-level machine instructions.
+
+\section{Final Considerations}
+
+The development of Ekitai marks a significant step towards safer and more efficient programming languages. By integrating refinement types, Ekitai not only enhances type safety but also opens up new avenues for compiler optimizations. The meticulous design of its components, from lexical analysis to code generation, ensures that the language can be extended and adapted to meet future needs.
+
+The integration with LLVM provides a solid foundation for generating highly optimized machine code, benefiting from LLVM's extensive suite of optimizations. Additionally, the choice to implement Ekitai in Rust adds an extra layer of safety and performance, leveraging Rust’s strong type system and ownership model to prevent common programming errors.
+
+\section{Future Work}
+
+While Ekitai represents a robust foundation, there are several areas for future work and improvement:
+
+\begin{itemize}
+    \item \textbf{Predicate-Based Optimizations}: Leveraging the predicates defined in refinement types for advanced optimizations in the Abstract Syntax Tree (AST) and LLVM code generation phase. This could involve:
+    \begin{itemize}
+        \item \textbf{Bounds Checking Elimination}: Using predicates to prove at compile time that certain array accesses are always within bounds, thus eliminating the need for runtime checks.
+        \item \textbf{Nullability Checks Removal}: Ensuring through predicates that certain variables can never be null, allowing the removal of redundant null checks.
+        \item \textbf{Specialized Code Paths}: Generating specialized code paths for different refined types, optimizing the code for specific cases known at compile time.
+    \end{itemize}
+    \item \textbf{Extended Refinement Type System}: Enhancing the refinement type system to support more complex constraints and type relationships could provide additional safety guarantees. This could include support for dependent types or more sophisticated constraint solvers.
+    \item \textbf{Improved Error Reporting}: Enhancing the compiler's error reporting mechanisms to provide more informative and user-friendly messages can significantly improve the developer experience. This includes better integration of refinement type errors and suggestions for fixing them.
+    \item \textbf{Benchmarking and Real-World Testing}: Conducting extensive benchmarking and real-world testing with a variety of applications will help identify performance bottlenecks and areas for further optimization. This empirical data can guide future enhancements to both the compiler and the language itself.
+    \item \textbf{User and Community Feedback}: Actively seeking feedback from users and the developer community can provide valuable insights into the practical usability of Ekitai. This feedback can drive the prioritization of new features and improvements based on actual user needs.
+\end{itemize}
+
+By addressing these areas, Ekitai can continue to evolve and provide a powerful, safe, and efficient programming language for a wide range of applications.
+
+
+\appendix
+
+\chapter{Ekitai's implementation}\label{appendix:ekitai_github}
+The Ekitai's implementation in Rust spands more than 12000 lines of code across 121 files and hence will not be anexed to this document.
+Plese refere to the code's repository hosted at \url{https://github.com/tarberd/ekitai/}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Elementos pós-textuais                                       %%%
