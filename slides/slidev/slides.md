@@ -126,8 +126,87 @@ mem2reg; reg2mem; loop-unroll; inline; ...
 
 ---
 
+# A Linguagem Ekitai
 
+Em seu core a linguagem ekitai é composta de um subset do lambda calculus com refinamentos.
 
+<img src="/imgs/ekitai_ast.png" style="height:75%"/>
 
+---
 
+# A Linguagem Ekitai
 
+Exemplo:
+
+```rust
+fn abs(x: {x2:i64| true}) -> {z:i64| z >= x}
+{
+  if x >= 0 {
+    x
+  } else { 
+    -x 
+  } 
+}
+```
+
+---
+
+# Type Checker Ekitai
+
+Composto de um type checker bidirecional
+
+tem como objetivo gerar uma constraint que sera avaliada por um smt solver.
+
+---
+
+# Type Checker Ekitai
+
+## Synthesis
+
+<br/>
+<br/>
+<br/>
+
+<img src="/imgs/syn_rule.png"/>
+
+---
+
+# Type Checker Ekitai
+
+## Checking
+
+<br/>
+<br/>
+<br/>
+
+<img src="/imgs/syn_rule.png"/>
+
+---
+
+# Type Checker Ekitai
+
+## Entailment
+
+<br/>
+<br/>
+<br/>
+
+<img src="/imgs/entailment_rule.png"/>
+
+---
+
+# Type Checker Ekitai
+
+Constraint generation example:
+
+---
+
+# Codegen Ekitai
+
+Todo:
+
+---
+
+# Resultados
+
+Todo:
