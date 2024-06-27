@@ -1,0 +1,111 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
+\usepackage[brazil]{babel}   
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\usepackage{placeins}
+
+\usepackage{amsmath}
+\usepackage{cite}
+
+\usepackage[T1]{fontenc}
+\usepackage[nomath]{lmodern}
+
+\hyphenation{english terms to not hyphenize various non repeatable words here something like long word Portuguese}
+     
+\sloppy
+
+\title{Ekitai - A Programming Language with Refinement Types and LLVM front end implementation}
+
+\author{
+	Bernardo Ferrari~\inst{1}
+}
+
+
+\address{
+  Departamento de Informática e Estatística --\\
+  Universidade Federal de Santa Catarina (UFSC)\\
+  \email{bernardo.mendonca@grad.ufsc.br}
+}
+
+\begin{document} 
+
+\maketitle
+
+\begin{abstract}
+  This article summarizes the thesis on the design and implementation of Ekitai, a programming language that integrates refinement types with an LLVM-IR front end.
+  The primary goal of Ekitai is to leverage refinement types to enhance type safety and optimization during code generation.
+  This work explores both theoretical and practical aspects of incorporating refinement types, demonstrating how they can express precise invariants and guide optimization and verification processes within the compilation pipeline.
+\end{abstract}
+     
+\begin{resumo} 
+  todo
+\end{resumo}
+
+\section{Introduction}
+
+In the realm of compiler design, ensuring type safety and optimizing code generation are paramount. Refinement types offer a robust mechanism to embed precise invariants within type systems, enabling more accurate and secure code compilation. Ekitai is a programming language that exemplifies this approach by integrating refinement types with LLVM Intermediate Representation (LLVM-IR), aiming to improve both the safety and performance of compiled code \cite{aho2006}.
+
+\section{Motivation and Goals}
+
+The thesis begins by addressing the motivation behind Ekitai. Traditional type systems, while powerful, often fall short in expressing detailed invariants about data. Refinement types extend these capabilities by allowing types to be annotated with predicates, which specify more precise constraints \cite{jhala2020}. The main goals of Ekitai include:
+\begin{enumerate}
+    \item Enhancing type safety by using refinement types.
+    \item Improving optimization during code generation.
+    \item Demonstrating the practical integration of refinement types with LLVM-IR.
+\end{enumerate}
+
+\section{Methodology}
+
+The development of Ekitai involved several stages:
+\begin{enumerate}
+    \item \textbf{Lexical and Syntax Analysis}: The initial phase focused on defining the language's syntax and creating lexical analyzers and parsers to process source code into abstract syntax trees (ASTs) \cite{appel2003}.
+    \item \textbf{Semantic Analysis}: This stage ensured that the parsed code adhered to the language's type rules, incorporating refinement types to check for more precise invariants.
+    \item \textbf{Intermediate Code Generation}: The final stage translated the ASTs into LLVM-IR, leveraging the refinement types to guide optimization and verification processes.
+\end{enumerate}
+
+\section{Key Features of Ekitai}
+
+\subsection{Refinement Types}
+
+Ekitai’s type system is enriched with refinement types, allowing for more expressive and precise type definitions. These types enable the compiler to perform advanced checks and optimizations by embedding logical predicates within types \cite{jhala2020}. For instance, a typical integer type can be refined to ensure it is always positive:
+
+\begin{equation*}
+\texttt{type PosInt = \{v:Int | v > 0\}}
+\end{equation*}
+
+This refinement ensures that any variable of type \texttt{PosInt} is guaranteed to be positive, enabling more robust and error-free code.
+
+\subsection{LLVM-IR Integration}
+
+By integrating with LLVM-IR, Ekitai benefits from LLVM's powerful optimization and code generation capabilities. This integration demonstrates how refinement types can be used to guide optimizations such as bounds checking elimination and nullability checks removal \cite{appel2003}.
+
+\subsection{Bidirectional Typing}
+
+Ekitai employs a bidirectional typing system, combining synthesis and checking judgments to ensure the correctness of programs. This system provides a robust framework for type inference and checking, enhancing both flexibility and safety \cite{pierce2002}. The bidirectional system allows the compiler to infer types where possible and check them against defined constraints, ensuring code correctness.
+
+\section{Future Work}
+
+Future enhancements for Ekitai include:
+\begin{enumerate}
+    \item \textbf{Predicate-Based Optimizations}: Extending the use of refinement predicates for more sophisticated optimizations in the AST and LLVM-IR.
+    \item \textbf{Extended Refinement Type System}: Supporting more complex constraints and type relationships to provide additional safety guarantees. This includes integrating more sophisticated SMT solvers to handle complex predicates.
+    \item \textbf{Improved Error Reporting}: Enhancing the compiler's error messages to be more informative and user-friendly, helping developers quickly understand and fix issues related to refinement types.
+    \item \textbf{Benchmarking and Real-World Testing}: Conducting extensive real-world testing to identify performance bottlenecks and guide further improvements. This involves testing Ekitai with large-scale projects to ensure its scalability and robustness.
+\end{enumerate}
+
+\section{Conclusion}
+
+Ekitai represents a significant step forward in leveraging refinement types for safer and more optimized code generation. By integrating these types with LLVM-IR, it showcases the potential for advanced type systems to influence modern compiler design positively. The insights gained from this work provide a strong foundation for future research and development in this area.
+
+Refinement types enable more precise type checking, which can catch more errors at compile time and reduce the need for runtime checks. This leads to both safer and more efficient code. Additionally, the integration with LLVM-IR demonstrates how refinement types can be used in practical compiler implementations to achieve significant optimizations.
+
+For more detailed information, the full thesis can be accessed through the provided references, offering a comprehensive overview of the design, implementation, and evaluation of Ekitai.
+
+
+\bibliographystyle{sbc}
+\bibliography{sbc-template}
+
+\end{document}
