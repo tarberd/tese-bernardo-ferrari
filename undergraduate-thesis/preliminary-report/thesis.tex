@@ -244,10 +244,10 @@
 \end{dedicatoria}
 
 \begin{resumo}[Resumo]
-  Esta tese apresenta o design e a implementação do Ekitai, uma linguagem de programação que integra tipos refinados com um front end LLVM-IR. O objetivo principal é aproveitar os tipos refinados para melhorar a segurança de tipos e a otimização durante a geração de código. Exploramos a teoria e os aspectos práticos da incorporação de tipos refinados, que permitem expressar invariantes mais precisos nos tipos. A integração com LLVM-IR demonstra como esses tipos podem ser usados para guiar os processos de otimização e verificação no pipeline de compilação. A avaliação destaca os benefícios e desafios dessa abordagem, fornecendo insights para melhorias e extensões futuras.
+  Esta tese apresenta o design e a implementação do Ekitai, uma linguagem de programação que integra tipos refinados com um front end LLVM-IR. O objetivo principal é aproveitar os tipos refinados para melhorar a segurança de tipos e a otimização durante a geração de código. Exploramos a teoria e os aspectos práticos da incorporação de tipos refinados, que permitem expressar invariantes mais precisas nos tipos. A integração com LLVM-IR demonstra como esses tipos podem ser usados para guiar os processos de otimização e verificação no pipeline de compilação. A avaliação destaca os benefícios e desafios dessa abordagem, fornecendo insights para melhorias e extensões futuras.
 
   \vspace{\baselineskip}
-  \textbf{Palavras-chave:} linguagem de programação\@. tipos refinados\@. representação intermediária de código\@. compilador\@. LLVM\@. LLVM-IR\@.
+  \textbf{Palavras-chave:} Linguagem de Programação\@. Tipos Refinados\@. Representação Intermediária de Código\@. Compilador\@. LLVM\@. LLVM-IR\@.
 \end{resumo}
 
 \begin{abstract}
@@ -406,8 +406,8 @@ For example, the author of an \codett{array} library may specify the functions s
   \end{aligned}
 \end{equation*}
 where \codett{size} and \codett{get} are functions and \codett{x} is the name of the first argument.
-In this type system, a call to \code{size(arr)} returns a value $s$ of type \codett{Nat} constrained to a single value equal to the length of \codett{arr}; hence, the type of $s$ constrains $s$ to the exact length of \codett{arr}.
-Furthermore, a call to \code{get(arr, i)} requires the index \codett{i} to be within the bounds of \codett{arr}.
+In this type system, a call to \code{size(x)} returns a value $s$ of type \codett{Nat} constrained to a single value equal to the length of \codett{x}; hence, the type of $s$ constrains $s$ to the exact length of \codett{x}.
+Furthermore, a call to \code{get(x, i)} requires the index \codett{i} to be within the bounds of \codett{x}.
 Given these definitions, the refinement type checker can then prove, during the analysis phase (i.e.,\ at compile-time), that the contracts of both \codett{size} and \codett{get} will not be violated, ensuring all array access to be sated when executing the target program (i.e.,\ at run-time)~\cite{jhala2020tutorial}.
 
 \section{Motivation and research problem}
@@ -455,7 +455,8 @@ Whereas in the implementation of \textit{Ekitai's} front end we will develop a f
 In~\cref{chapter:background} we will introduce the background knowledge needed to design a higher level language's front end.
 Furthermore, in~\cref{ch:refinement_types}, we explore how to add refinements to a lambda calculus language.
 In~\cref{ch:llvm}, we explore how to use the LLVM intermediate representation.
-Then, in~\cref{chapter:proposal}, we describe the proposed \textit{Ekitai} language.
+In~\cref{chapter:proposal}, we describe the proposed \textit{Ekitai} language, its frontend implementation, and major results of the research.
+Than, in~\cref{ch:conclusion}, we talk about future work ideas and bring closure to the thesis.
 
 \chapter{A review on front end design and implementation}\label{chapter:background}
 
@@ -1272,11 +1273,11 @@ An important part of semantic analysis is \textit{type checking} where it will t
 
 If we feed a type checker with the abstract syntax tree for the program
 \begin{equation*}
-  \codett{b + 60 * c}
+  \codett{b + 60 / c}
 \end{equation*}
 it may make use of a \textit{context} containing the type information of the identifiers \code{b} and \code{c} to type check all nodes of the tree for consistency.
 Suppose a context that maps the identifier \code{c} to the type \code{Bool}, written \typer{c}{Bool}, which would compose of the values \code{true} and \code{false}.
-With this information, the type checker would be able to decide if the operation \code{60 * c} is semantically sound to the language's type system.
+With this information, the type checker would be able to decide if the operation \code{60 / c} is semantically sound to the language's type system.
 Does the language type system specifies as valid to divide a number by a boolean?
 If it does, what does it mean to divide the value \codett{60} by \codett{false}?
 
@@ -1538,7 +1539,7 @@ In the next section we introduce to the language~\eqref{eq:sample_term_ast} the 
 
 \subsection{The typing relation}\label{ch:background:sec:typing_relation}
 
-In order to ensure that programs will correctly evaluate to a value we will introduce a new relation called the \textit{typing relation}.
+In order to ensure that programs will correctly evaluate to a value, we will introduce a new relation called the \textit{typing relation}.
 
 The typing relation for arithmetic expressions is written as \typer{term}{Type}, and means that \code{term} is of type \code{Type} where \code{Type} is a new syntactic form for the types of the language~\cite{pierce2002types}. Also, the relation is defined by a set of inference rules assigning types to terms~\cite{pierce2002types}.
 
@@ -1630,7 +1631,7 @@ when trying to inductively define the typing relation for example~\eqref{eq:eval
 
 \subsection{Pure simply typed lambda calculus}\label{sec:semantic:purelambda}
 
-In this section we continue expanding the abstract syntax in discussion in order to accommodate the use of variables, let expressions, function abstractions, and function applications. In doing so we will be discussing a variation of what \textcite{pierce2002types} calls \textit{Pure simply typed lambda-calculus}.
+In this section we will be discussing a variation of what \textcite{pierce2002types} calls \textit{Pure simply typed lambda-calculus}.
 
 To bring our discussion to the simply typed lambda calculus, we resume all constructs we discussed so far relevant to type checking, together with the newly added ones as the following abstract syntax
 \begin{equation}~\label{eq:simply_typed_lc}
@@ -1656,7 +1657,7 @@ To bring our discussion to the simply typed lambda calculus, we resume all const
 But what happens if we try to prove \typer{succ a}{Nat} for example?
 We currently have no rules that allow us to infer the type of the variable \codett{a}.
 Nor do we have the capabilities with the current presented theory.
-In order to for us to be capable of expressing the types of variables we need to extend the typing relation from a two-place relation into a three-place relation adding a context $\Gamma$~\cite{pierce2002types}.
+In order to be capable of expressing the types of variables we need to extend the typing relation from a two-place relation into a three-place relation adding a context $\Gamma$~\cite{pierce2002types}.
 
 The context $\Gamma$, also called \textit{typing context}, is a set of assumptions of the form \typer{var}{Type}~\cite{pierce2002types}.
 It is described by the syntactic form
@@ -1785,7 +1786,7 @@ and, from the inversion lemma for the typing relation~\cite{pierce2002types}, in
   \code{typeof($\Gamma$, term)} = \code{Type}
 \end{equation*}
 
-We can easily derive an ADT definition for the abstract syntax of $\Gamma$, \code{term}, and \code{Type} presented in the simply typed lambda calculus defined by grammar~\eqref{eq:simply_typed_lc} as show by~\cref{fig:typeof_adt}.
+We can easily construct Abstract Data Types (ADTs) for the abstract syntax of $\Gamma$, \code{term}, and \code{Type} presented in the simply typed lambda calculus defined by grammar~\eqref{eq:simply_typed_lc} as show by~\cref{fig:typeof_adt}.
 
 \begin{figure}[ht]
   \centering
@@ -1839,7 +1840,7 @@ enum Term {
     \caption{}\label{fig:typeof_term_adt}
   \end{subfigure}
   \caption{
-    Data structures for the context $\Gamma$~(a), \code{Type}~(b), and \code{term}~(c) from the abstract syntax defined in grammar~\eqref{eq:simply_typed_lc}.
+    Abstract Data Types for the context $\Gamma$~(a), \code{Type}~(b), and \code{term}~(c) from the abstract syntax defined in grammar~\eqref{eq:simply_typed_lc} written in Rust.
   }\label{fig:typeof_adt}
 \end{figure}
 
@@ -1900,7 +1901,7 @@ fn typeof(cx: Context, t: Term) -> Type {
       \end{rustcode}
   \end{minipage}
   \caption{
-    An implementation of the \code{typeof} function for typechecking the simply typed lambda calculus described in~\cref{sec:semantic:purelambda}.
+    An implementation of the \code{typeof} function for typechecking the simply typed lambda calculus described in~\cref{sec:semantic:purelambda} written in Rust.
   }\label{fig:typeof_impl}
 \end{figure}
 
@@ -2078,7 +2079,7 @@ was added as an abbreviation to
 \begin{equation*}
   (\code{p}_1 \implies x = \code{p}_2)\land(\lnot \code{p}_1 \implies x = \code{p}_3)
 \end{equation*}
-and the operation $\code{p}_1\bowtie\code{p}_2$ was added to represent all interpreted operators the logic of predicates can be extended with in order to use features from other STM decidable logics (e.g., set operations)~\cite{jhala2020tutorial}.
+and the operation $\code{p}_1\bowtie\code{p}_2$ was added to represent all interpreted operators the logic of predicates can be extended with in order to use features from Satisfiability Modulo Theories (SMT) decidable logics (e.g., set operations)~\cite{jhala2020tutorial}.
 All the other operations are mapped to uninterpreted functions, were the only thing the SMT solver knows about them is the axiom of congruence which says the for all variables $x$ and $y$, if $x = y$ then $f(x) = f(y)$~\cite{jhala2020tutorial}.
 Examples of predicates include the ones we have discussed in the Introduction of this work, we can use \code{0 <= v} to denote the natural numbers and \code{0 <= v \&\& v = length(x)} to denote the values of valid indices of an array.
 
@@ -2599,7 +2600,8 @@ In this chapter we will describe the design of the \textit{Ekitai} programming a
 
 \section{The Ekitai's lexer}
 
-The lexical aspects of the Ekitai programming language are defined by~\cref{fig:ekitai_tokens_helper,fig:ekitai_tokens}.
+As explored in section \cref{chapter:background:sec:lexical} we define the lexical aspects of the Ekitai programming language presented in~\cref{fig:ekitai_tokens_helper,fig:ekitai_tokens}.
+
 We decided to use an automatic lexer generator since we found no advantage in building one by hand and the automatic parser generator used was capable of lexing all token patterns in the specification.\footnote{The automatic lexer generator used in this work is Logos~\cite{logos2020}.}
 
 \begin{figure}[ht]
@@ -2697,7 +2699,8 @@ Furthermore, the token name \code{Integer} must start with a digit and is follow
 
 \section{The Ekitai's parser}
 
-The Ekitai's grammar was built with a handwritten Pratt parser in mind.
+The Ekitai's grammar was built with a handwritten Pratt parser in mind \cite{pratt1973operatorprecedence}.
+As explored in section \cref{chapter:background:sec:syntax} we will be presenting Ekitais syntax.
 In order to keep the grammar out of clutter, we will present the grammar using simplified token names.
 Instead of writing \code{LetKw} or \code{DoubleAmpersand} we will stick to writing \code{let} and \code{\&\&} respectively.
 Furthermore, we will use \code{Id} for short of \code{Identifier} and \code{Int} for short of \code{Integer}.
@@ -2731,8 +2734,8 @@ First we define the syntax structure for the source program's top level items by
       \bnfvar{ValueConsList}
     } \\
     \bnfmore{
-      \bnfvar{ValueCons} \bnfter{,}
-      \bnfor{\bnfvar{ValueCons}}
+      \bnfvar{ValueCons} 
+      \bnfor{$\epsilon$}
     } \\
     \bnfprod{ValueCons}{
       \bnfvar{Name} \bnfter{(} \bnfvar{TypeList} \bnfter{)}
@@ -3438,17 +3441,17 @@ It caches details about function signatures, return types, and parameter types. 
 
 These structures play a crucial role in optimizing the code generation process by caching frequently used type and function information, thus enhancing the performance and reliability of the Ekitai compiler's backend. They are also the structures responsible to make Ekitai ABI compatible with the C programming language.
 
-\section{Conclusion}
+\chapter{Conclusion}~\label{ch:conclusion}
 
 The Ekitai language project demonstrates the successful integration of refinement types with an LLVM-IR front-end implementation. This integration allows for more robust type checking and verification, providing both safety and performance optimizations in the generated code. By leveraging refinement types, Ekitai ensures that programs adhere to stricter constraints, thus reducing runtime errors and improving reliability.
 
-The detailed exploration of Ekitai’s lexer, parser, type system, and LLVM intermediate code generator highlights the complex interplay between various components in a modern compiler. The design and implementation choices, such as the use of SMT solvers for type verification and the handling of direct and indirect values in code generation, underscore the importance of efficient and accurate translation from high-level language constructs to low-level machine instructions.
+The detailed exploration of Ekitai's lexer, parser, type system, and LLVM intermediate code generator highlights the complex interplay between various components in a modern compiler. The design and implementation choices, such as the use of SMT solvers for type verification and the handling of direct and indirect values in code generation, underscore the importance of efficient and accurate translation from high-level language constructs to low-level machine instructions.
 
 \section{Final Considerations}
 
 The development of Ekitai marks a significant step towards safer and more efficient programming languages. By integrating refinement types, Ekitai not only enhances type safety but also opens up new avenues for compiler optimizations. The meticulous design of its components, from lexical analysis to code generation, ensures that the language can be extended and adapted to meet future needs.
 
-The integration with LLVM provides a solid foundation for generating highly optimized machine code, benefiting from LLVM's extensive suite of optimizations. Additionally, the choice to implement Ekitai in Rust adds an extra layer of safety and performance, leveraging Rust’s strong type system and ownership model to prevent common programming errors.
+The integration with LLVM provides a solid foundation for generating highly optimized machine code, benefiting from LLVM's extensive suite of optimizations. Additionally, the choice to implement Ekitai in Rust adds an extra layer of safety and performance, leveraging Rust's strong type system and ownership model to prevent common programming errors.
 
 \section{Future Work}
 
@@ -3473,8 +3476,8 @@ By addressing these areas, Ekitai can continue to evolve and provide a powerful,
 \appendix
 
 \chapter{Ekitai's implementation}\label{appendix:ekitai_github}
-The Ekitai's implementation in Rust spands more than 12000 lines of code across 121 files and hence will not be anexed to this document.
-Plese refere to the code's repository hosted at \url{https://github.com/tarberd/ekitai/}.
+The Ekitai's implementation in Rust spans more than 12000 lines of code across 121 files and hence will not be anexed to this document.
+Please refere to the code's repository hosted at \url{https://github.com/tarberd/ekitai/}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Elementos pós-textuais                                       %%%
